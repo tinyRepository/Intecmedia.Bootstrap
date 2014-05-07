@@ -1,0 +1,9 @@
+/*! Intecmedia.Bootstrap  | (c) 2014 Intecmedia. | license public domain */
+
+* {
+    -webkit-print-color-adjust: exact; 
+}
+
+header, footer {
+    display: none; 
+}
