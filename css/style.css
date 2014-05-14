@@ -41,3 +41,8 @@ table td[valign=baseline], table th[valign=baseline],
 table tr[align=baseline] td, table tr[align=baseline] th {
     text-align: baseline;
 }
+
+/* Addtional styles */
+#main {
+
+}
