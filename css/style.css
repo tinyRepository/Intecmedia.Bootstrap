@@ -1,7 +1,7 @@
 /*! Intecmedia.Bootstrap  | (c) 2014 Intecmedia. | license public domain */
 @import "bootstrap.min.css";
 
-/* Allow align table rows */
+/* Allow align table cells in WYSIWYG-editor */
 table td[align=left], table th[align=left],
 table tr[align=left] td, table tr[align=left] th {
     text-align: left;

@@ -1,8 +1,16 @@
 /*! Intecmedia.Bootstrap  | (c) 2014 Intecmedia. | license public domain */
+@page {
+    margin: 0.5cm;
+}
+
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
 
 * {
-    color:#000 !important;
-    background:#fff !important;
+    color: #000 !important;
+    background: #fff !important;
     -webkit-print-color-adjust: exact; 
 }
 
@@ -10,6 +18,10 @@
     display: none !important;; 
 }
 
+a {
+    text-decoration: underline;
+}
+
 a:after {
-    content:""; 
+    content: ""; 
 }
