@@ -1,6 +1,13 @@
 /*! Intecmedia.Bootstrap  | (c) 2014 Intecmedia. | license public domain */
 @import "bootstrap.min.css";
 
+/* Hide blocks on printer */
+@media print {
+    footer, header {
+        display: none;
+    }
+}
+
 /* Allow align table cells in WYSIWYG-editor */
 table td[align=left], table th[align=left],
 table tr[align=left] td, table tr[align=left] th {
