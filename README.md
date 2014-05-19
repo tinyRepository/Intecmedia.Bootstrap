@@ -6,11 +6,16 @@ Link: http://intecmedia.ru
 License: Public Domain
 
 ## Особености:
-* основан на Bootstrap 2.3.2
+* основан на Bootstrap 2.3.2 
+* основан на LESS (для обработки на клиенте используется less.js)
 * встроена работа с media=print
 * готово к использованию HTML5 разметки
 * содержит базовую типографику текста, форм, таблиц, списков, заголовков
 * совсместимо со всеми современны браузерами (минимальная версия Internet Exploere это 8 -- используйте классы .lt-ie9 .lt-ie8 .lt-ie7)
 
 ## Примечения:
-* перед началом работы откройте
+* 
+
+## Если не работает Less.js в Chrome
+В консоли браузера видно такого рода ошибку: XMLHttpRequest cannot load file:///.../Intecmedia.Bootstrap/css/styles.less. Cross origin requests are only supported for HTTP.
+Решение проблемы: для просмотра страниц используйте веб-сервер или перезапустить хром с опцией chrome -allow-file-access-from-files
