@@ -1,5 +1,4 @@
 # Intecmedia Bootstrap
-
 Это внутренний стандарт/шаблон для верстки сайтов компании [Intecmedia](http://intecmedia.ru)
 
 ## Особености:
@@ -13,12 +12,57 @@
 ## Примечания:
 * перед началом работы определите основные переменные в файле `css/variables.less`
 * дополнительный css должен содержатся в файле `css/style.less`
-* для responsive-макетов разкоментируйте строку `@import "responsive.less";` в `файле css/style.less`
+* для responsive-макетов разкоментируйте строку `@import "responsive.less";` в файле `css/style.less`
 * дополнительный javascript должен содержатся в `css/application.js`
 
 ## Если не работает Less.js в Chrome
-Если в консоли браузера: `Cross origin requests are only supported for HTTP`. 
+Ошибка в консоли браузера: `Cross origin requests are only supported for HTTP`. 
 Для просмотра html используйте веб-сервер или перезапустить хром с опцией `chrome -allow-file-access-from-files`.
+
+## Стилистика кода
+
+### CSS
+* отступы в четыре пробела
+* каждый селектор находится на отдельной строке
+* открывающя скобка находится на одной строке с слектором
+* закрывающая скобка находится на отедельной строке после атрибутов стилей
+* крупные блоки заключаются в открывающий и закрывающий комментарий
+
+#### пример
+```css
+/* block */
+.block {
+    font-size:14px;  
+    width:100px;  
+}
+.block .block-inner {
+    color:#0000FF;
+    border:1px solid #FF0000;
+}
+/* /block */
+```
+### HTML
+* отступы в четыре пробела, 
+* атрибуты заключены в двойные ковычки
+* все блочные теги на отедельной строке
+* крупные блоки заключаются в открывающий и закрывающий комментарий
+* остальные подробности описаны в [jQuery HTML Style Guide](http://contribute.jquery.org/style-guide/html/)
+
+#### пример
+```html
+<!-- block -->
+<div class="block">
+    Inline <a href="#">text</a> on one line.
+    <div class="block-inner">
+        Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+    </div>
+</div>
+<!-- /block -->
+```
+### Javascript
+* отсупы в четыре пробела
+* остальные подробности описаны в [jQuery JavaScript Style Guide](http://contribute.jquery.org/style-guide/js/)
+
 
 ## Компоненты:
 * [Bootstrap](http://getbootstrap.com/2.3.2): Apache License v2.0
