@@ -86,6 +86,7 @@ try{
         $formatter = new lessc_formatter_classic;
         $formatter->disableSingle = true;
         $formatter->breakSelectors = true;
+        $formatter->assignSeparator = ": ";
         $formatter->indentChar = "    ";
         $less->setFormatter($formatter);
 
