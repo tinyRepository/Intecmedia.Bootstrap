@@ -1,0 +1,6 @@
+# rewrite URL
+RewriteEngine On
+# less compiler
+RewriteCond %{REQUEST_FILENAME} \.less$ [NC] 
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^(.+)$ lessphp/?%{REQUEST_URI}?%{QUERY_STRING} [L]
