@@ -1,9 +1,6 @@
 # Intecmedia Bootstrap
 
-Это внутренний стандарт/шаблон для верстки сайтов компании Intecmedia
-
-Link: http://intecmedia.ru
-License: Public Domain
+Это внутренний стандарт/шаблон для верстки сайтов компании [Intecmedia](http://intecmedia.ru)
 
 ## Особености:
 * основан на Bootstrap 2.3.2 
@@ -20,5 +17,16 @@ License: Public Domain
 * дополнительный javascript должен содержатся в css/application.js
 
 ## Если не работает Less.js в Chrome
-В консоли браузера видно такого рода ошибку: XMLHttpRequest cannot load file:///.../Intecmedia.Bootstrap/css/styles.less. Cross origin requests are only supported for HTTP.
-Решение проблемы: для просмотра страниц используйте веб-сервер или перезапустить хром с опцией chrome -allow-file-access-from-files
+В консоли браузера видно такого рода ошибку: `XMLHttpRequest cannot load file:///.../Intecmedia.Bootstrap/css/styles.less. Cross origin requests are only supported for HTTP`.
+
+Решение проблемы: для просмотра страниц используйте веб-сервер или перезапустить хром с опцией `chrome -allow-file-access-from-files`.
+
+## Компоненты:
+* [Bootstrap](http://getbootstrap.com/2.3.2): Apache License v2.0
+* [lessphp](http://leafo.net/lessphp): MIT/GPL3 Licensed
+* [less.js](http://lesscss.org ): MIT/GPL3 Licensed
+* [jQuery](http://jquery.com/): MIT/GPL license
+* [HTML5 Shiv](https://code.google.com/p/html5shiv/): MIT/GPL2 Licensed
+* [Respond.js](https://github.com/scottjehl/Respond): MIT Licensed
+
+
