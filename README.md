@@ -2,18 +2,18 @@
 Это внутренний стандарт/шаблон для верстки сайтов компании [Intecmedia](http://intecmedia.ru)
 
 ## Особености:
-* основан на Bootstrap 2.3.2 
-* встроен jQuery v1.11.1
-* основан на LESS (для обработки на клиенте используется less.js, на сервере lessphp)
-* встроена работа с media=print, responsive-css и HTML5-разметки (для IE используется HTML5 Shiv)
-* содержит базовую типографику текста, форм, таблиц, списков, заголовков
-* совсместимо со всеми современными браузерами (минимальная версия Internet Exploere это 8 -- используйте классы `.lt-ie9`, `.lt-ie8` и `.lt-ie7`)
+* Основан на Bootstrap 2.3.2 
+* Встроен jQuery v1.11.1
+* Основан на LESS (для обработки на клиенте используется less.js, на сервере lessphp)
+* Встроена работа с media=print, responsive-css и HTML5-разметки (для IE используется HTML5 Shiv)
+* Содержит базовую типографику текста, форм, таблиц, списков, заголовков
+* Совсместимо со всеми современными браузерами (минимальная версия Internet Exploere это 8 -- используйте классы `.lt-ie9`, `.lt-ie8` и `.lt-ie7`)
 
 ## Примечания:
-* перед началом работы определите основные переменные в файле `css/variables.less`
-* дополнительный css должен содержатся в файле `css/style.less`
-* для responsive-макетов разкоментируйте строку `@import "responsive.less";` в файле `css/style.less`
-* дополнительный javascript должен содержатся в `css/application.js`
+* Перед началом работы определите основные переменные в файле `css/variables.less`
+* Дополнительный css должен содержатся в файле `css/style.less`
+* Для responsive-макетов разкоментируйте строку `@import "responsive.less";` в файле `css/style.less`
+* Дополнительный javascript должен содержатся в `js/application.js`
 
 ## Если не работает Less.js в Chrome
 Ошибка в консоли браузера: `Cross origin requests are only supported for HTTP`. 
@@ -22,22 +22,23 @@
 ## Стилистика кода
 
 ### CSS
-* отступы в четыре пробела
-* каждый селектор находится на отдельной строке
-* открывающя скобка находится на одной строке с слектором
-* закрывающая скобка находится на отедельной строке после атрибутов стилей
-* крупные блоки заключаются в открывающий и закрывающий комментарий
+* Отступы в четыре пробела
+* Каждый селектор находится на отдельной строке
+* Открывающя скобка находится на одной строке с слектором
+* Закрывающая скобка находится на отедельной строке после атрибутов стилей
+* Крупные блоки заключаются в открывающий и закрывающий комментарий
 
 #### пример
 ```css
 /* block */
-.block {
-    font-size:14px;  
-    width:100px;  
+.foo,
+.bar {
+    font-size: 14px;  
+    width: 100px;  
 }
-.block .block-inner {
-    color:#0000FF;
-    border:1px solid #FF0000;
+.bar .bar-inner {
+    color: #0000FF;
+    border: 1px solid #FF0000;
 }
 /* /block */
 ```
@@ -51,19 +52,32 @@
 
 #### пример
 ```html
-<!-- block -->
-<div class="block">
-    Inline <a href="#">text</a> on one line.
-    <div class="block-inner">
-        Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-    </div>
-</div>
-<!-- /block -->
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>Intecmedia.Bootstrap</title>
+    <meta name="author" content="">
+    <meta name="description" content="">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet/less" href="css/style.less" />
+    <script>
+    $(function() {
+        $("p").text( document.title );
+    });
+    </script>
+    <script src="js/jquery.js"></script>
+</head>
+<body>
+<p>Hello there!<p>
+</body>
+</html>
 ```
 
 ### Javascript
-* отсупы в четыре пробела
-* остальные подробности описаны в [jQuery JavaScript Style Guide](http://contribute.jquery.org/style-guide/js/)
+* Отсупы в четыре пробела
+* Остальные подробности описаны в [jQuery JavaScript Style Guide](http://contribute.jquery.org/style-guide/js/)
 
 
 ## Компоненты:
