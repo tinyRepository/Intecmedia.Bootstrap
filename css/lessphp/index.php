@@ -53,6 +53,8 @@ if (DIRECTORY_SEPARATOR != "/") {
 }
 // check browser gzip encoding
 $gzip = function_exists("ob_gzhandler") && isset($_SERVER["HTTP_ACCEPT_ENCODING"]) && strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip") !== false;
+// cache directory
+$cachedir = dirname(__FILE__) . DIRECTORY_SEPARATOR . "cache";
 
 try {
     // security check
@@ -68,14 +70,14 @@ try {
         throw new Exception("File '$input' not exists", 404);
     }
     // output cache-file
-    $output = dirname(__FILE__) . DIRECTORY_SEPARATOR . "cache" . DIRECTORY_SEPARATOR . "less" . urlencode(substr($input, strlen($root))). ".css";
-    if (!is_writable(dirname($output))) {
+    $output = $cachedir . DIRECTORY_SEPARATOR . "less" . urlencode(substr($input, strlen($root))). ".css";
+    if (!is_writable($cachedir)) {
         throw new Exception("Less cache '$output' is not writable");
     }
     $parse = true;
     // read cached-file
-    if (!(!is_file($output) || filemtime($input) > filemtime($output))) {
-        $mtime = filemtime($output);
+    $mtime = is_file($output) ? filemtime($output) : null;
+    if ($mtime && filemtime($input) > $mtime) {
         $css = file_get_contents($output);
         $files = array();
         // read parsed less-files
