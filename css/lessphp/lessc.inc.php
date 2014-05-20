@@ -1005,6 +1005,8 @@ class lessc {
 						$mime = $mime[0];
 					} elseif(function_exists('mime_content_type')) { // PHP 5.2
 						$mime = mime_content_type($fullpath);
+					} elseif($imagesize = @getimagesize($fullpath)) {
+						$mime = image_type_to_mime_type($imagesize[2]);
 					}
 				}
 
