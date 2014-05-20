@@ -19,7 +19,6 @@
  * @copyright 2014 IntecMedia (http://www.intecmedia.ru)
  * @author Dmitry Pyatkov(aka dkrnl) <dkrnl@yandex.ru>
  */
-include_once(dirname(__FILE__). DIRECTORY_SEPARATOR .  "lessc.inc.php");
 
 // handle errors
 error_reporting(E_ALL);
@@ -55,7 +54,7 @@ if (DIRECTORY_SEPARATOR != "/") {
 // check browser gzip encoding
 $gzip = isset($_SERVER["HTTP_ACCEPT_ENCODING"]) && strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip") !== false;
 
-try{
+try {
     // security check
     if (!$input || strpos($input, $root) !== 0) {
         throw new Exception("Input less-file required", 403);
@@ -106,6 +105,7 @@ try{
     }
     // parse less-file
     if ($parse) {
+        include_once dirname(__FILE__) . DIRECTORY_SEPARATOR .  "lessc.inc.php";
         $less = new lessc();
         $less->setPreserveComments(true);
         // formatter settings
@@ -143,5 +143,5 @@ try{
         $statusCode = 500;
     }
     header("Content-Type: text/css; charset=UTF-8", true, $statusCode);
-    echo "/* HTTP: $statusCode: ". $exception->getMessage() . " at " . $exception->getFile() . ":" . $exception->getLine(). " */";
+    echo "/* HTTP $statusCode: ". $exception->getMessage() . " at " . $exception->getFile() . ":" . $exception->getLine(). " */";
 }
