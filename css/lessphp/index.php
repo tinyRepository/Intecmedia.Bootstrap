@@ -88,7 +88,7 @@ try {
         // check modified less-files 
         foreach ($files as $k =>$v) {
             if (!is_file($root . $k) || filemtime($root . $k) > $v) {
-               $parse = true;
+                $parse = true;
             }
         }
         if (!$parse) {
@@ -120,7 +120,7 @@ try {
         // write parsed less-files
         $css = $less->compileFile($input);
         $files = array();
-        foreach($less->allParsedFiles() as $k => $v) {
+        foreach((array(__FILE__ => filemtime(__FILE__)) + $less->allParsedFiles()) as $k => $v) {
            if (DIRECTORY_SEPARATOR != "/") {
               $k = str_replace(DIRECTORY_SEPARATOR, "/", $k);
            }
