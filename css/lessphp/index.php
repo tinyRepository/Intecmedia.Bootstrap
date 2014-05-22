@@ -55,8 +55,15 @@ if (DIRECTORY_SEPARATOR != "/") {
 $gzip = function_exists("ob_gzhandler") && isset($_SERVER["HTTP_ACCEPT_ENCODING"]) && strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip") !== false;
 // cache directory
 $cachedir = dirname(__FILE__) . DIRECTORY_SEPARATOR . "cache";
+$cachettl = (time() - 3600);
 
 try {
+    // clear expired cache
+    foreach (glob($cachedir . "/less.*.css") as $i) {
+        if (is_file($i) && filectime($i) < $cachettl) {
+            unlink($i);
+        }
+    }
     // security check
     if (!$input || strpos($input, $root) !== 0) {
         throw new Exception("Input less-file required", 403);
