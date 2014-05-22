@@ -58,6 +58,22 @@ table tr[align=baseline] td, table tr[align=baseline] th {
 }
 
 /* Addtional styles */
+@footerHeight: 100px;
+html, body {
+    height: 100%;
+}
+#wrapper {
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -@footerHeight;
+    min-height: 100%;
+    #footer-push {
+        height: @footerHeight;
+    }
+}
+footer {
+    height: @footerHeight;
+}
 #main {
 
 }
