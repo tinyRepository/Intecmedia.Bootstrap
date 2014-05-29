@@ -83,8 +83,8 @@ try {
     }
     $parse = true;
     // read cached-file
-    $mtime = is_file($output) ? filemtime($output) : null;
-    if ($mtime && filemtime($input) > $mtime) {
+    if (!(!is_file($output) || filemtime($input) > filemtime($output))) {
+        $mtime = filemtime($output);
         $css = file_get_contents($output);
         $files = array();
         // read parsed less-files
@@ -112,18 +112,12 @@ try {
             return;
         }
     }
+
     // parse less-file
     if ($parse) {
         include_once dirname(__FILE__) . DIRECTORY_SEPARATOR .  "lessc.inc.php";
         $less = new lessc();
         $less->setPreserveComments(true);
-        // formatter settings
-        $formatter = new lessc_formatter_classic;
-        $formatter->disableSingle = true;
-        $formatter->breakSelectors = true;
-        $formatter->assignSeparator = ": ";
-        $formatter->indentChar = "    ";
-        $less->setFormatter($formatter);
         // write parsed less-files
         $css = $less->compileFile($input);
         $files = array();
