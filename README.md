@@ -82,7 +82,7 @@
 
 ## Компоненты:
 * [Bootstrap](http://getbootstrap.com/2.3.2): Apache License v2.0
-* [lessphp](http://leafo.net/lessphp): MIT/GPL3 Licensed
+* [Less.php](http://lessphp.gpeasy.com): Apache License v2.0
 * [less.js](http://lesscss.org ): MIT/GPL3 Licensed
 * [jQuery](http://jquery.com/): MIT/GPL license
 * [HTML5 Shiv](https://code.google.com/p/html5shiv/): MIT/GPL2 Licensed
