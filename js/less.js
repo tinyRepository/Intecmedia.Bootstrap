@@ -7646,7 +7646,7 @@ function pathDiff(url, baseUrl) {
 }
 
 function getXMLHttpRequest() {
-    if (window.XMLHttpRequest && (window.location.protocol !== "file:" || !window.ActiveXObject)) {
+    if (window.XMLHttpRequest && (window.location.protocol !== "file:" || !("ActiveXObject" in window))) {
         return new XMLHttpRequest();
     } else {
         try {
