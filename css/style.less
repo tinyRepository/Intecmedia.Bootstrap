@@ -1,6 +1,19 @@
 /*! Intecmedia.Bootstrap  | (c) 2014 Intecmedia. | license public domain */
 @import "bootstrap.less";
-/* @import "responsive.less"; */
+/*
+@import "responsive.less"; 
+
+@phonesQuery: ~"(max-width: 767px)";
+.phonesWidth(@rules) {
+    @media screen and @phonesQuery { @rules(); }
+};
+
+@tabletsQuery: ~"(min-width: 768px) and (max-width: 979px)";
+.tabletsWidth(@rules) {
+    @media screen and @tabletsQuery { @rules(); }
+};
+*/
+
 
 /* Hide blocks on printer */
 @media print {
