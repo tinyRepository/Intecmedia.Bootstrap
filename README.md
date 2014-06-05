@@ -2,7 +2,7 @@
 Это внутренний стандарт/шаблон для верстки сайтов компании [Intecmedia](http://intecmedia.ru)
 
 ## Особености:
-* Основан на Bootstrap 2.3.2 
+* Основан на Bootstrap 3.1.1 
 * Встроен jQuery v1.11.1
 * Основан на LESS (для обработки на клиенте используется less.js, на сервере lessphp)
 * Встроена работа с media=print, responsive-css и HTML5-разметки (для IE используется HTML5 Shiv)
@@ -81,7 +81,7 @@
 
 
 ## Компоненты:
-* [Bootstrap](http://getbootstrap.com/2.3.2): Apache License v2.0
+* [Bootstrap](http://getbootstrap.com/): Apache License v2.0
 * [Less.php](http://lessphp.gpeasy.com): Apache License v2.0
 * [less.js](http://lesscss.org ): MIT/GPL3 Licensed
 * [jQuery](http://jquery.com/): MIT/GPL license
