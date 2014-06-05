@@ -1,5 +1,6 @@
 /*! Intecmedia.Bootstrap  | (c) 2014 Intecmedia. | license public domain */
-if (location.protocol == "file:") (function() {
+(function() {
+    if (location.protocol !== "file:") return;
     var links = document.getElementsByTagName("link");
     var head = document.getElementsByTagName("head")[0];
     var script = document.createElement("script");

@@ -1,19 +1,5 @@
 /*! Intecmedia.Bootstrap  | (c) 2014 Intecmedia. | license public domain */
 @import "bootstrap.less";
-/*
-@import "responsive.less"; 
-
-@phonesQuery: ~"(max-width: 767px)";
-.phonesWidth(@rules) {
-    @media screen and @phonesQuery { @rules(); }
-};
-
-@tabletsQuery: ~"(min-width: 768px) and (max-width: 979px)";
-.tabletsWidth(@rules) {
-    @media screen and @tabletsQuery { @rules(); }
-};
-*/
-
 
 /* Hide blocks on printer */
 @media print {
@@ -22,60 +8,12 @@
     }
 }
 
-/* Allow size attribute */
-input,
-select,
-textarea,
-.uneditable-input {
-    width: auto;
-    .box-sizing(border-box);
-}
-.input-xxmini {
-    width: 20px; 
-}
-.input-xmini {
-    width: 40px;
-}
-
-/* Allow align table cells in WYSIWYG-editor */
-table td[align=left], table th[align=left],
-table tr[align=left] td, table tr[align=left] th {
-    text-align: left;
-}
-table td[align=center], table th[align=center],
-table tr[align=center] td, table tr[align=center] th {
-    text-align: center;
-}
-table td[align=right], table th[align=right],
-table tr[align=right] td, table tr[align=right] th {
-    text-align: right;
-}
-table td[align=justify], table th[align=justify],
-table tr[align=justify] td, table tr[align=justify] th {
-    text-align: justify;
-}
-table td[valign=top], table th[valign=top],
-table tr[align=top] td, table tr[align=top] th {
-    text-align: top;
-}
-table td[valign=middle], table th[valign=middle],
-table tr[align=middle] td, table tr[align=middle] th {
-    text-align: middle;
-}
-table td[valign=bottom], table th[valign=bottom],
-table tr[align=bottom] td, table tr[align=bottom] th {
-    text-align: bottom;
-}
-table td[valign=baseline], table th[valign=baseline],
-table tr[align=baseline] td, table tr[align=baseline] th {
-    text-align: baseline;
-}
-
 /* Addtional styles */
 @footerHeight: 100px;
 html, body {
     height: 100%;
 }
+
 #wrapper {
     height: auto !important;
     height: 100%;
@@ -85,9 +23,11 @@ html, body {
         height: @footerHeight;
     }
 }
+
 footer {
     height: @footerHeight;
 }
+
 #main {
 
 }
