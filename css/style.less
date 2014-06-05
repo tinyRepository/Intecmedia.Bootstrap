@@ -1,6 +1,20 @@
 /*! Intecmedia.Bootstrap  | (c) 2014 Intecmedia. | license public domain */
 @import "bootstrap.less";
 
+/* Responsive mixins */
+.media-xs(@rules) {
+    @media (max-width: @screen-xs-max) { @rules(); }
+}
+.media-sm(@rules) {
+    @media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) { @rules(); }
+}
+.media-md(@rules) {
+    @media (min-width: @screen-md-min) and (max-width: @screen-md-max) { @rules(); }
+}
+.media-lg(@rules) {
+    @media (min-width: @screen-lg-min) { @rules(); }
+}
+
 /* Hide blocks on printer */
 @media print {
     footer, header {
