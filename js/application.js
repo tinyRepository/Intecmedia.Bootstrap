@@ -1,17 +1,23 @@
 /*! Intecmedia.Bootstrap  | (c) 2014 Intecmedia. | license public domain */
 if (/^(file|chrome(-extension)?|resource|qrc|app):/.test(location.protocol)) {
-    jQuery.ajax({
-        cache: true,
-        url: "js/less.js",
-        dataType: "script",
-        success: function() {
-            less.env = 'development';
-            jQuery('link.less').each(function() {
-                less.sheets.push(this);
-            });
-            less.refresh();
-        }
-    });
+    (function() {
+        var links = document.getElementsByTagName("link");
+        var head = document.getElementsByTagName("head")[0];
+        var script = document.createElement("script");
+        script.src = "js/less.js";
+        script.type = "text/javascript";
+        script.onload = function() {
+            window.less.env = "development";
+            for (var i = 0; i < links.length; i++) {
+                if (links[i].href.match(/.less$/)) {
+                    window.less.sheets.push(links[i]);
+                    head.removeChild(links[i]);
+                }
+            }
+            window.less.refresh();
+        };
+        head.appendChild(script);
+    })();
 }
 
 jQuery(function($) {
