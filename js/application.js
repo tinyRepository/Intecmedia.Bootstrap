@@ -8,7 +8,7 @@
     script.onload = function() {
         window.less.env = "development";
         for (var i = 0; i < links.length; i++) {
-            if (links[i].rel.match(/stylesheet/) && links[i].href.match(/.less$/)) {
+            if (links[i].rel.match(/stylesheet/i) && links[i].href.match(/.less$/i)) {
                 window.less.sheets.push(links[i]);
                 head.removeChild(links[i]);
             }
