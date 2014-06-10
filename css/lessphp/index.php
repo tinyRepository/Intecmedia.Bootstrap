@@ -49,7 +49,7 @@ if (DIRECTORY_SEPARATOR != "/") {
     $root = str_replace(DIRECTORY_SEPARATOR, "/", $root);
 }
 // check browser gzip encoding
-$gzip = function_exists("ob_gzhandler") && isset($_SERVER["HTTP_ACCEPT_ENCODING"]) && strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip") !== false;
+$gzip = function_exists("ob_gzhandler") && isset($_SERVER["HTTP_ACCEPT_ENCODING"]) && false !== strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip");
 // cache directory
 $cachedir = dirname(__FILE__) . DIRECTORY_SEPARATOR . "cache";
 $cachettl = (time() - 3600);
@@ -153,10 +153,7 @@ try {
         $char = $matches[0];
         if (!isset($char[1])) {
             $hex = ltrim(strtoupper(bin2hex($char)), "0");
-            if (0 === strlen($hex)) {
-                $hex = "0";
-            }
-            return "\\" . $hex . " ";
+            return "\\" . (strlen($hex) ? $hex : "0") . " ";
         }
         $char = mb_convert_encoding($char, "UTF-16BE", "UTF-8");
         return "\\" . ltrim(strtoupper(bin2hex($char)), "0") . " ";
