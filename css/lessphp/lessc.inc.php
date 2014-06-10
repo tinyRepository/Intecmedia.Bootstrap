@@ -9,10 +9,7 @@
  */
 
 // Register autoloader for non-composer installations
-if (!class_exists('Less_Parser')) {
-	require_once dirname(__FILE__).'/lib/Less/Autoloader.php';
-	Less_Autoloader::register();
-}
+require_once dirname(__FILE__).'/lib/Less/Less.min.php';
 
 class lessc{
 
