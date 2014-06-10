@@ -59,9 +59,11 @@ $cachettl = (time() - 3600);
 
 try {
     // clear expired cache
-    foreach (glob($cachedir . "/less.*.css") as $i) {
-        if (is_file($i) && filectime($i) < $cachettl) {
-            unlink($i);
+    if (($glob = glob($cachedir . "/less.*.css")) != false) {
+        foreach ($glob as $i) {
+            if (is_file($i) && filectime($i) < $cachettl) {
+                unlink($i);
+            }
         }
     }
     // security check
@@ -115,18 +117,19 @@ try {
 
     // parse less-file
     if ($parse) {
-        include_once dirname(__FILE__) . DIRECTORY_SEPARATOR .  "lessc.inc.php";
-        $less = new lessc();
-        $less->setPreserveComments(true);
+        include_once dirname(__FILE__) . DIRECTORY_SEPARATOR . "lib" . DIRECTORY_SEPARATOR . "Less.min.php";
+        $parser = new Less_Parser();
+        $parser->parseFile($input);
+        $css = $parser->getCss();
         // write parsed less-files
-        $css = $less->compileFile($input);
         $files = array();
-        foreach((array(__FILE__ => filemtime(__FILE__)) + $less->allParsedFiles()) as $k => $v) {
+        foreach (array(__FILE__, $input) + Less_Parser::AllParsedFiles() as $file) {
+           $filemtime = filemtime($file);
            if (DIRECTORY_SEPARATOR != "/") {
-              $k = str_replace(DIRECTORY_SEPARATOR, "/", $k);
+              $file = str_replace(DIRECTORY_SEPARATOR, "/", $file);
            }
-           $k = substr_replace($k, "", 0, strlen($root));
-           $files[] = json_encode($k) . ":" . intval($v);
+           $file = substr_replace($file, "", 0, strlen($root));
+           $files[] = json_encode($file) . ":" . intval($filemtime);
         }
         $files = implode(",\n", $files);
         $css = "/*{\n$files\n}*/\n"  . $css;
@@ -146,7 +149,8 @@ try {
         $statusCode = 200;
     }
     header("Content-Type: text/css; charset=UTF-8", true, $statusCode);
-    echo "/* HTTP $statusCode: ". $exception->getMessage() . " at " . $exception->getFile() . ":" . $exception->getLine(). " */\n";
+    $message = "LESS compile error: " . $exception->getMessage() . " at " . $exception->getFile() . ":" . $exception->getLine();
+    echo "/* $message */\n";
     // escape message
     function escape_css_callback($matches)
     {
@@ -161,6 +165,6 @@ try {
         $char = mb_convert_encoding($char, "UTF-16BE", "UTF-8");
         return "\\" . ltrim(strtoupper(bin2hex($char)), "0") . " ";
     }
-    $message = preg_replace_callback("#[^a-zA-Z0-9]#Su", "escape_css_callback",  $exception->getMessage());
-    echo "body:before {\nposition:absolute;\ntop:5px;\nleft:5px;\nright:5px;\nz-index:9999;\nborder:1px solid;\nbackground:snow;\nborder-radius:5px;\ncolor:red;\npadding:15px;\ncontent: \"" . $message . "\"\n};\n";
+    $message = preg_replace_callback("#[^a-zA-Z0-9]#Su", "escape_css_callback", $message);
+    echo "body:before {\nposition:absolute;\ntop:5px;\nleft:5px;\nright:5px;\nz-index:9999;\nborder:1px solid;\nbackground:snow;\nborder-radius:5px;\ncolor:red;\npadding:15px;\ncontent: \"{$message}\"\n};\n";
 }
