@@ -23,14 +23,11 @@
 // handle errors
 error_reporting(E_ALL);
 ini_set("display_errors", true);
-function error_handler($code, $message, $file, $line) {
-    if (0 == error_reporting()) {
-        return;
+set_error_handler(function ($code, $message, $file, $line) {
+    if (0 != error_reporting()) {
+        throw new ErrorException($message, 0, $code, $file, $line);
     }
-    // error to exception
-    throw new ErrorException($message, 0, $code, $file, $line);
-}
-set_error_handler("error_handler");
+});
 
 header("Content-Type: text/css; charset=UTF-8");
 header("Cache-Control: must-revalidate");
@@ -149,11 +146,10 @@ try {
         $statusCode = 200;
     }
     header("Content-Type: text/css; charset=UTF-8", true, $statusCode);
-    $message = "LESS compile error: " . $exception->getMessage() . " at " . $exception->getFile() . ":" . $exception->getLine();
-    echo "/* $message */\n";
+    $error = "LESS compile error: " . $exception->getMessage() . " at " . $exception->getFile() . ":" . $exception->getLine();
+    echo "/* $error */\n";
     // escape message
-    function escape_css_callback($matches)
-    {
+    $error = preg_replace_callback("/[^a-zA-Z0-9]/Su", function ($matches) {
         $char = $matches[0];
         if (!isset($char[1])) {
             $hex = ltrim(strtoupper(bin2hex($char)), "0");
@@ -164,7 +160,6 @@ try {
         }
         $char = mb_convert_encoding($char, "UTF-16BE", "UTF-8");
         return "\\" . ltrim(strtoupper(bin2hex($char)), "0") . " ";
-    }
-    $message = preg_replace_callback("#[^a-zA-Z0-9]#Su", "escape_css_callback", $message);
-    echo "body:before {\nposition:absolute;\ntop:5px;\nleft:5px;\nright:5px;\nz-index:9999;\nborder:1px solid;\nbackground:snow;\nborder-radius:5px;\ncolor:red;\npadding:15px;\ncontent: \"{$message}\"\n};\n";
+    }, $error);
+    echo "body:before {\ncontent:\"{$error}\";\nposition:absolute;\ntop:5px;\nleft:5px;\nright:5px;\nz-index:9999;\nborder:1px solid;\nbackground:snow;\nborder-radius:5px;\ncolor:red;\npadding:15px;\n};\n";
 }
