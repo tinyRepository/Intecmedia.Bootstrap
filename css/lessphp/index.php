@@ -119,21 +119,17 @@ try {
     if ($parse) {
         include_once dirname(__FILE__) . DIRECTORY_SEPARATOR . "lib" . DIRECTORY_SEPARATOR . "Less.min.php";
         $parser = new Less_Parser();
-        $parser->SetImportDirs(array(dirname($input)));
         $parser->parseFile($input);
         $css = $parser->getCss();
         // write parsed less-files
-        $parsed = array(__FILE__ => filemtime(__FILE__), realpath($input) => filemtime($input));
-        foreach (Less_Parser::AllParsedFiles() as $file) {
-            $parsed[realpath($file)] = filemtime($file);
-        }
         $files = array();
-        foreach ($parsed as $k => $v) {
+        foreach (array(__FILE__, $input) + Less_Parser::AllParsedFiles() as $file) {
+           $filemtime = filemtime($file);
            if (DIRECTORY_SEPARATOR != "/") {
-              $k = str_replace(DIRECTORY_SEPARATOR, "/", $k);
+              $file = str_replace(DIRECTORY_SEPARATOR, "/", $file);
            }
-           $k = substr_replace($k, "", 0, strlen($root));
-           $files[] = json_encode($k) . ":" . intval($v);
+           $file = substr_replace($file, "", 0, strlen($root));
+           $files[] = json_encode($file) . ":" . intval($filemtime);
         }
         $files = implode(",\n", $files);
         $css = "/*{\n$files\n}*/\n"  . $css;
