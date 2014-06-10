@@ -146,7 +146,8 @@ try {
         $statusCode = 200;
     }
     header("Content-Type: text/css; charset=UTF-8", true, $statusCode);
-    echo "/* HTTP $statusCode: ". $exception->getMessage() . " at " . $exception->getFile() . ":" . $exception->getLine(). " */\n";
+    $message = "LESS compile error: " . $exception->getMessage() . " at " . $exception->getFile() . ":" . $exception->getLine();
+    echo "/* $message */\n";
     // escape message
     function escape_css_callback($matches)
     {
@@ -161,6 +162,6 @@ try {
         $char = mb_convert_encoding($char, "UTF-16BE", "UTF-8");
         return "\\" . ltrim(strtoupper(bin2hex($char)), "0") . " ";
     }
-    $message = preg_replace_callback("#[^a-zA-Z0-9]#Su", "escape_css_callback",  $exception->getMessage());
-    echo "body:before {\nposition:absolute;\ntop:5px;\nleft:5px;\nright:5px;\nz-index:9999;\nborder:1px solid;\nbackground:snow;\nborder-radius:5px;\ncolor:red;\npadding:15px;\ncontent: \"" . $message . "\"\n};\n";
+    $message = preg_replace_callback("#[^a-zA-Z0-9]#Su", "escape_css_callback", $message);
+    echo "body:before {\nposition:absolute;\ntop:5px;\nleft:5px;\nright:5px;\nz-index:9999;\nborder:1px solid;\nbackground:snow;\nborder-radius:5px;\ncolor:red;\npadding:15px;\ncontent: \"{$message}\"\n};\n";
 }
