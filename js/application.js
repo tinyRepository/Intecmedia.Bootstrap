@@ -1,4 +1,6 @@
 /*! Intecmedia.Bootstrap  | (c) 2014 Intecmedia. | license public domain */
+"use strict";
+/* run less.js parser for only file protocol */
 (function() {
     if (window.location.protocol !== "file:") return;
     var links = document.getElementsByTagName("link");
