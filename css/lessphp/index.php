@@ -59,9 +59,11 @@ $cachettl = (time() - 3600);
 
 try {
     // clear expired cache
-    foreach (glob($cachedir . "/less.*.css") as $i) {
-        if (is_file($i) && filectime($i) < $cachettl) {
-            unlink($i);
+    if (($glob = glob($cachedir . "/less.*.css")) != false) {
+        foreach ($glob as $i) {
+            if (is_file($i) && filectime($i) < $cachettl) {
+                unlink($i);
+            }
         }
     }
     // security check
