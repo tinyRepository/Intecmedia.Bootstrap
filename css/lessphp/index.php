@@ -52,7 +52,7 @@ if (DIRECTORY_SEPARATOR != "/") {
 $gzip = function_exists("ob_gzhandler") && isset($_SERVER["HTTP_ACCEPT_ENCODING"]) && false !== strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip");
 // cache directory
 $cachedir = dirname(__FILE__) . DIRECTORY_SEPARATOR . "cache";
-$cachettl = (time() - 3600);
+$cachettl = (time() - (12 * 3600));
 
 try {
     // clear expired cache
