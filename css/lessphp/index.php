@@ -3,7 +3,7 @@
  * Online less compiler
  * 
  * Simple example:
- * <link rel="stylesheet/less" href="/css/lessphp/index.php?/style.less" />
+ * <link rel="stylesheet/less" href="/css/lessphp/index.php?/css/style.less" />
  *
  * Apache mod_rewrite example:
  * RewriteEngine On
@@ -34,19 +34,19 @@ header("Cache-Control: must-revalidate");
 
 // input file
 $input = "";
-$root = $_SERVER["DOCUMENT_ROOT"];
+$docroot = $_SERVER["DOCUMENT_ROOT"];
 if (isset($_SERVER["PATH_TRANSLATED"]) && $_SERVER["PATH_TRANSLATED"]) {
     // from mod-action
     $input = $_SERVER["PATH_TRANSLATED"];
 } elseif (isset($_SERVER["QUERY_STRING"]) && $_SERVER["QUERY_STRING"]) {
     // from query string
     $input = parse_url("http://localhost/" . ltrim($_SERVER["QUERY_STRING"], "/"));
-    $input = (is_array($input) && isset($input["path"]) ? $root . $input["path"] : "");
+    $input = (is_array($input) && isset($input["path"]) ? $docroot . $input["path"] : "");
 }
 // win32 
 if (DIRECTORY_SEPARATOR != "/") {
     $input = str_replace(DIRECTORY_SEPARATOR, "/", $input);
-    $root = str_replace(DIRECTORY_SEPARATOR, "/", $root);
+    $docroot = str_replace(DIRECTORY_SEPARATOR, "/", $docroot);
 }
 // check browser gzip encoding
 $gzip = function_exists("ob_gzhandler") && isset($_SERVER["HTTP_ACCEPT_ENCODING"]) && false !== strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip");
@@ -64,7 +64,7 @@ try {
         }
     }
     // security check
-    if (!$input || strpos($input, $root) !== 0) {
+    if (!$input || strpos($input, $docroot) !== 0) {
         throw new Exception("Input less-file required", 403);
     }
     $ext = strtolower(pathinfo($input, PATHINFO_EXTENSION));
@@ -76,7 +76,7 @@ try {
         throw new Exception("File '$input' not exists", 404);
     }
     // output cache-file
-    $output = $cachedir . DIRECTORY_SEPARATOR . "less" . urlencode(substr($input, strlen($root))). ".css";
+    $output = $cachedir . DIRECTORY_SEPARATOR . "less" . urlencode(substr($input, strlen($docroot))). ".css";
     if (!is_writable($cachedir)) {
         throw new Exception("Less cache '$output' is not writable");
     }
@@ -93,7 +93,7 @@ try {
         }
         // check modified less-files 
         foreach ($files as $k =>$v) {
-            if (!is_file($root . $k) || filemtime($root . $k) > $v) {
+            if (!is_file($docroot . $k) || filemtime($docroot . $k) > $v) {
                 $parse = true;
             }
         }
@@ -125,7 +125,7 @@ try {
            if (DIRECTORY_SEPARATOR != "/") {
               $file = str_replace(DIRECTORY_SEPARATOR, "/", $file);
            }
-           $file = substr_replace($file, "", 0, strlen($root));
+           $file = substr_replace($file, "", 0, strlen($docroot));
            $files[] = json_encode($file) . ":" . intval($mtime);
         }
         $files = implode(",\n", $files);
@@ -149,7 +149,7 @@ try {
     if (DIRECTORY_SEPARATOR != "/") {
         $error = str_replace(DIRECTORY_SEPARATOR, "/", $error);
     }
-    $error = strtr($error, array($root => "%docroot%"));
+    $error = strtr($error, array($docroot => "%DOCUMENT_ROOT%"));
     // escape message
     $content = preg_replace_callback("/[^a-zA-Z0-9]/Su", function ($matches) {
         $char = $matches[0];
