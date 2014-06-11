@@ -3,7 +3,7 @@
  * Online less compiler
  * 
  * Simple example:
- * <link rel="stylesheet/less" href="/css/lessphp/index.php?/style.less" />
+ * <link rel="stylesheet/less" href="/css/lessphp/index.php?/css/style.less" />
  *
  * Apache mod_rewrite example:
  * RewriteEngine On
@@ -23,36 +23,33 @@
 // handle errors
 error_reporting(E_ALL);
 ini_set("display_errors", true);
-function error_handler($code, $message, $file, $line) {
-    if (0 == error_reporting()) {
-        return;
+set_error_handler(function ($code, $message, $file, $line) {
+    if (0 != error_reporting()) {
+        throw new ErrorException($message, 0, $code, $file, $line);
     }
-    // error to exception
-    throw new ErrorException($message, 0, $code, $file, $line);
-}
-set_error_handler("error_handler");
+});
 
 header("Content-Type: text/css; charset=UTF-8");
 header("Cache-Control: must-revalidate");
 
 // input file
 $input = "";
-$root = $_SERVER["DOCUMENT_ROOT"];
+$docroot = $_SERVER["DOCUMENT_ROOT"];
 if (isset($_SERVER["PATH_TRANSLATED"]) && $_SERVER["PATH_TRANSLATED"]) {
     // from mod-action
     $input = $_SERVER["PATH_TRANSLATED"];
 } elseif (isset($_SERVER["QUERY_STRING"]) && $_SERVER["QUERY_STRING"]) {
     // from query string
     $input = parse_url("http://localhost/" . ltrim($_SERVER["QUERY_STRING"], "/"));
-    $input = (is_array($input) && isset($input["path"]) ? $root . $input["path"] : "");
+    $input = (is_array($input) && isset($input["path"]) ? $docroot . $input["path"] : "");
 }
 // win32 
 if (DIRECTORY_SEPARATOR != "/") {
     $input = str_replace(DIRECTORY_SEPARATOR, "/", $input);
-    $root = str_replace(DIRECTORY_SEPARATOR, "/", $root);
+    $docroot = str_replace(DIRECTORY_SEPARATOR, "/", $docroot);
 }
 // check browser gzip encoding
-$gzip = function_exists("ob_gzhandler") && isset($_SERVER["HTTP_ACCEPT_ENCODING"]) && strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip") !== false;
+$gzip = function_exists("ob_gzhandler") && isset($_SERVER["HTTP_ACCEPT_ENCODING"]) && false !== strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip");
 // cache directory
 $cachedir = dirname(__FILE__) . DIRECTORY_SEPARATOR . "cache";
 $cachettl = (time() - 3600);
@@ -67,7 +64,7 @@ try {
         }
     }
     // security check
-    if (!$input || strpos($input, $root) !== 0) {
+    if (!$input || strpos($input, $docroot) !== 0) {
         throw new Exception("Input less-file required", 403);
     }
     $ext = strtolower(pathinfo($input, PATHINFO_EXTENSION));
@@ -79,7 +76,7 @@ try {
         throw new Exception("File '$input' not exists", 404);
     }
     // output cache-file
-    $output = $cachedir . DIRECTORY_SEPARATOR . "less" . urlencode(substr($input, strlen($root))). ".css";
+    $output = $cachedir . DIRECTORY_SEPARATOR . "less" . urlencode(substr($input, strlen($docroot))). ".css";
     if (!is_writable($cachedir)) {
         throw new Exception("Less cache '$output' is not writable");
     }
@@ -96,7 +93,7 @@ try {
         }
         // check modified less-files 
         foreach ($files as $k =>$v) {
-            if (!is_file($root . $k) || filemtime($root . $k) > $v) {
+            if (!is_file($docroot . $k) || filemtime($docroot . $k) > $v) {
                 $parse = true;
             }
         }
@@ -124,12 +121,12 @@ try {
         // write parsed less-files
         $files = array();
         foreach (array(__FILE__, $input) + Less_Parser::AllParsedFiles() as $file) {
-           $filemtime = filemtime($file);
+           $mtime = filemtime($file);
            if (DIRECTORY_SEPARATOR != "/") {
               $file = str_replace(DIRECTORY_SEPARATOR, "/", $file);
            }
-           $file = substr_replace($file, "", 0, strlen($root));
-           $files[] = json_encode($file) . ":" . intval($filemtime);
+           $file = substr_replace($file, "", 0, strlen($docroot));
+           $files[] = json_encode($file) . ":" . intval($mtime);
         }
         $files = implode(",\n", $files);
         $css = "/*{\n$files\n}*/\n"  . $css;
@@ -148,23 +145,34 @@ try {
     if ($statusCode != 403 && $statusCode != 404 && $statusCode != 500) {
         $statusCode = 200;
     }
-    header("Content-Type: text/css; charset=UTF-8", true, $statusCode);
-    $message = "LESS compile error: " . $exception->getMessage() . " at " . $exception->getFile() . ":" . $exception->getLine();
-    echo "/* $message */\n";
+    $error = "LESS compile error: " . $exception->getMessage() . " at " . $exception->getFile() . ":" . $exception->getLine();
+    if (DIRECTORY_SEPARATOR != "/") {
+        $error = str_replace(DIRECTORY_SEPARATOR, "/", $error);
+    }
+    $error = strtr($error, array($docroot => "%DOCUMENT_ROOT%"));
     // escape message
-    function escape_css_callback($matches)
-    {
+    $content = preg_replace_callback("/[^a-zA-Z0-9]/Su", function ($matches) {
         $char = $matches[0];
         if (!isset($char[1])) {
             $hex = ltrim(strtoupper(bin2hex($char)), "0");
-            if (0 === strlen($hex)) {
-                $hex = "0";
-            }
-            return "\\" . $hex . " ";
+            return "\\" . (strlen($hex) ? $hex : "0") . " ";
         }
         $char = mb_convert_encoding($char, "UTF-16BE", "UTF-8");
         return "\\" . ltrim(strtoupper(bin2hex($char)), "0") . " ";
-    }
-    $message = preg_replace_callback("#[^a-zA-Z0-9]#Su", "escape_css_callback", $message);
-    echo "body:before {\nposition:absolute;\ntop:5px;\nleft:5px;\nright:5px;\nz-index:9999;\nborder:1px solid;\nbackground:snow;\nborder-radius:5px;\ncolor:red;\npadding:15px;\ncontent: \"{$message}\"\n};\n";
+    }, $error);
+    header("Content-Type: text/css; charset=UTF-8", true, $statusCode);
+    echo "/* $error */\n";
+    echo "body:before {\n";
+    echo "    content:{$content}\n";
+    echo "    position:absolute;\n";
+    echo "    top:5px;\n";
+    echo "    left:5px;\n";
+    echo "    right:5px;\n";
+    echo "    z-index:9999;\n";
+    echo "    border:1px solid;\n";
+    echo "    background:snow;\n";
+    echo "    border-radius:5px;\n";
+    echo "    color:red;\n";
+    echo "    padding:15px;\n";
+    echo "};\n";
 }
