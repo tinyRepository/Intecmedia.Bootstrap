@@ -150,7 +150,14 @@ try {
         $error = str_replace(DIRECTORY_SEPARATOR, "/", $error);
     }
     $error = strtr($error, array($docroot => "%DOCUMENT_ROOT%"));
-    // escape message
+    header("Content-Type: text/css; charset=UTF-8", true, $statusCode);
+    // wildfire-error
+    header("X-Wf-Protocol-1: http://meta.wildfirehq.org/Protocol/JsonStream/0.2");
+    header("X-Wf-1-Plugin-1: http://meta.firephp.org/Wildfire/Plugin/FirePHP/Library-FirePHPCore/0.3");
+    header("X-Wf-1-Structure-1: http://meta.firephp.org/Wildfire/Structure/FirePHP/FirebugConsole/0.1");
+    $wildfire = json_encode(array(array("Type" => "ERROR"), $error));
+    header("X-Wf-1-1-1-1: " . strlen($wildfire) . "|{$wildfire}|");
+    // css-error
     $content = preg_replace_callback("/[^a-zA-Z0-9]/Su", function ($matches) {
         $char = $matches[0];
         if (!isset($char[1])) {
@@ -160,7 +167,6 @@ try {
         $char = mb_convert_encoding($char, "UTF-16BE", "UTF-8");
         return "\\" . ltrim(strtoupper(bin2hex($char)), "0") . " ";
     }, $error);
-    header("Content-Type: text/css; charset=UTF-8", true, $statusCode);
     echo "/* $error */\n";
     echo "body:before {\n";
     echo "    content:{$content}\n";
