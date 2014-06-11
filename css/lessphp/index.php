@@ -116,8 +116,8 @@ try {
     if ($parse) {
         include_once dirname(__FILE__) . DIRECTORY_SEPARATOR . "lib" . DIRECTORY_SEPARATOR . "Less.min.php";
         $options = array(
-            "sourceMap" => true,
-            "sourceMapBasepath" => dirname($input),
+//            "sourceMap" => true,
+//            "sourceMapBasepath" => dirname($input),
         );
         $parser = new Less_Parser($options);
         $parser->parseFile($input);
