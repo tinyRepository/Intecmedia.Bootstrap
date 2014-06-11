@@ -115,7 +115,12 @@ try {
     // parse less-file
     if ($parse) {
         include_once dirname(__FILE__) . DIRECTORY_SEPARATOR . "lib" . DIRECTORY_SEPARATOR . "Less.min.php";
-        $parser = new Less_Parser();
+        $options = array(
+            "sourceMap" => true,
+            "sourceMapBasepath" => dirname($input),
+            "sourceMapBasepath" => dirname($input),
+        );
+        $parser = new Less_Parser($options);
         $parser->parseFile($input);
         $css = $parser->getCss();
         // write parsed less-files
