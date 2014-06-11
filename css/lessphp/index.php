@@ -121,12 +121,12 @@ try {
         // write parsed less-files
         $files = array();
         foreach (array(__FILE__, $input) + Less_Parser::AllParsedFiles() as $file) {
-           $filemtime = filemtime($file);
+           $mtime = filemtime($file);
            if (DIRECTORY_SEPARATOR != "/") {
               $file = str_replace(DIRECTORY_SEPARATOR, "/", $file);
            }
            $file = substr_replace($file, "", 0, strlen($root));
-           $files[] = json_encode($file) . ":" . intval($filemtime);
+           $files[] = json_encode($file) . ":" . intval($mtime);
         }
         $files = implode(",\n", $files);
         $css = "/*{\n$files\n}*/\n"  . $css;
@@ -145,11 +145,13 @@ try {
     if ($statusCode != 403 && $statusCode != 404 && $statusCode != 500) {
         $statusCode = 200;
     }
-    header("Content-Type: text/css; charset=UTF-8", true, $statusCode);
     $error = "LESS compile error: " . $exception->getMessage() . " at " . $exception->getFile() . ":" . $exception->getLine();
-    echo "/* $error */\n";
+    if (DIRECTORY_SEPARATOR != "/") {
+        $error = str_replace(DIRECTORY_SEPARATOR, "/", $error);
+    }
+    $error = strtr($error, array($root => "%docroot%"));
     // escape message
-    $error = preg_replace_callback("/[^a-zA-Z0-9]/Su", function ($matches) {
+    $content = preg_replace_callback("/[^a-zA-Z0-9]/Su", function ($matches) {
         $char = $matches[0];
         if (!isset($char[1])) {
             $hex = ltrim(strtoupper(bin2hex($char)), "0");
@@ -158,5 +160,19 @@ try {
         $char = mb_convert_encoding($char, "UTF-16BE", "UTF-8");
         return "\\" . ltrim(strtoupper(bin2hex($char)), "0") . " ";
     }, $error);
-    echo "body:before {\ncontent:\"{$error}\";\nposition:absolute;\ntop:5px;\nleft:5px;\nright:5px;\nz-index:9999;\nborder:1px solid;\nbackground:snow;\nborder-radius:5px;\ncolor:red;\npadding:15px;\n};\n";
+    header("Content-Type: text/css; charset=UTF-8", true, $statusCode);
+    echo "/* $error */\n";
+    echo "body:before {\n";
+    echo "    content:{$content}\n";
+    echo "    position:absolute;\n";
+    echo "    top:5px;\n";
+    echo "    left:5px;\n";
+    echo "    right:5px;\n";
+    echo "    z-index:9999;\n";
+    echo "    border:1px solid;\n";
+    echo "    background:snow;\n";
+    echo "    border-radius:5px;\n";
+    echo "    color:red;\n";
+    echo "    padding:15px;\n";
+    echo "};\n";
 }
