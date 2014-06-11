@@ -161,6 +161,20 @@ try {
         return "\\" . ltrim(strtoupper(bin2hex($char)), "0") . " ";
     }, $error);
     header("Content-Type: text/css; charset=UTF-8", true, $statusCode);
+    // wildfire 
+    header("X-Wf-Protocol-1: http://meta.wildfirehq.org/Protocol/JsonStream/0.2");
+    header("X-Wf-1-Plugin-1: http://meta.firephp.org/Wildfire/Plugin/FirePHP/Library-FirePHPCore/0.3");
+    header("X-Wf-1-Structure-1: http://meta.firephp.org/Wildfire/Structure/FirePHP/FirebugConsole/0.1");
+    $json = array(
+        array(
+            "Type" => "ERROR",
+            "File" => $exception->getFile(),
+            "Line" => $exception->getLine(),
+        ),
+        $exception->getMessage(),
+    );
+    $json = json_encode($json);
+    header("X-Wf-1-1-1-1: " . strlen($json) . "|{$json}|");
     echo "/* $error */\n";
     echo "body:before {\n";
     echo "    content:{$content}\n";
