@@ -155,7 +155,7 @@ try {
     header("X-Wf-Protocol-1: http://meta.wildfirehq.org/Protocol/JsonStream/0.2");
     header("X-Wf-1-Plugin-1: http://meta.firephp.org/Wildfire/Plugin/FirePHP/Library-FirePHPCore/0.3");
     header("X-Wf-1-Structure-1: http://meta.firephp.org/Wildfire/Structure/FirePHP/FirebugConsole/0.1");
-    $wildfire = json_encode(array(array("Type" => "ERROR"), $error));
+    $wildfire = json_encode(array(array("Type" => "EXCEPTION"), $error));
     header("X-Wf-1-1-1-1: " . strlen($wildfire) . "|{$wildfire}|");
     // css-error
     $content = preg_replace_callback("/[^a-zA-Z0-9]/Su", function ($matches) {
