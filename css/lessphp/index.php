@@ -118,7 +118,6 @@ try {
         $options = array(
             "sourceMap" => true,
             "sourceMapBasepath" => dirname($input),
-            "sourceMapBasepath" => dirname($input),
         );
         $parser = new Less_Parser($options);
         $parser->parseFile($input);
