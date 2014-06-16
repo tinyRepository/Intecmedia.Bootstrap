@@ -52,7 +52,7 @@ if (DIRECTORY_SEPARATOR != "/") {
 $gzip = function_exists("ob_gzhandler") && isset($_SERVER["HTTP_ACCEPT_ENCODING"]) && false !== strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip");
 // cache directory
 $cachedir = dirname(__FILE__) . DIRECTORY_SEPARATOR . "cache";
-$cachettl = (time() - 3600);
+$cachettl = (time() - (12 * 3600));
 
 try {
     // clear expired cache
@@ -115,7 +115,11 @@ try {
     // parse less-file
     if ($parse) {
         include_once dirname(__FILE__) . DIRECTORY_SEPARATOR . "lib" . DIRECTORY_SEPARATOR . "Less.min.php";
-        $parser = new Less_Parser();
+        $options = array(
+//            "sourceMap" => true,
+//            "sourceMapBasepath" => dirname($input),
+        );
+        $parser = new Less_Parser($options);
         $parser->parseFile($input);
         $css = $parser->getCss();
         // write parsed less-files
@@ -145,7 +149,7 @@ try {
     if ($statusCode != 403 && $statusCode != 404 && $statusCode != 500) {
         $statusCode = 200;
     }
-    $error = "LESS compile error: " . $exception->getMessage() . " at " . $exception->getFile() . ":" . $exception->getLine();
+    $error = "LESS compile error:\n" . $exception->getMessage() . "\nat " . $exception->getFile() . ":" . $exception->getLine();
     if (DIRECTORY_SEPARATOR != "/") {
         $error = str_replace(DIRECTORY_SEPARATOR, "/", $error);
     }
@@ -167,9 +171,9 @@ try {
         $char = mb_convert_encoding($char, "UTF-16BE", "UTF-8");
         return "\\" . ltrim(strtoupper(bin2hex($char)), "0") . " ";
     }, $error);
-    echo "/* $error */\n";
+    echo "/*\n$error\n*/\n";
     echo "body:before {\n";
-    echo "    content:{$content}\n";
+    echo "    content:'{$content}';\n";
     echo "    position:absolute;\n";
     echo "    top:5px;\n";
     echo "    left:5px;\n";
