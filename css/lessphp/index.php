@@ -51,7 +51,7 @@ if (DIRECTORY_SEPARATOR != "/") {
 // check browser gzip encoding
 $gzip = function_exists("ob_gzhandler") && isset($_SERVER["HTTP_ACCEPT_ENCODING"]) && false !== strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip");
 // cache directory
-$cachedir = dirname(__FILE__) . DIRECTORY_SEPARATOR . "cache";
+$cachedir = __DIR__ . DIRECTORY_SEPARATOR . "cache";
 $cachettl = (time() - (12 * 3600));
 
 try {
@@ -114,12 +114,9 @@ try {
 
     // parse less-file
     if ($parse) {
-        include_once dirname(__FILE__) . DIRECTORY_SEPARATOR . "lib" . DIRECTORY_SEPARATOR . "Less.min.php";
-        $options = array(
-//            "sourceMap" => true,
-//            "sourceMapBasepath" => dirname($input),
-        );
-        $parser = new Less_Parser($options);
+        include_once __DIR__ . "/lib/Version.php";
+        include_once __DIR__ . "/lib/Less.php";
+        $parser = new Less_Parser;
         $parser->parseFile($input);
         $css = $parser->getCss();
         // write parsed less-files
