@@ -173,7 +173,7 @@ try {
     }, $error);
     echo "/* $error */\n";
     echo "body:before {\n";
-    echo "    content:{$content}\n";
+    echo "    content:'{$content}';\n";
     echo "    position:absolute;\n";
     echo "    top:5px;\n";
     echo "    left:5px;\n";
