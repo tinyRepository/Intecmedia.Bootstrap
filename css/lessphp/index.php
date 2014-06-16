@@ -149,7 +149,7 @@ try {
     if ($statusCode != 403 && $statusCode != 404 && $statusCode != 500) {
         $statusCode = 200;
     }
-    $error = "LESS compile error: " . $exception->getMessage() . " at " . $exception->getFile() . ":" . $exception->getLine();
+    $error = "LESS compile error:\n" . $exception->getMessage() . "\nat " . $exception->getFile() . ":" . $exception->getLine();
     if (DIRECTORY_SEPARATOR != "/") {
         $error = str_replace(DIRECTORY_SEPARATOR, "/", $error);
     }
@@ -171,7 +171,7 @@ try {
         $char = mb_convert_encoding($char, "UTF-16BE", "UTF-8");
         return "\\" . ltrim(strtoupper(bin2hex($char)), "0") . " ";
     }, $error);
-    echo "/* $error */\n";
+    echo "/*\n$error\n*/\n";
     echo "body:before {\n";
     echo "    content:'{$content}';\n";
     echo "    position:absolute;\n";
