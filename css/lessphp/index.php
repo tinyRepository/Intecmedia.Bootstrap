@@ -76,7 +76,7 @@ try {
         throw new Exception("File '$input' not exists", 404);
     }
     // output cache-file
-    $output = $cachedir . DIRECTORY_SEPARATOR . "less" . urlencode(substr($input, strlen($docroot))). ".css";
+    $output = $cachedir . DIRECTORY_SEPARATOR . "less." . urlencode(substr($input, strlen($docroot))). ".css";
     if (!is_writable($cachedir)) {
         throw new Exception("Less cache '$output' is not writable");
     }
