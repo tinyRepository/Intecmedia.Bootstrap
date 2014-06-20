@@ -121,7 +121,7 @@ try {
         $css = $parser->getCss();
         // write parsed less-files
         $files = array();
-        foreach (array(__FILE__, $input) + Less_Parser::AllParsedFiles() as $file) {
+        foreach (Less_Parser::AllParsedFiles() + array($input, __FILE__)  as $file) {
            $mtime = filemtime($file);
            if (DIRECTORY_SEPARATOR != "/") {
               $file = str_replace(DIRECTORY_SEPARATOR, "/", $file);
