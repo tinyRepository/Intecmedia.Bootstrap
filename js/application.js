@@ -7,6 +7,12 @@
     var head = document.getElementsByTagName("head")[0];
     var script = document.createElement("script");
     script.type = "text/javascript";
+    /* decorate jquery */
+    var $original = window.jQuery, $calls = [];
+    window.jQuery = window.$ = function() {
+        $calls.push([this, arguments]);
+    };
+    /* run less-parser */
     script.onload = function() {
         window.less.env = "development";
         for (var i = 0; i < links.length; i++) {
@@ -16,6 +22,11 @@
             }
         }
         window.less.refresh();
+        /* undecorate jquery */
+        for (i in $calls) {
+            $original.apply($calls[i][0], $calls[i][1])
+        }
+        window.jQuery = window.$ = $original;
     };
     script.src = "js/less.js";
     head.appendChild(script);
@@ -24,5 +35,6 @@
 jQuery(function($) {
     var wnd = $(window);
     var doc = $(document);
+
 
 });
