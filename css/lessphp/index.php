@@ -28,7 +28,7 @@ set_error_handler(function ($code, $message, $file, $line) {
         throw new ErrorException($message, 0, $code, $file, $line);
     }
 });
-
+@ini_set("mbstring.internal_encoding", "ascii");
 header("Content-Type: text/css; charset=UTF-8");
 header("Cache-Control: must-revalidate");
 
@@ -88,7 +88,7 @@ try {
         $files = array();
         // read parsed less-files
         if (preg_match("~^/\\*(\\{[^\\}]+\\})\\*/~", $css, $matches)) {
-           $files = json_decode($matches[1]);
+           $files = (array)json_decode($matches[1]);
            $parse = false;
         }
         // check modified less-files 
@@ -121,7 +121,7 @@ try {
         $css = $parser->getCss();
         // write parsed less-files
         $files = array();
-        foreach (Less_Parser::AllParsedFiles() + array($input, __FILE__)  as $file) {
+        foreach (array_merge(Less_Parser::AllParsedFiles(), array(__FILE__))  as $file) {
            $mtime = filemtime($file);
            if (DIRECTORY_SEPARATOR != "/") {
               $file = str_replace(DIRECTORY_SEPARATOR, "/", $file);

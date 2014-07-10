@@ -174,7 +174,6 @@ class Less_Parser{
 		$locale = setlocale(LC_NUMERIC, 0);
 		setlocale(LC_NUMERIC, "C");
 
-
  		$root = new Less_Tree_Ruleset(array(), $this->rules );
 		$root->root = true;
 		$root->firstRoot = true;
@@ -451,7 +450,17 @@ class Less_Parser{
 	 * @param string $file_path
 	 */
 	private function _parse( $file_path = null ){
+		if (ini_get("mbstring.func_overload")) {
+			$mb_internal_encoding = ini_get("mbstring.internal_encoding");
+			@ini_set("mbstring.internal_encoding", "ascii");
+		}
+
 		$this->rules = array_merge($this->rules, $this->GetRules( $file_path ));
+
+		//reset php settings
+		if (isset($mb_internal_encoding)) {
+			@ini_set("mbstring.internal_encoding", $mb_internal_encoding);
+		}
 	}
 
 
@@ -9375,7 +9384,12 @@ class Less_Exception_Parser extends Exception{
 	 */
 	public function getLineNumber(){
 		if( $this->index ){
-			return substr_count($this->input, "\n", 0, $this->index) + 1;
+			// https://bugs.php.net/bug.php?id=49790
+			if (ini_get("mbstring.func_overload")) {
+				return substr_count(substr($this->input, 0, $this->index), "\n") + 1;
+			} else {
+				return substr_count($this->input, "\n", 0, $this->index) + 1;
+			}
 		}
 		return 1;
 	}
