@@ -12,7 +12,6 @@
 ## Примечания:
 * Перед началом работы определите основные переменные в файле `css/variables.less`
 * Дополнительный css должен содержатся в файле `css/style.less`
-* Для responsive-макетов разкоментируйте строку `@import "responsive.less";` в файле `css/style.less`
 * Дополнительный javascript должен содержатся в `js/application.js`
 
 ## Если не работает Less.js в Chrome

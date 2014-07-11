@@ -44,6 +44,5 @@
 /* Application */
 jQuery(function($) {
     var wnd = $(window), doc = $(document);
-
-
+    /* addtional code here */
 });
