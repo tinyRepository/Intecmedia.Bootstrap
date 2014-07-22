@@ -50,6 +50,7 @@ if (DIRECTORY_SEPARATOR != "/") {
 }
 // check browser gzip encoding
 $gzip = function_exists("ob_gzhandler") && isset($_SERVER["HTTP_ACCEPT_ENCODING"]) && false !== strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip");
+ini_set("zlib.output_compression_level", 9);
 // cache directory
 $cachedir = __DIR__ . DIRECTORY_SEPARATOR . "cache";
 $cachettl = (time() - (12 * 3600));
