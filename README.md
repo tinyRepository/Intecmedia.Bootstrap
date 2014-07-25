@@ -1,4 +1,4 @@
-# Intecmedia.Bootstrap HTML Template
+# [Intecmedia.Bootstrap HTML Template](https://github.com/intecmedia/Intecmedia.Bootstrap)
 Это внутренний стандарт/шаблон для верстки сайтов компании [Intecmedia](http://intecmedia.ru)
 
 ## Особености:
