@@ -1,1 +1,7 @@
-Allow From all
+Deny From all
+
+<FilesMatch ".(map)$">
+    Allow From all
+</FilesMatch>
+
+Options -Indexes
