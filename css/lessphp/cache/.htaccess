@@ -1,6 +1,6 @@
 Deny From all
 
-<FilesMatch ".(map)$">
+<FilesMatch ".(map|css)$">
     Allow From all
 </FilesMatch>
 
