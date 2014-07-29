@@ -74,6 +74,7 @@ try {
         "sourceMapBasepath" => dirname($input),
         "sourceMapRootpath" => substr(dirname($input), strlen($docroot)),
         "cache_dir" => __DIR__ . DIRECTORY_SEPARATOR . "cache",
+        "cache_method" => false,
     );
 
     $options["sourceMapWriteTo"] = $options["cache_dir"] . DIRECTORY_SEPARATOR .  "lessphp_" . md5($input). ".map";
