@@ -3,6 +3,8 @@
 /* Run less.js parser for only file protocol */
 (function() {
     if (window.location.protocol !== "file:") return;
+    var html = document.getElementsByTagName("html")[0];
+    html.style.visibility = "hidden";
     var links = document.getElementsByTagName("link");
     var head = document.getElementsByTagName("head")[0];
     var script = document.createElement("script");
@@ -22,6 +24,7 @@
             }
         }
         window.less.refresh();
+        html.style.visibility = "";
         // undecorate jquery
         for (i in $calls) {
             $original.apply($calls[i][0], $calls[i][1])
