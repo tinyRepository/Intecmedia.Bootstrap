@@ -3,9 +3,15 @@
 /* Run less.js parser for only file protocol */
 (function() {
     if (window.location.protocol !== "file:") return;
+    // config less
+    window.less = {
+        env: "development",
+        dumpLineNumbers: "comments",
+        logLevel: 2,
+        poll: 3000
+    };
     var html = document.getElementsByTagName("html")[0];
     html.style.visibility = "hidden";
-    var links = document.getElementsByTagName("link");
     var head = document.getElementsByTagName("head")[0];
     var script = document.createElement("script");
     script.type = "text/javascript";
@@ -16,7 +22,7 @@
     };
     // run less-parser
     script.onload = function() {
-        window.less.env = "development";
+        var links = document.getElementsByTagName("link");
         for (var i = 0; i < links.length; i++) {
             if (links[i].rel.match(/stylesheet/i) && links[i].href.match(/.less$/i)) {
                 window.less.sheets.push(links[i]);
@@ -30,6 +36,7 @@
             $original.apply($calls[i][0], $calls[i][1])
         }
         window.jQuery = window.$ = $original;
+        window.less.watch();
     };
     script.src = "js/less.js";
     head.appendChild(script);
