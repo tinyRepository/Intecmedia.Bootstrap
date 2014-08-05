@@ -7,6 +7,7 @@
     window.less = {
         env: "development",
         dumpLineNumbers: "comments",
+        logLevel: 2,
         poll: 3000
     };
     var html = document.getElementsByTagName("html")[0];
