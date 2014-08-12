@@ -1,58 +1,37 @@
 /*! Intecmedia.Bootstrap  | (c) 2014 Intecmedia. | license public domain */
 "use strict";
-/* Run less.js parser for only file protocol */
-(function() {
-    if (window.location.protocol !== "file:") return;
-    // config less
-    window.less = {
-        env: "development",
-        dumpLineNumbers: "comments",
-        logLevel: 2,
-        poll: 3000
-    };
-    var html = document.getElementsByTagName("html")[0];
-    html.style.visibility = "hidden";
-    var head = document.getElementsByTagName("head")[0];
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    // decorate jquery
-    var $original = window.jQuery, $calls = [];
-    window.jQuery = window.$ = function() {
-        $calls.push([this, arguments]);
-    };
-    // run less-parser
-    script.onload = function() {
-        var links = document.getElementsByTagName("link");
-        for (var i = 0; i < links.length; i++) {
-            if (links[i].rel.match(/stylesheet/i) && links[i].href.match(/.less$/i)) {
-                window.less.sheets.push(links[i]);
-                head.removeChild(links[i]);
-            }
-        }
-        window.less.refresh();
-        html.style.visibility = "";
-        // undecorate jquery
-        for (i in $calls) {
-            $original.apply($calls[i][0], $calls[i][1])
-        }
-        window.jQuery = window.$ = $original;
-        window.less.watch();
-    };
-    script.src = "js/less.js";
-    head.appendChild(script);
-})();
-
-/* IE10 viewport hack for Surface/desktop Windows 8 bug: http://getbootstrap.com/getting-started/#support-ie10-width */
-(function() {
-    if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
-        var style = document.createElement("style")
-        style.appendChild(document.createTextNode("@-ms-viewport{width:auto!important}"))
-        document.querySelector("head").appendChild(style)
-    }
-})();
-
 /* Application */
 jQuery(function($) {
     var wnd = $(window), doc = $(document);
     /* addtional code here */
+
 });
+
+/* Run less.js parser for only file protocol */
+(window.location.protocol === "file:") && (function() {
+    var startTime = new Date();
+    // config less-parser
+    window.less = {env: "development", dumpLineNumbers: "comments", logLevel: 2};
+    var html = jQuery("html").css("visibility", "hidden");
+    // decorate jquery
+    var $jQuery = window.jQuery, $jQueryCalls = [];
+    window.jQuery = window.$ = function() {
+        $jQueryCalls.push([this, arguments]);
+    };
+    // run less-parser
+    $jQuery.getScript("js/less.js", function() {
+        $jQuery("link[rel~='stylesheet'][href$='.less']").each(function(){
+            window.less.sheets.push(this);
+            $jQuery(this).remove();
+        });
+        window.less.refresh();
+        html.css("visibility", "");
+        // undecorate jquery
+        $jQuery($jQueryCalls).each(function() {
+            $jQuery.apply(this[0], this[1]);
+        });
+        window.jQuery = window.$ = $jQuery;
+        // watch mode
+        window.less.poll = 1.5 * (new Date() - startTime);
+    });
+})();

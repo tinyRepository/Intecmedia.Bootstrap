@@ -18,9 +18,12 @@
 Ошибка в консоли браузера: `Cross origin requests are only supported for HTTP`. 
 Для просмотра html используйте веб-сервер или перезапустить хром с опцией `chrome -allow-file-access-from-files`.
 
+## Watch mode
+Для включение watch-режима запустите в консоли браузера следующией: window.less.watch()
+
 ## Стилистика кода
 
-### CSS
+### CSS/Less
 * Отступы в четыре пробела
 * Каждый селектор находится на отдельной строке
 * Открывающя скобка находится на одной строке с слектором
@@ -28,16 +31,16 @@
 * Крупные блоки заключаются в открывающий и закрывающий комментарий
 
 #### пример
-```css
+```less
 /* block */
 .foo,
 .bar {
     font-size: 14px;  
     width: 100px;  
-}
-.bar .bar-inner {
-    color: #0000FF;
-    border: 1px solid #FF0000;
+    .bar-inner {
+        color: #0000FF;
+        border: 1px solid #FF0000;
+    }
 }
 /* /block */
 ```
