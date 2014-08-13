@@ -1,12 +1,5 @@
 /*! Intecmedia.Bootstrap  | (c) 2014 Intecmedia. | license public domain */
 "use strict";
-/* Application */
-jQuery(function($) {
-    var wnd = $(window), doc = $(document);
-    /* addtional code here */
-
-});
-
 /* Run less.js parser for only file protocol */
 (window.location.protocol === "file:") && (function() {
     var startTime = new Date();
@@ -35,3 +28,12 @@ jQuery(function($) {
         window.less.poll = 1.5 * (new Date() - startTime);
     });
 })();
+
+/* Application */
+jQuery(function($) {
+    var wnd = $(window), doc = $(document);
+    /* addtional code here */
+
+
+});
+
