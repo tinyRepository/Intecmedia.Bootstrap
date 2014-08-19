@@ -34,7 +34,7 @@ header("Cache-Control: must-revalidate");
 
 // input file
 $input = "";
-$docroot = $_SERVER["DOCUMENT_ROOT"];
+$docroot = realpath($_SERVER["DOCUMENT_ROOT"]);
 if (isset($_SERVER["PATH_TRANSLATED"]) && $_SERVER["PATH_TRANSLATED"]) {
     // from mod-action
     $input = realpath($_SERVER["PATH_TRANSLATED"]);
