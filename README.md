@@ -4,6 +4,7 @@
 ## Особености:
 * Основан на Bootstrap 3.1.1 
 * Встроен jQuery v1.11.1
+* Встроен Font Awesome 4.1.0
 * Основан на LESS (для обработки на клиенте используется less.js, на сервере lessphp)
 * Встроена работа с media=print, responsive-css и HTML5-разметки (для IE используется HTML5 Shiv)
 * Содержит базовую типографику текста, форм, таблиц, списков, заголовков
@@ -92,4 +93,11 @@
 * [HTML5 Shiv](https://code.google.com/p/html5shiv/): MIT/GPL2 Licensed
 * [Respond.js](https://github.com/scottjehl/Respond): MIT Licensed
 * [es5-shim](https://github.com/es-shims/es5-shim): MIT Licensed
+* [Font Awesome](http://fortawesome.github.io/Font-Awesome/): MIT License
 
+## Ссылки:
+* [Less](http://lesscss.org/)
+* [Intecmedia.Bootstrap HTML Template](https://github.com/intecmedia/Intecmedia.Bootstrap)
+* [jQuery JavaScript Style Guide](http://contribute.jquery.org/style-guide/js/)
+* [jQuery HTML Style Guide](http://contribute.jquery.org/style-guide/html/).
+* [Principles of writing consistent, idiomatic CSS](https://github.com/necolas/idiomatic-css/tree/master/translations/ru-RU).
