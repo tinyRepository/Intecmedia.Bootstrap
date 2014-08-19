@@ -93,7 +93,7 @@
 * [HTML5 Shiv](https://code.google.com/p/html5shiv/): MIT/GPL2 Licensed
 * [Respond.js](https://github.com/scottjehl/Respond): MIT Licensed
 * [es5-shim](https://github.com/es-shims/es5-shim): MIT Licensed
-* [Font Awesome]http://fortawesome.github.io/Font-Awesome/): MIT License
+* [Font Awesome](http://fortawesome.github.io/Font-Awesome/): MIT License
 
 ## Ссылки:
 [Less](http://lesscss.org/)
