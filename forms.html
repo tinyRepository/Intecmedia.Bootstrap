@@ -34,69 +34,45 @@
 <body>
 <div class="container">
 
-<h1>Intecmedia.Bootstrap // Buttons</h1>
+<h1>Intecmedia.Bootstrap // Forms</h1>
 
 <br>
 
-<fieldset class="bs-example" id="buttons-normal">
-    <legend>Colors</legend>
-    <p>
-      <code>
-        @btn-default-color: <b>#333</b>;
-        @btn-default-bg: <b>#fff</b>;
-        @btn-default-border: <b>#ccc</b>;
-      </code>
-      <br>
-      <button type="button" class="btn btn-default">button default</button>
-    </p>
-    <p>
-      <code>
-        @btn-primary-color: <b>#fff</b>;
-        @btn-primary-bg: <b>@brand-primary</b>;
-        @btn-primary-border: <b>darken(@btn-primary-bg, 5%)</b>;
-      </code>
-      <br>
-      <button type="button" class="btn btn-primary">button primary</button>
-    </p>
-    <p>
-      <code>
-        @btn-success-color: <b>#fff</b>;
-        @btn-success-bg: <b>@brand-success</b>;
-        @btn-success-border: <b>darken(@btn-success-bg, 5%)</b>;
-      </code>
-      <br>
-      <button type="button" class="btn btn-success">button success</button>
-    </p>
-    <p>
-      <code>
-        @btn-info-color: <b>#fff</b>;
-        @btn-info-bg: <b>@brand-info</b>;
-        @btn-info-border: <b>darken(@btn-info-bg, 5%)</b>;
-      </code>
-      <br>
-      <button type="button" class="btn btn-info">button info</button>
-    </p>
-    <p>
-      <code>
-        @btn-warning-color: <b>#fff</b>;
-        @btn-warning-bg: <b>@brand-warning</b>;
-        @btn-warning-border: <b>darken(@btn-warning-bg, 5%)</b>;
-      </code>
-      <br>
-      <button type="button" class="btn btn-warning">button warning</button>
-    </p>
-    <p>
-      <code>
-        @btn-danger-color: <b>#fff</b>;
-        @btn-danger-bg: <b>@brand-danger</b>;
-        @btn-danger-border: <b>darken(@btn-danger-bg, 5%)</b>;
-      </code>
-      <br>
-      <button type="button" class="btn btn-danger">button danger</button>
-    </p>
-    <p class="help-block">
-        <b>Примачание:</b> цвета кнопок равны brand-цветам сайта: @brand-primary, @brand-success, @brand-info, @brand-warning и @brand-danger.
-    </p>
+<fieldset class="bs-example" id="form-control">
+    <legend>Inputs</legend>
+
+
+    <div class="form-group">
+      <label class="control-label" for="input">Input</label>
+      <input type="text" class="form-control" id="input">
+    </div>
+
+    <div class="form-group">
+      <label class="control-label" for="input-focus">Input focus</label>
+      <input type="text" class="form-control" id="input-focus">
+    </div>
+    <style>
+      #input-focus {
+        outline: 0;
+        border-color: #66afe9;
+        box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px #66afe9;
+      }
+    </style>
+
+    <div class="form-group has-success">
+      <label class="control-label" for="input-success">Input with success</label>
+      <input type="text" class="form-control" id="input-success">
+    </div>
+
+    <div class="form-group has-warning">
+      <label class="control-label" for="input-warning">Input with warning</label>
+      <input type="text" class="form-control" id="input-warning">
+    </div>
+
+    <div class="form-group has-error">
+      <label class="control-label" for="input-error">Input with error</label>
+      <input type="text" class="form-control" id="input-error">
+    </div>
 </fieldset>
 
 <br><br>
