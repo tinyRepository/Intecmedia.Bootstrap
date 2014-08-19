@@ -1,0 +1,196 @@
+<!doctype html>
+<!--[if lt IE 7]> <html lang="ru" class="lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html lang="ru" class="lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html lang="ru" class="lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html lang="ru">
+<!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <title>Intecmedia.Bootstrap HTML Template</title>
+    <meta name="author" content="">
+    <meta name="description" content="">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!---
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="img/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="img/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="img/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="img/ico/apple-touch-icon-57-precomposed.png">
+    <meta name="msapplication-TileImage" content="img/ico/apple-touch-icon-144-precomposed.png">
+    <meta name="msapplication-TileColor" content="#3372DF">
+    <link rel="shortcut icon" href="img/ico/favicon.png">
+    -->    
+    <link rel="stylesheet" type="text/css" href="css/style.less">
+    <!--[if lt IE 9]>
+    <script src="js/es5-shim.js"></script>
+    <script src="js/html5shiv.js"></script>
+    <script src="js/respond.min.js"></script>
+    <![endif]-->
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/application.js"></script>
+</head>
+<body>
+<div class="container">
+
+<h1>Intecmedia.Bootstrap // Buttons</h1>
+
+<br>
+
+<fieldset class="bs-example" id="buttons-normal">
+    <legend>Colors</legend>
+    <p>
+      <code>
+        @btn-default-color: <b>#333</b>;
+        @btn-default-bg: <b>#fff</b>;
+        @btn-default-border: <b>#ccc</b>;
+      </code>
+      <br>
+      <button type="button" class="btn btn-default">button default</button>
+    </p>
+    <p>
+      <code>
+        @btn-primary-color: <b>#fff</b>;
+        @btn-primary-bg: <b>@brand-primary</b>;
+        @btn-primary-border: <b>darken(@btn-primary-bg, 5%)</b>;
+      </code>
+      <br>
+      <button type="button" class="btn btn-primary">button primary</button>
+    </p>
+    <p>
+      <code>
+        @btn-success-color: <b>#fff</b>;
+        @btn-success-bg: <b>@brand-success</b>;
+        @btn-success-border: <b>darken(@btn-success-bg, 5%)</b>;
+      </code>
+      <br>
+      <button type="button" class="btn btn-success">button success</button>
+    </p>
+    <p>
+      <code>
+        @btn-info-color: <b>#fff</b>;
+        @btn-info-bg: <b>@brand-info</b>;
+        @btn-info-border: <b>darken(@btn-info-bg, 5%)</b>;
+      </code>
+      <br>
+      <button type="button" class="btn btn-info">button info</button>
+    </p>
+    <p>
+      <code>
+        @btn-warning-color: <b>#fff</b>;
+        @btn-warning-bg: <b>@brand-warning</b>;
+        @btn-warning-border: <b>darken(@btn-warning-bg, 5%)</b>;
+      </code>
+      <br>
+      <button type="button" class="btn btn-warning">button warning</button>
+    </p>
+    <p>
+      <code>
+        @btn-danger-color: <b>#fff</b>;
+        @btn-danger-bg: <b>@brand-danger</b>;
+        @btn-danger-border: <b>darken(@btn-danger-bg, 5%)</b>;
+      </code>
+      <br>
+      <button type="button" class="btn btn-danger">button danger</button>
+    </p>
+    <p class="help-block">
+        <b>Примачание:</b> цвета кнопок равны brand-цветам сайта: @brand-primary, @brand-success, @brand-info, @brand-warning и @brand-danger.
+    </p>
+</fieldset>
+
+<br><br>
+
+<fieldset class="bs-example" id="buttons-normal">
+    <legend>Normal state</legend>
+    <code>background-color: <b>@background</b>; border-color: <b>@border</b>;</code>
+    <br>
+    <a href="#" class="btn btn-default">button default</a>
+    <a href="#" class="btn btn-primary">button primary</a>
+    <a href="#" class="btn btn-success">button success</a>
+    <a href="#" class="btn btn-info">button info</a>
+    <a href="#" class="btn btn-warning">button warning</a>
+    <a href="#" class="btn btn-danger">button danger</a>
+    <a href="#" class="btn btn-link">button link</a>
+    <p class="help-block">
+        <b>Примачание:</b> обычное состояние всех видов кнопок.
+    </p>
+</fieldset>
+
+<br><br>
+
+<fieldset class="bs-example" id="buttons-active">
+    <legend>Active state </legend>
+    <code>background-color: <b>darken(@background, 10%)</b>; border-color: <b>darken(@border, 12%)</b>; .box-shadow(<b>inset 0 3px 5px rgba(0,0,0,.125)</b>);</code>
+    <br>
+    <a href="#" class="btn btn-default active">button default</a>
+    <a href="#" class="btn btn-primary active">button primary</a>
+    <a href="#" class="btn btn-success active">button success</a>
+    <a href="#" class="btn btn-info active">button info</a>
+    <a href="#" class="btn btn-warning active">button warning</a>
+    <a href="#" class="btn btn-danger active">button danger</a>
+    <a href="#" class="btn btn-link active">button link</a>
+    <p class="help-block">
+      <b>Примачание:</b> активное состояние всех видов кнопок, отличается от обычного темные фоном. 
+    </p>
+</fieldset>
+
+<br><br>
+
+<fieldset class="bs-example" id="buttons-disabled">
+    <legend>Disabled state</legend>
+    <code>background-color: <b>@background</b>; border-color: <b>@border</b>; .opacity<b>(.65)</b>;</code>
+    <br>
+    <a href="#" class="btn btn-default disabled">button default</a>
+    <a href="#" class="btn btn-primary disabled">button primary</a>
+    <a href="#" class="btn btn-success disabled">button success</a>
+    <a href="#" class="btn btn-info disabled">button info</a>
+    <a href="#" class="btn btn-warning disabled">button warning</a>
+    <a href="#" class="btn btn-danger disabled">button danger</a>
+    <a href="#" class="btn btn-link disabled">button link</a>
+    <p class="help-block">
+      <b>Примачание:</b> выключеное состояние всех видов кнопок, отличается от обычного прозрачностью.
+    </p>
+</fieldset>
+
+<br><br>
+
+<fieldset class="bs-example" id="buttons-sizes">
+    <legend>Sizes</legend>
+    <p>
+      <code>
+       @padding-large-vertical: <b>10px</b>; @padding-large-horizontal: <b>16px</b>; @font-size-large: <b>18px</b>; @line-height-large: <b>1.33</b>; @border-radius-large: <b>6px</b>;
+      </code>
+      <br>
+      <button type="button" class="btn btn-primary btn-lg">Large button</button>
+      <button type="button" class="btn btn-default btn-lg">Large button</button>
+    </p>
+    <p>
+      <code>
+       @padding-base-vertical: <b>6px</b>; @padding-base-horizontal: <b>12px</b>; @font-size-base: <b>14px</b>; @line-height-base: <b>20/14</b>; @border-radius-base: <b>4px</b>;
+      </code>
+      <br>
+      <button type="button" class="btn btn-primary">Default button</button>
+      <button type="button" class="btn btn-default">Default button</button>
+    </p>
+    <p>
+      <code>
+        @padding-small-vertical: <b>5px</b>; @padding-small-horizontal: <b>10px</b>; @font-size-small: <b>12px</b>; @line-height-small: <b>1.5</b>; @border-radius-small: <b>3px</b>;
+      </code>
+      <br>
+      <button type="button" class="btn btn-primary btn-sm">Small button</button>
+      <button type="button" class="btn btn-default btn-sm">Small button</button>
+    </p>
+    <p>
+      <code>
+        @padding-xs-vertical: <b>1px</b>; @padding-xs-horizontal: <b>5px</b>; @font-size-small: <b>12px</b>; @line-height-small: <b>1.5</b>; @border-radius-small: <b>3px</b>;
+      </code>
+      <br>
+      <button type="button" class="btn btn-primary btn-xs">Extra small button</button>
+      <button type="button" class="btn btn-default btn-xs">Extra small button</button>
+    </p>
+</fieldset>
+
+</div>
+</body>
+</html>

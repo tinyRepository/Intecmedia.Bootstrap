@@ -21,40 +21,12 @@
     @media (min-width: @screen-lg-min) { @rules(); }
 }
 
-/* Hide blocks on printer */
-@media print {
-    footer, header {
-        display: none;
-    }
-}
-
 /* IE10 viewport hack for Surface/desktop Windows 8 http://getbootstrap.com/getting-started/#support-ie10-width */
 @-ms-viewport {
     width: auto !important;
 }
 
 /* Addtional styles here */
-@footerHeight: 100px;
 html, body {
-    height: 100%;
-    min-width: 320px;
     -ms-overflow-style: scrollbar;
-}
-
-#wrapper {
-    height: auto !important;
-    height: 100%;
-    margin: 0 auto -@footerHeight;
-    min-height: 100%;
-    #footer-push {
-        height: @footerHeight;
-    }
-}
-
-footer {
-    height: @footerHeight;
-}
-
-#main {
-
 }
