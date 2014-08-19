@@ -43,35 +43,26 @@
 
 
     <div class="form-group">
-      <label class="control-label" for="input">Input</label>
+      <label class="control-label" for="input">
+        Input
+      </label>
+      <code>
+        @input-color: <b>#555</b>;
+        @input-bg: <b>#fff</b>;
+        @input-border: <b>#ccc</b>;
+        @input-border-radius: <b>3px</b>;
+      </code>
       <input type="text" class="form-control" id="input">
     </div>
 
     <div class="form-group">
-      <label class="control-label" for="input-focus">Input focus</label>
-      <input type="text" class="form-control" id="input-focus">
-    </div>
-    <style>
-      #input-focus {
-        outline: 0;
-        border-color: #66afe9;
-        box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px #66afe9;
-      }
-    </style>
-
-    <div class="form-group has-success">
-      <label class="control-label" for="input-success">Input with success</label>
-      <input type="text" class="form-control" id="input-success">
-    </div>
-
-    <div class="form-group has-warning">
-      <label class="control-label" for="input-warning">Input with warning</label>
-      <input type="text" class="form-control" id="input-warning">
-    </div>
-
-    <div class="form-group has-error">
-      <label class="control-label" for="input-error">Input with error</label>
-      <input type="text" class="form-control" id="input-error">
+      <label class="control-label" for="input-focus">
+        Input focus
+      </label>
+      <code>
+        @input-border-focus: <b>#66afe9</b>;
+      </code>
+      <input type="text" class="form-control" id="input-focus" autofocus>
     </div>
 </fieldset>
 
@@ -126,44 +117,6 @@
     <a href="#" class="btn btn-link disabled">button link</a>
     <p class="help-block">
       <b>Примачание:</b> выключеное состояние всех видов кнопок, отличается от обычного прозрачностью.
-    </p>
-</fieldset>
-
-<br><br>
-
-<fieldset class="bs-example" id="buttons-sizes">
-    <legend>Sizes</legend>
-    <p>
-      <code>
-       @padding-large-vertical: <b>10px</b>; @padding-large-horizontal: <b>16px</b>; @font-size-large: <b>18px</b>; @line-height-large: <b>1.33</b>; @border-radius-large: <b>6px</b>;
-      </code>
-      <br>
-      <button type="button" class="btn btn-primary btn-lg">Large button</button>
-      <button type="button" class="btn btn-default btn-lg">Large button</button>
-    </p>
-    <p>
-      <code>
-       @padding-base-vertical: <b>6px</b>; @padding-base-horizontal: <b>12px</b>; @font-size-base: <b>14px</b>; @line-height-base: <b>20/14</b>; @border-radius-base: <b>4px</b>;
-      </code>
-      <br>
-      <button type="button" class="btn btn-primary">Default button</button>
-      <button type="button" class="btn btn-default">Default button</button>
-    </p>
-    <p>
-      <code>
-        @padding-small-vertical: <b>5px</b>; @padding-small-horizontal: <b>10px</b>; @font-size-small: <b>12px</b>; @line-height-small: <b>1.5</b>; @border-radius-small: <b>3px</b>;
-      </code>
-      <br>
-      <button type="button" class="btn btn-primary btn-sm">Small button</button>
-      <button type="button" class="btn btn-default btn-sm">Small button</button>
-    </p>
-    <p>
-      <code>
-        @padding-xs-vertical: <b>1px</b>; @padding-xs-horizontal: <b>5px</b>; @font-size-small: <b>12px</b>; @line-height-small: <b>1.5</b>; @border-radius-small: <b>3px</b>;
-      </code>
-      <br>
-      <button type="button" class="btn btn-primary btn-xs">Extra small button</button>
-      <button type="button" class="btn btn-default btn-xs">Extra small button</button>
     </p>
 </fieldset>
 
