@@ -96,8 +96,8 @@
 * [Font Awesome](http://fortawesome.github.io/Font-Awesome/): MIT License
 
 ## Ссылки:
-[Less](http://lesscss.org/)
-[Intecmedia.Bootstrap HTML Template](https://github.com/intecmedia/Intecmedia.Bootstrap)
-[jQuery JavaScript Style Guide](http://contribute.jquery.org/style-guide/js/)
-[jQuery HTML Style Guide](http://contribute.jquery.org/style-guide/html/).
-[Principles of writing consistent, idiomatic CSS](https://github.com/necolas/idiomatic-css/tree/master/translations/ru-RU).
+* [Less](http://lesscss.org/)
+* [Intecmedia.Bootstrap HTML Template](https://github.com/intecmedia/Intecmedia.Bootstrap)
+* [jQuery JavaScript Style Guide](http://contribute.jquery.org/style-guide/js/)
+* [jQuery HTML Style Guide](http://contribute.jquery.org/style-guide/html/).
+* [Principles of writing consistent, idiomatic CSS](https://github.com/necolas/idiomatic-css/tree/master/translations/ru-RU).
