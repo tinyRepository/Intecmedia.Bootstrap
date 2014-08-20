@@ -5,25 +5,15 @@
     var startTime = new Date();
     // config less-parser
     window.less = {env: "development", dumpLineNumbers: "comments", logLevel: 2};
-    var html = jQuery("html").css("visibility", "hidden");
-    // decorate jquery
-    var $jQuery = window.jQuery, $jQueryCalls = [];
-    window.jQuery = window.$ = function() {
-        $jQueryCalls.push([this, arguments]);
-    };
+    var html = $("html").css("visibility", "hidden");
     // run less-parser
-    $jQuery.getScript("js/less.js", function() {
-        $jQuery("link[rel~='stylesheet'][href$='.less']").each(function(){
+    $.getScript("js/less.js", function() {
+        jQuery("link[rel~='stylesheet'][href$='.less']").each(function(){
             window.less.sheets.push(this);
-            $jQuery(this).remove();
+            jQuery(this).remove();
         });
         window.less.refresh();
         html.css("visibility", "");
-        // undecorate jquery
-        $jQuery($jQueryCalls).each(function() {
-            $jQuery.apply(this[0], this[1]);
-        });
-        window.jQuery = window.$ = $jQuery;
         // watch mode
         window.less.poll = 1.5 * (new Date() - startTime);
     });
