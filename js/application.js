@@ -5,7 +5,7 @@
     var startTime = new Date();
     // config less-parser
     window.less = {env: "development", dumpLineNumbers: "comments", logLevel: 2};
-    var html = jQuery("html").css("visibility", "hidden");
+    var html = jQuery("html").css("opacity", 0);
     // run less-parser
     jQuery.getScript("js/less.js", function() {
         jQuery("link[rel~='stylesheet'][href$='.less']").each(function(){
@@ -13,7 +13,7 @@
             jQuery(this).remove();
         });
         window.less.refresh();
-        html.css("visibility", "");
+        html.css("opacity", 1);
         // watch mode
         window.less.poll = 1.5 * (new Date() - startTime);
     });
