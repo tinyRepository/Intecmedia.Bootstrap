@@ -5,9 +5,9 @@
     var startTime = new Date();
     // config less-parser
     window.less = {env: "development", dumpLineNumbers: "comments", logLevel: 2};
-    var html = $("html").css("visibility", "hidden");
+    var html = jQuery("html").css("visibility", "hidden");
     // run less-parser
-    $.getScript("js/less.js", function() {
+    jQuery.getScript("js/less.js", function() {
         jQuery("link[rel~='stylesheet'][href$='.less']").each(function(){
             window.less.sheets.push(this);
             jQuery(this).remove();
