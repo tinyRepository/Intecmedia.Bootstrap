@@ -84,6 +84,7 @@ try {
         $options["sourceMapURL"] = str_replace(DIRECTORY_SEPARATOR, "/", $options["sourceMapURL"]);
     }
 
+    include_once "lib" . DIRECTORY_SEPARATOR. "Less.php";
     include_once "lib" . DIRECTORY_SEPARATOR. "Cache.php";
     $output = Less_Cache::Get(array($input => $options["sourceMapRootpath"]), $options);
     $css = file_get_contents($options["cache_dir"] . DIRECTORY_SEPARATOR . $output);
