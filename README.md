@@ -4,7 +4,7 @@
 ## Особености:
 * Основан на Bootstrap 3.2 
 * Встроен jQuery v1.11.1
-* Встроен Font Awesome 4.1.0
+* Встроен Font Awesome 4.2.0
 * Основан на LESS (для обработки на клиенте используется less.js, на сервере lessphp)
 * Встроена работа с media=print, responsive-css и HTML5-разметки (для IE используется HTML5 Shiv)
 * Содержит базовую типографику текста, форм, таблиц, списков, заголовков
@@ -21,6 +21,18 @@
 
 ## Watch mode
 Для включение watch-режима запустите в консоли браузера следующией: window.less.watch()
+
+## Responsive
+Для создания адаптивной верстки используйте screen-mixin: `screen-xs`, `screen-sm`, `screen-sm-max`, `screen-md`, `screen-md-max` и `screen-lg`.
+```less
+.foo {
+    width: 200px;  
+    .screen-xs({
+        width: 100px;
+    });
+}
+```
+
 
 ## Стилистика кода
 
