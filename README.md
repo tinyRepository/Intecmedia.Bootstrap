@@ -19,7 +19,10 @@
 
 ## Если не работает Less.js в Chrome
 Ошибка в консоли браузера: `Cross origin requests are only supported for HTTP`. 
-Для просмотра html используйте веб-сервер или перезапустить хром с опцией `chrome -allow-file-access-from-files`.
+Для просмотра html используйте веб-сервер или перезапустить хром с параметром `-allow-file-access-from-files`.
+
+## Если не работает Less.js в Opera Presto
+Должен быть включен флаг `opera:config#UserPrefs|AllowFileXMLHttpRequest`.
 
 ## Watch mode
 Для включение watch-режима запустите в консоли браузера следующией: window.less.watch()
