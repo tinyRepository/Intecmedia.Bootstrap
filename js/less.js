@@ -1,5 +1,5 @@
 /*!
- * Less - Leaner CSS v1.7.4
+ * Less - Leaner CSS v1.7.5
  * http://lesscss.org
  *
  * Copyright (c) 2009-2014, Alexis Sellier <self@cloudhead.net>
@@ -1438,9 +1438,19 @@ less.Parser = function Parser(env) {
             combinator: function () {
                 var c = input.charAt(i);
 
+                if (c === '/') {
+                    save();
+                    var slashedCombinator = $re(/^\/[a-z]+\//i);
+                    if (slashedCombinator) {
+                        forget();
+                        return new(tree.Combinator)(slashedCombinator);
+                    }
+                    restore();
+                }
+
                 if (c === '>' || c === '+' || c === '~' || c === '|' || c === '^') {
                     i++;
-                    if (input.charAt(i) === '^') {
+                    if (c === '^' && input.charAt(i) === '^') {
                         c = '^^';
                         i++;
                     }
@@ -1595,6 +1605,7 @@ less.Parser = function Parser(env) {
                         value = this.detachedRuleset();
                     }
 
+                    this.comments();
                     if (!value) {
                         // prefer to try to parse first if its a variable or we are compressing
                         // but always fallback on the other one
@@ -1839,6 +1850,8 @@ less.Parser = function Parser(env) {
                         break;
                 }
 
+                this.comments();
+
                 if (hasIdentifier) {
                     value = this.entity();
                     if (!value) {
@@ -1855,6 +1868,8 @@ less.Parser = function Parser(env) {
                         value = new(tree.Anonymous)(value);
                     }
                 }
+
+                this.comments();
 
                 if (hasBlock) {
                     rules = this.blockRuleset();
@@ -2070,9 +2085,20 @@ less.Parser = function Parser(env) {
                         return name.push(a[1]);
                     }
                 }
+                function cutOutBlockComments() {
+                    //match block comments
+                    var a = /^\s*\/\*(?:[^*]|\*+[^\/*])*\*+\//.exec(c);
+                    if (a) {
+                        length += a[0].length;
+                        c = c.slice(a[0].length);
+                        return true;
+                    }
+                    return false;
+                }
 
                 match(/^(\*?)/);
                 while (match(/^((?:[\w-]+)|(?:@\{[\w-]+\}))/)); // !
+                while (cutOutBlockComments());
                 if ((name.length > 1) && match(/^\s*((?:\+_|\+)?)\s*:/)) {
                     // at last, we have the complete match now. move forward,
                     // convert name particles to tree objects and return:
@@ -2533,6 +2559,13 @@ tree.functions = {
             filePath = mimetype;
         }
 
+        var fragmentStart = filePath.indexOf('#');
+        var fragment = '';
+        if (fragmentStart!==-1) {
+            fragment = filePath.slice(fragmentStart);
+            filePath = filePath.slice(0, fragmentStart);
+        }
+
         if (this.env.isPathRelative(filePath)) {
             if (this.currentFileInfo.relativeUrls) {
                 filePath = path.join(this.currentFileInfo.currentDirectory, filePath);
@@ -2581,7 +2614,7 @@ tree.functions = {
         buf = useBase64 ? buf.toString('base64')
                         : encodeURIComponent(buf);
 
-        var uri = "\"data:" + mimetype + ',' + buf + "\"";
+        var uri = "\"data:" + mimetype + ',' + buf + fragment + "\"";
         return new(tree.URL)(new(tree.Anonymous)(uri));
     },
 
@@ -3936,7 +3969,10 @@ tree.Directive.prototype = {
         }
     },
     isRulesetLike: function() {
-        return "@charset" !== this.name;
+        return !this.isCharset();
+    },
+    isCharset: function() {
+        return "@charset" === this.name;
     },
     genCSS: function (env, output) {
         var value = this.value, rules = this.rules;
@@ -4062,30 +4098,14 @@ tree.Combinator = function (value) {
 };
 tree.Combinator.prototype = {
     type: "Combinator",
-    _outputMap: {
-        ''  : '',
-        ' ' : ' ',
-        ':' : ' :',
-        '+' : ' + ',
-        '~' : ' ~ ',
-        '>' : ' > ',
-        '|' : '|',
-        '^' : ' ^ ',
-        '^^' : ' ^^ '
-    },
-    _outputMapCompressed: {
-        ''  : '',
-        ' ' : ' ',
-        ':' : ' :',
-        '+' : '+',
-        '~' : '~',
-        '>' : '>',
-        '|' : '|',
-        '^' : '^',
-        '^^' : '^^'
+    _noSpaceCombinators: {
+        '': true,
+        ' ': true,
+        '|': true
     },
     genCSS: function (env, output) {
-        output.add((env.compress ? this._outputMapCompressed : this._outputMap)[this.value]);
+        var spaceOrEmpty = (env.compress || this._noSpaceCombinators[this.value]) ? '' : ' ';
+        output.add(spaceOrEmpty + this.value + spaceOrEmpty);
     },
     toCSS: tree.toCSS
 };
@@ -5051,7 +5071,7 @@ tree.Quoted.prototype = {
 
 (function (tree) {
 
-tree.Rule = function (name, value, important, merge, index, currentFileInfo, inline) {
+tree.Rule = function (name, value, important, merge, index, currentFileInfo, inline, variable) {
     this.name = name;
     this.value = (value instanceof tree.Value || value instanceof tree.Ruleset) ? value : new(tree.Value)([value]);
     this.important = important ? ' ' + important.trim() : '';
@@ -5059,7 +5079,8 @@ tree.Rule = function (name, value, important, merge, index, currentFileInfo, inl
     this.index = index;
     this.currentFileInfo = currentFileInfo;
     this.inline = inline || false;
-    this.variable = name.charAt && (name.charAt(0) === '@');
+    this.variable = (variable !== undefined) ? variable
+        : (name.charAt && (name.charAt(0) === '@'));
 };
 
 tree.Rule.prototype = {
@@ -5081,13 +5102,14 @@ tree.Rule.prototype = {
     },
     toCSS: tree.toCSS,
     eval: function (env) {
-        var strictMathBypass = false, name = this.name, evaldValue;
+        var strictMathBypass = false, name = this.name, variable = this.variable, evaldValue;
         if (typeof name !== "string") {
             // expand 'primitive' name directly to get
             // things faster (~10% for benchmark.less):
             name = (name.length === 1) 
                 && (name[0] instanceof tree.Keyword)
                     ? name[0].value : evalName(env, name);
+            variable = false; // never treat expanded interpolation as new variable name
         }
         if (name === "font" && !env.strictMath) {
             strictMathBypass = true;
@@ -5105,7 +5127,8 @@ tree.Rule.prototype = {
                               evaldValue,
                               this.important,
                               this.merge,
-                              this.index, this.currentFileInfo, this.inline);
+                              this.index, this.currentFileInfo, this.inline,
+                              variable);
         }
         catch(e) {
             if (typeof e.index !== 'number') {
@@ -5425,6 +5448,7 @@ tree.Ruleset.prototype = {
     },
     genCSS: function (env, output) {
         var i, j,
+            charsetRuleNodes = [],
             ruleNodes = [],
             rulesetNodes = [],
             rulesetNodeCnt,
@@ -5465,9 +5489,15 @@ tree.Ruleset.prototype = {
             if (isRulesetLikeNode(rule, this.root)) {
                 rulesetNodes.push(rule);
             } else {
-                ruleNodes.push(rule);
+                //charsets should float on top of everything
+                if (rule.isCharset && rule.isCharset()) {
+                    charsetRuleNodes.push(rule);
+                } else {
+                    ruleNodes.push(rule);
+                }
             }
         }
+        ruleNodes = charsetRuleNodes.concat(ruleNodes);
 
         // If this is the root node, we don't render
         // a selector, or {}.
@@ -5805,7 +5835,7 @@ tree.Selector.prototype = {
                 css += v.value.value;
             }
 
-            this._elements = css.match(/[,&#\.\w-]([\w-]|(\\.))*/g);
+            this._elements = css.match(/[,&#\*\.\w-]([\w-]|(\\.))*/g);
 
             if (this._elements) {
                 if (this._elements[0] === "&") {
@@ -6430,7 +6460,7 @@ tree.Variable.prototype = {
             this.env.frames.shift();
         },
         visitMedia: function (mediaNode, visitArgs) {
-            this.env.frames.unshift(mediaNode.ruleset);
+            this.env.frames.unshift(mediaNode.rules[0]);
             return mediaNode;
         },
         visitMediaOut: function (mediaNode) {
@@ -6439,7 +6469,6 @@ tree.Variable.prototype = {
     };
 
 })(require('./tree'));
-
 (function (tree) {
     tree.joinSelectorVisitor = function() {
         this.contexts = [[]];
