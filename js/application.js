@@ -1,4 +1,4 @@
-/*! Intecmedia.Bootstrap  | (c) 2014 Intecmedia. | license public domain */
+/*! Intecmedia.Bootstrap  | (c) 2015 Intecmedia. | license public domain */
 "use strict";
 /* Run less.js parser for only file protocol */
 (window.location.protocol === "file:") && (function() {

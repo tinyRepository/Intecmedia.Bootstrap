@@ -17,7 +17,7 @@
  * AddHandler compile-less .less
  *
  *
- * @copyright 2014 IntecMedia (http://www.intecmedia.ru)
+ * @copyright 2015 IntecMedia (http://www.intecmedia.ru)
  * @author Dmitry Pyatkov(aka dkrnl) <dkrnl@yandex.ru>
  */
 // handle errors
