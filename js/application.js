@@ -1,6 +1,11 @@
 /*! Intecmedia.Bootstrap  | (c) 2015 Intecmedia. | license public domain */
-/* Run less.js parser for only file protocol */
-if (window.location.protocol === "file:") {
+
+(function() {
+    "use strict";
+    /* Run less.js parser for only file protocol */
+    if (window.location.protocol !== "file:") {
+        return;
+    }
     var startTime = new Date(), html = jQuery("html").css("opacity", 0);
     jQuery.ajax("js/less.js", {
         async: false,
@@ -16,7 +21,7 @@ if (window.location.protocol === "file:") {
             less.poll = 1.5 * (new Date() - startTime);
         }
     });
-}
+})();
 
 /* Application */
 jQuery(function($) {
