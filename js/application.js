@@ -1,7 +1,7 @@
 /*! Intecmedia.Bootstrap  | (c) 2015 Intecmedia. | license public domain */
-"use strict";
 /* Run less.js parser for only file protocol */
 (window.location.protocol === "file:") && (function() {
+    "use strict";
     var startTime = new Date(), html = jQuery("html").css("opacity", 0);
     jQuery.ajax("js/less.js", {
         async: false,
@@ -21,6 +21,7 @@
 
 /* Application */
 jQuery(function($) {
+    "use strict";
     var wnd = $(window), doc = $(document);
     /* addtional code here */
 
