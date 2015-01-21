@@ -1,0 +1,7 @@
+{
+    "dependencies": {
+        "grunt": "x.x.x",
+        "grunt-lesslint": "x.x.x",
+        "grunt-contrib-jshint": "x.x.x"
+    }
+}
