@@ -36,12 +36,12 @@
 // Mixin for generating new styles
 .btn-styles(@btn-color: #555) {
     #gradient > .vertical(@start-color: @btn-color; @end-color: darken(@btn-color, 12%));
-    .reset-filter(); // Disable gradients for IE9 because filter bleeds through rounded corners
+    .reset-filter(); // Disable gradients for IE9 because filter bleeds through rounded corners; see https://github.com/twbs/bootstrap/issues/10620
     background-repeat: repeat-x;
     border-color: darken(@btn-color, 14%);
 
     &:hover,
-        &:focus  {
+        &:focus    {
         background-color: darken(@btn-color, 12%);
         background-position: 0 -15px;
     }
@@ -52,6 +52,7 @@
         border-color: darken(@btn-color, 14%);
     }
 
+    &.disabled,
     &:disabled,
         &[disabled] {
         background-color: darken(@btn-color, 12%);
@@ -72,9 +73,9 @@
 .btn-default { .btn-styles(@btn-default-bg); text-shadow: 0 1px 0 #fff; border-color: #ccc; }
 .btn-primary { .btn-styles(@btn-primary-bg); }
 .btn-success { .btn-styles(@btn-success-bg); }
-.btn-info    { .btn-styles(@btn-info-bg); }
+.btn-info        { .btn-styles(@btn-info-bg); }
 .btn-warning { .btn-styles(@btn-warning-bg); }
-.btn-danger  { .btn-styles(@btn-danger-bg); }
+.btn-danger    { .btn-styles(@btn-danger-bg); }
 
 
 //
@@ -130,7 +131,7 @@
 // Inverted navbar
 .navbar-inverse {
     #gradient > .vertical(@start-color: lighten(@navbar-inverse-bg, 10%); @end-color: @navbar-inverse-bg);
-    .reset-filter(); // Remove gradient in IE<10 to fix bug where dropdowns don't get triggered
+    .reset-filter(); // Remove gradient in IE<10 to fix bug where dropdowns don't get triggered; see https://github.com/twbs/bootstrap/issues/10257
 
     .navbar-nav > .open > a,
     .navbar-nav > .active > a {
@@ -182,10 +183,10 @@
 }
 
 // Apply the mixin to the alerts
-.alert-success    { .alert-styles(@alert-success-bg); }
-.alert-info       { .alert-styles(@alert-info-bg); }
-.alert-warning    { .alert-styles(@alert-warning-bg); }
-.alert-danger     { .alert-styles(@alert-danger-bg); }
+.alert-success        { .alert-styles(@alert-success-bg); }
+.alert-info             { .alert-styles(@alert-info-bg); }
+.alert-warning        { .alert-styles(@alert-warning-bg); }
+.alert-danger         { .alert-styles(@alert-danger-bg); }
 
 
 //
@@ -203,11 +204,11 @@
 }
 
 // Apply the mixin to the progress bars
-.progress-bar            { .progress-bar-styles(@progress-bar-bg); }
-.progress-bar-success    { .progress-bar-styles(@progress-bar-success-bg); }
-.progress-bar-info       { .progress-bar-styles(@progress-bar-info-bg); }
-.progress-bar-warning    { .progress-bar-styles(@progress-bar-warning-bg); }
-.progress-bar-danger     { .progress-bar-styles(@progress-bar-danger-bg); }
+.progress-bar                        { .progress-bar-styles(@progress-bar-bg); }
+.progress-bar-success        { .progress-bar-styles(@progress-bar-success-bg); }
+.progress-bar-info             { .progress-bar-styles(@progress-bar-info-bg); }
+.progress-bar-warning        { .progress-bar-styles(@progress-bar-warning-bg); }
+.progress-bar-danger         { .progress-bar-styles(@progress-bar-danger-bg); }
 
 // Reset the striped class because our mixins don't do multiple gradients and
 // the above custom styles override the new `.progress-bar-striped` in v3.2.0.
@@ -252,12 +253,12 @@
 }
 
 // Apply the mixin to the panel headings only
-.panel-default > .panel-heading   { .panel-heading-styles(@panel-default-heading-bg); }
-.panel-primary > .panel-heading   { .panel-heading-styles(@panel-primary-heading-bg); }
-.panel-success > .panel-heading   { .panel-heading-styles(@panel-success-heading-bg); }
-.panel-info > .panel-heading      { .panel-heading-styles(@panel-info-heading-bg); }
-.panel-warning > .panel-heading   { .panel-heading-styles(@panel-warning-heading-bg); }
-.panel-danger > .panel-heading    { .panel-heading-styles(@panel-danger-heading-bg); }
+.panel-default > .panel-heading     { .panel-heading-styles(@panel-default-heading-bg); }
+.panel-primary > .panel-heading     { .panel-heading-styles(@panel-primary-heading-bg); }
+.panel-success > .panel-heading     { .panel-heading-styles(@panel-success-heading-bg); }
+.panel-info > .panel-heading            { .panel-heading-styles(@panel-info-heading-bg); }
+.panel-warning > .panel-heading     { .panel-heading-styles(@panel-warning-heading-bg); }
+.panel-danger > .panel-heading        { .panel-heading-styles(@panel-danger-heading-bg); }
 
 
 //
