@@ -50,7 +50,7 @@
 .navbar-collapse {
     overflow-x: visible;
     padding-right: @navbar-padding-horizontal;
-    padding-left:  @navbar-padding-horizontal;
+    padding-left:    @navbar-padding-horizontal;
     border-top: 1px solid transparent;
     box-shadow: inset 0 1px 0 rgba(255,255,255,.1);
     &:extend(.clearfix all);
@@ -109,11 +109,11 @@
     > .navbar-header,
     > .navbar-collapse {
         margin-right: -@navbar-padding-horizontal;
-        margin-left:  -@navbar-padding-horizontal;
+        margin-left:    -@navbar-padding-horizontal;
 
         @media (min-width: @grid-float-breakpoint) {
             margin-right: 0;
-            margin-left:  0;
+            margin-left:    0;
         }
     }
 }
@@ -234,7 +234,7 @@
     margin: (@navbar-padding-vertical / 2) -@navbar-padding-horizontal;
 
     > li > a {
-        padding-top:    10px;
+        padding-top:        10px;
         padding-bottom: 10px;
         line-height: @line-height-computed;
     }
@@ -271,7 +271,7 @@
         > li {
             float: left;
             > a {
-                padding-top:    @navbar-padding-vertical;
+                padding-top:        @navbar-padding-vertical;
                 padding-bottom: @navbar-padding-vertical;
             }
         }
@@ -331,6 +331,7 @@
 }
 // Menu position and menu caret support for dropups via extra dropup class
 .navbar-fixed-bottom .navbar-nav > li > .dropdown-menu {
+    margin-bottom: 0;
     .border-top-radius(@navbar-border-radius);
     .border-bottom-radius(0);
 }
@@ -376,7 +377,7 @@
 // Declared after the navbar components to ensure more specificity on the margins.
 
 @media (min-width: @grid-float-breakpoint) {
-    .navbar-left  { .pull-left(); }
+    .navbar-left    { .pull-left(); }
     .navbar-right {
         .pull-right();
         margin-right: -@navbar-padding-horizontal;
