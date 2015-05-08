@@ -71,6 +71,12 @@
 * Все блочные теги на отедельной строке.
 * Крупные блоки заключаются в открывающий и закрывающий комментарий.
 * Остальные подробности описаны в [jQuery HTML Style Guide](http://contribute.jquery.org/style-guide/html/).
+* Использовать разметку Schema.org для следующего:
+    * [Адреса и Организации](http://help.yandex.ru/webmaster/supported-schemas/address-organization.xml)
+    * [Видео](http://help.yandex.ru/webmaster/supported-schemas/video.xml)
+    * [Вопросы и Ответы](http://help.yandex.ru/webmaster/supported-schemas/questions.xml)
+    * [Товары и Цены](http://help.yandex.ru/webmaster/supported-schemas/goods-prices.xml)
+    * [Картинки](http://help.yandex.ru/webmaster/supported-schemas/image.xml)
 
 #### пример
 ```html
