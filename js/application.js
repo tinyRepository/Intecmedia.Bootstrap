@@ -116,7 +116,7 @@ require(["jquery", "moment", "datetimepicker"], function($) {
 });
 
 /* Selectize */
-require(["jquery", "selectize"], function($, Selectize) {
+require(["jquery", "selectize"], function($) {
     "use strict";
 
     $("select.form-control:not(.form-select)").each(function() {
