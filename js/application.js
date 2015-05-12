@@ -1,29 +1,6 @@
 /*! Intecmedia.Bootstrap  | (c) 2015 Intecmedia. | license public domain */
 
-/* Run less.js parser for only file protocol */
-(function() {
-    "use strict";
-    if (window.location.protocol !== "file:") {
-        return;
-    }
-    var startTime = new Date(), html = jQuery("html").css("opacity", 0);
-    jQuery.ajax("js/less.js", {
-        async: false,
-        dataType: "script",
-        success: function() {
-            less.logLevel = 2;
-            jQuery("link[rel~='stylesheet'][href$='.less']").each(function() {
-                less.sheets.push(this);
-                jQuery(this).remove();
-            });
-            less.refresh();
-            html.css("opacity", 1);
-            less.poll = 1.5 * (new Date() - startTime);
-        }
-    });
-})();
-
-/* Get base url for modules */
+/* Base modules url */
 var getBaseUrl = function() {
     "use strict";
     if (window.getBaseUrlPath) {
@@ -49,6 +26,32 @@ var getBaseUrl = function() {
     return path;
 };
 
+(function() {
+    "use strict";
+    /* Run less.js parser for only file protocol */
+    if (window.location.protocol !== "file:") {
+        return;
+    }
+    var define = window.define;
+    window.define = null;
+    var startTime = new Date(), html = jQuery("html").css("opacity", 0);
+    jQuery.ajax(getBaseUrl() + "less.js", {
+        async: false,
+        dataType: "script",
+        success: function() {
+            window.define = define;
+            less.logLevel = 2;
+            jQuery("link[rel~='stylesheet'][href$='.less']").each(function() {
+                less.sheets.push(this);
+                jQuery(this).remove();
+            });
+            less.refresh();
+            html.css("opacity", 1);
+            less.poll = 1.5 * (new Date() - startTime);
+        }
+    });
+})();
+
 /* Define modules */
 require.config({
     baseUrl: getBaseUrl(),
@@ -66,10 +69,10 @@ define("jquery", [], function() {
 });
 
 /* Application */
-require(["jquery"], function($, Selectize) {
+require(["jquery", "bootstrap"], function($, bootstrap) {
     "use strict";
     var wnd = $(window), doc = $(document);
-    /* application code here */
 
+    /* application code here */
 
 });
