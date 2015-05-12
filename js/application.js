@@ -63,7 +63,7 @@ require.config({
         "selectize": "selectize.min"
     },
     shim: {
-        "datetimepicker": ["bootstrap", "moment"],
+        "datetimepicker": ["bootstrap", "moment"]
     }
 });
 
