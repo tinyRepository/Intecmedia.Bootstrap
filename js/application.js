@@ -69,10 +69,10 @@ define("jquery", [], function() {
 });
 
 /* Application */
-require(["jquery", "bootstrap"], function($, bootstrap) {
+require(["jquery", "bootstrap"], function($) {
     "use strict";
     var wnd = $(window), doc = $(document);
 
-    /* application code here */
+    /* APPLICATION CODE HERE */
 
 });
