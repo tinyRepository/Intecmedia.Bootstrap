@@ -56,10 +56,14 @@ var getBaseUrl = function() {
 require.config({
     baseUrl: getBaseUrl(),
     paths: {
+        "bootstrap": "bootstrap.min",
+        "datetimepicker": "bootstrap-datetimepicker.min",
         "jquery.migrate": "jquery-migrate.min",
-        "bootstrap": "bootstrap.min"
+        "moment": "moment.min",
+        "selectize": "selectize.min"
     },
     shim: {
+        "datetimepicker": ["bootstrap", "moment"],
     }
 });
 
@@ -75,4 +79,54 @@ require(["jquery", "bootstrap"], function($) {
 
     /* APPLICATION CODE HERE */
 
+});
+
+/* Datetimepicker */
+require(["jquery", "moment", "datetimepicker"], function($) {
+    "use strict";
+
+    $.fn.datetimepicker.defaults = $.extend(true, {}, $.fn.datetimepicker.defaults, {
+        showClear: true,
+        showTodayButton: true,
+        locale: moment.locale("ru"),
+        icons: {
+            time: "fa fa-clock-o",
+            date: "fa fa-calendar",
+            up: "fa fa-caret-up",
+            down: "fa fa-caret-down",
+            previous: "fa fa-caret-left",
+            next: "fa fa-caret-right",
+            today: "fa fa-crosshairs",
+            clear: "fa fa-times"
+        }
+    });
+
+    $("div[data-provide=\"datetimepicker\"]").datetimepicker();
+
+    $(document).on(
+        "focus.datetimepicker.data-api click.datetimepicker.data-api",
+        "input[data-provide=\"datetimepicker\"]",
+        function (event) {
+            var self = $(this);
+            var datetimepicker = self.data("DateTimePicker") || self.datetimepicker();
+            event.preventDefault();
+            datetimepicker.show();
+        }
+    );
+});
+
+/* Selectize */
+require(["jquery", "selectize"], function($, Selectize) {
+    "use strict";
+
+    $("select.form-control:not(.form-select)").each(function() {
+        var select = $(this), options = {plugins: {}};
+        if (select.prop("multiple")) {
+            options.hideSelected = false;
+            options.plugins["remove_button"] = {};
+        }
+        options.allowEmptyOption = true;
+        options = $.extend(true, {}, options, select.data());
+        select.selectize(options);
+    });
 });

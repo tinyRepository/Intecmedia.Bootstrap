@@ -71,6 +71,106 @@
       </code>
       <input type="text" class="form-control" id="input-focus" autofocus>
     </div>
+
+<fieldset/>
+
+<br><br>
+
+<fieldset class="bs-example" id="form-datetime">
+    <legend>Datetimepicker</legend>
+
+    <div class="form-group has-feedback">
+      <label class="control-label">Date and time</label>
+      <input type="text" class="form-control" data-provide="datetimepicker" data-date-format="L LT">
+      <span class="glyphicon glyphicon-calendar form-control-feedback"></span>
+    </div>
+    <div class="form-group has-feedback">
+      <label class="control-label">Date only</label>
+      <input type="text" class="form-control" data-provide="datetimepicker" data-date-format="L">
+      <span class="glyphicon glyphicon-calendar form-control-feedback"></span>
+    </div>
+    <div class="form-group has-feedback">
+      <label class="control-label">Time only</label>
+      <input type="text" class="form-control" data-provide="datetimepicker" data-date-format="LT">
+      <span class="glyphicon glyphicon-time form-control-feedback"></span>
+    </div>
+    <div class="form-group">
+      <label class="control-label">Separated</label>
+      <div class="row">
+        <div class="col-md-3 col-xs-6">
+          <div class="form-group has-feedback">
+            <input type="text" class="form-control" data-provide="datetimepicker" data-date-format="L">
+            <span class="glyphicon glyphicon-calendar form-control-feedback"></span>
+          </div>
+        </div>
+        <div class="col-md-3 col-xs-6">
+          <div class="form-group has-feedback">
+            <input type="text" class="form-control col-md-6" data-provide="datetimepicker" data-date-format="LT">
+            <span class="glyphicon glyphicon-time form-control-feedback"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="control-label">Separated input group </label>
+      <div class="input-group col-md-4">
+        <label class="input-group-addon" for="datetimepicker_0">
+            <span class="glyphicon glyphicon-calendar"></span>
+        </label>
+        <input type="text" class="form-control" id="datetimepicker_0" data-provide="datetimepicker" data-date-format="L">
+        <label class="input-group-addon" for="datetimepicker_1">
+            <span class="glyphicon glyphicon-time"></span>
+        </label>
+        <input type="text" class="form-control col-md-6" id="datetimepicker_1" data-provide="datetimepicker" data-date-format="LT">
+      </div>
+    </div>
+</fieldset>
+
+<br><br>
+
+<fieldset class="bs-example" id="selects">
+    <legend>Selects</legend>
+
+    <div class="form-group">
+      <label class="control-label">Original select</label>
+      <select class="form-control form-select">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="control-label">Selectize</label>
+      <select class="form-control">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select>
+    </div>
+    <div class="form-group has-error">
+      <label class="control-label">Selectize with error</label>
+      <select class="form-control">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select>
+    </div>
+    <div class="form-group has-error">
+      <label class="control-label">Selectize multiple</label>
+      <select class="form-control" multiple>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select>
+    </div>
 </fieldset>
 
 <br><br>
