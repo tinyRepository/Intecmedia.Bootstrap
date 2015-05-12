@@ -12,6 +12,7 @@
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="js/pace.min.js"></script>
     <!---
     <link rel="apple-touch-icon-precomposed" sizes="144x144" href="img/ico/apple-touch-icon-144-precomposed.png">
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="img/ico/apple-touch-icon-114-precomposed.png">
@@ -20,7 +21,7 @@
     <meta name="msapplication-TileImage" content="img/ico/apple-touch-icon-144-precomposed.png">
     <meta name="msapplication-TileColor" content="#3372DF">
     <link rel="shortcut icon" href="img/ico/favicon.png">
-    -->    
+    -->
     <link rel="stylesheet" type="text/css" href="css/style.less">
     <!--[if lt IE 9]>
     <script src="js/es5-shim.min.js"></script>
@@ -29,7 +30,7 @@
     <script src="js/respond.min.js"></script>
     <![endif]-->
     <script src="js/jquery.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
+    <script src="js/require.min.js"></script>
     <script src="js/application.js"></script>
 </head>
 <body>
@@ -70,9 +71,7 @@
       </code>
       <input type="text" class="form-control" id="input-focus" autofocus>
     </div>
-</fieldset>
-
-<br><br>
+<fieldset/>
 
 <fieldset class="bs-example" id="buttons-normal">
     <legend>Normal state</legend>
@@ -124,6 +123,105 @@
     <p class="help-block">
       <b>Примачание:</b> выключеное состояние всех видов кнопок, отличается от обычного прозрачностью.
     </p>
+</fieldset>
+
+<br><br>
+
+<fieldset class="bs-example" id="form-datetime">
+    <legend>Datetimepicker</legend>
+
+    <div class="form-group has-feedback">
+      <label class="control-label">Date and time</label>
+      <input type="text" class="form-control" data-provide="datetimepicker" data-date-format="L LT">
+      <span class="glyphicon glyphicon-calendar form-control-feedback"></span>
+    </div>
+    <div class="form-group has-feedback">
+      <label class="control-label">Date only</label>
+      <input type="text" class="form-control" data-provide="datetimepicker" data-date-format="L">
+      <span class="glyphicon glyphicon-calendar form-control-feedback"></span>
+    </div>
+    <div class="form-group has-feedback">
+      <label class="control-label">Time only</label>
+      <input type="text" class="form-control" data-provide="datetimepicker" data-date-format="LT">
+      <span class="glyphicon glyphicon-time form-control-feedback"></span>
+    </div>
+    <div class="form-group">
+      <label class="control-label">Separated</label>
+      <div class="row">
+        <div class="col-md-3 col-xs-6">
+          <div class="form-group has-feedback">
+            <input type="text" class="form-control" data-provide="datetimepicker" data-date-format="L">
+            <span class="glyphicon glyphicon-calendar form-control-feedback"></span>
+          </div>
+        </div>
+        <div class="col-md-3 col-xs-6">
+          <div class="form-group has-feedback">
+            <input type="text" class="form-control col-md-6" data-provide="datetimepicker" data-date-format="LT">
+            <span class="glyphicon glyphicon-time form-control-feedback"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="control-label">Separated input group </label>
+      <div class="input-group col-md-4">
+        <label class="input-group-addon" for="datetimepicker_0">
+            <span class="glyphicon glyphicon-calendar"></span>
+        </label>
+        <input type="text" class="form-control" id="datetimepicker_0" data-provide="datetimepicker" data-date-format="L">
+        <label class="input-group-addon" for="datetimepicker_1">
+            <span class="glyphicon glyphicon-time"></span>
+        </label>
+        <input type="text" class="form-control col-md-6" id="datetimepicker_1" data-provide="datetimepicker" data-date-format="LT">
+      </div>
+    </div>
+</fieldset>
+
+<br><br>
+
+<fieldset class="bs-example" id="form-selects">
+    <legend>Selects</legend>
+
+    <div class="form-group">
+      <label class="control-label">Original select</label>
+      <select class="form-control form-select">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="control-label">Selectize</label>
+      <select class="form-control">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select>
+    </div>
+    <div class="form-group has-error">
+      <label class="control-label">Selectize with error</label>
+      <select class="form-control">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select>
+    </div>
+    <div class="form-group has-error">
+      <label class="control-label">Selectize multiple</label>
+      <select class="form-control" multiple>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select>
+    </div>
 </fieldset>
 
 </div>

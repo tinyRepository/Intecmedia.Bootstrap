@@ -2,20 +2,23 @@
 Это внутренний стандарт/шаблон для верстки сайтов компании [Intecmedia](http://intecmedia.ru)
 
 ## Особености:
-* Основан на Bootstrap 3.3 
-* Встроен jQuery v1.11.1
+* Основан на Bootstrap 3.3
+* Встроен jQuery v1.11
 * Встроен Font Awesome 4.2.0
+* Модульный AMD-подход(Asynchronous Module Definition) в организации Javascript через RequireJS
 * Основан на LESS (для обработки на клиенте используется less.js, на сервере lessphp)
 * Встроена работа с media=print, responsive-css и HTML5-разметки (для IE используется HTML5 Shiv)
 * Содержит базовую типографику текста, форм, таблиц, списков, заголовков
 * Совсместимо со всеми современными браузерами (минимальная версия Internet Exploere это 8 -- используйте классы `.lt-ie9`, `.lt-ie8` и `.lt-ie7`)
+* Для поля ввода даты используется [Bootstrap Datepicker](https://eonasdan.github.io/bootstrap-datetimepicker/)
+* Для замены select-полей используется  [Selectize](http://brianreavis.github.io/selectize.js/)
 
 ## Примечания:
 * Ваша задача состоит в стилизации bootstrap.
 * Не следует разрушать стандартные компоненты bootstrap, они будут использоваться многовариантно.
 * Перед началом работы определите основные переменные в файле `css/variables.less`
 * Дополнительный css должен содержатся в файле `css/style.less`
-* Дополнительный javascript должен содержатся в `js/application.js`
+* Дополнительный javascript должен содержатся в `js/application.js` и загружаться через RequireJS
 
 ## Если не работает Less.js в Chrome
 Ошибка в консоли браузера: `Cross origin requests are only supported for HTTP`. 
@@ -106,7 +109,14 @@
 ### Javascript
 * Отсупы в четыре пробела
 * Остальные подробности описаны в [jQuery JavaScript Style Guide](http://contribute.jquery.org/style-guide/js/)
-
+* Модульный AMD-подход(asynchronous module definition) в организации Javascript через RequireJS
+```javascript
+require(["jquery", "bootstrap"], function($) {
+    "use strict";
+    var wnd = $(window), doc = $(document);
+    $("[data-toggle=tooltip]").tooltip();
+});
+```
 
 ## Компоненты:
 * [Bootstrap](http://getbootstrap.com/): Apache License v2.0
@@ -117,6 +127,10 @@
 * [Respond.js](https://github.com/scottjehl/Respond): MIT Licensed
 * [es5-shim](https://github.com/es-shims/es5-shim): MIT Licensed
 * [Font Awesome](http://fortawesome.github.io/Font-Awesome/): MIT License
+* [Pace](http://github.hubspot.com/pace/): MIT License
+* [RequireJS](http://requirejs.org/): MIT License
+* [Bootstrap Datepicker](https://eonasdan.github.io/bootstrap-datetimepicker/): MIT License
+* [Selectize](http://brianreavis.github.io/selectize.js/): Apache License
 
 ## Ссылки:
 * [Less](http://lesscss.org/)
@@ -124,3 +138,5 @@
 * [jQuery JavaScript Style Guide](http://contribute.jquery.org/style-guide/js/)
 * [jQuery HTML Style Guide](http://contribute.jquery.org/style-guide/html/).
 * [Principles of writing consistent, idiomatic CSS](https://github.com/necolas/idiomatic-css/tree/master/translations/ru-RU).
+* [Asynchronous Module Definition](https://github.com/amdjs/amdjs-api/wiki/AMD).
+* [Модульный подход к разработке web-приложений с использованием JavaScript: AMD и RequireJS](http://habrahabr.ru/post/152833/).
