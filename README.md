@@ -10,13 +10,15 @@
 * Встроена работа с media=print, responsive-css и HTML5-разметки (для IE используется HTML5 Shiv)
 * Содержит базовую типографику текста, форм, таблиц, списков, заголовков
 * Совсместимо со всеми современными браузерами (минимальная версия Internet Exploere это 8 -- используйте классы `.lt-ie9`, `.lt-ie8` и `.lt-ie7`)
+* Для поля ввода даты используется [Bootstrap Datepicker](https://eonasdan.github.io/bootstrap-datetimepicker/)
+* Для замены select-полей используется  [Selectize](http://brianreavis.github.io/selectize.js/)
 
 ## Примечания:
 * Ваша задача состоит в стилизации bootstrap.
 * Не следует разрушать стандартные компоненты bootstrap, они будут использоваться многовариантно.
 * Перед началом работы определите основные переменные в файле `css/variables.less`
 * Дополнительный css должен содержатся в файле `css/style.less`
-* Дополнительный javascript должен содержатся в `js/application.js`
+* Дополнительный javascript должен содержатся в `js/application.js` и загружаться через RequireJS
 
 ## Если не работает Less.js в Chrome
 Ошибка в консоли браузера: `Cross origin requests are only supported for HTTP`. 
@@ -121,6 +123,8 @@ require(["jquery", "bootstrap"], function($) {
 * [Font Awesome](http://fortawesome.github.io/Font-Awesome/): MIT License
 * [Pace](http://github.hubspot.com/pace/): MIT License
 * [RequireJS](http://requirejs.org/): MIT License
+* [Bootstrap Datepicker](https://eonasdan.github.io/bootstrap-datetimepicker/): MIT License
+* [Selectize](http://brianreavis.github.io/selectize.js/): Apache License
 
 ## Ссылки:
 * [Less](http://lesscss.org/)
