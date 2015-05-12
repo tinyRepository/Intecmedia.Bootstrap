@@ -63,7 +63,7 @@ require.config({
         "selectize": "selectize.min"
     },
     shim: {
-        "datetimepicker": ["bootstrap", "moment"],
+        "datetimepicker": ["bootstrap", "moment"]
     }
 });
 
@@ -100,8 +100,6 @@ require(["jquery", "moment", "datetimepicker"], function($) {
             clear: "fa fa-times"
         }
     });
-
-    $("div[data-provide=\"datetimepicker\"]").datetimepicker();
 
     $(document).on(
         "focus.datetimepicker.data-api click.datetimepicker.data-api",
