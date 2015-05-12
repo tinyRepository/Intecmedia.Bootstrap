@@ -101,8 +101,6 @@ require(["jquery", "moment", "datetimepicker"], function($) {
         }
     });
 
-    $("div[data-provide=\"datetimepicker\"]").datetimepicker();
-
     $(document).on(
         "focus.datetimepicker.data-api click.datetimepicker.data-api",
         "input[data-provide=\"datetimepicker\"]",
