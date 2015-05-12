@@ -111,6 +111,7 @@
 * [Respond.js](https://github.com/scottjehl/Respond): MIT Licensed
 * [es5-shim](https://github.com/es-shims/es5-shim): MIT Licensed
 * [Font Awesome](http://fortawesome.github.io/Font-Awesome/): MIT License
+* [Pace](http://github.hubspot.com/pace/): MIT License
 
 ## Ссылки:
 * [Less](http://lesscss.org/)
