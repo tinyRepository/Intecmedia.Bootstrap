@@ -72,13 +72,40 @@ define("jquery", [], function() {
     return jQuery;
 });
 
+/* Javascript media detector */
+require(["jquery"], function($) {
+    "use strict";
+    var wnd = $(window), doc = $(document.documentElement);
+    var screenSize = $("<div id=\"screen-size\">").appendTo(doc);
+    screenSize.css({position:"absolute", width: "1px", height: "1px"});
+    var screenXs = $("<div class=\"visible-xs\">").appendTo(screenSize);
+    var screenSm = $("<div class=\"visible-sm\">").appendTo(screenSize);
+    var screenMd = $("<div class=\"visible-md\">").appendTo(screenSize);
+    var screenLg = $("<div class=\"visible-lg\">").appendTo(screenSize);
+    wnd.on("resize.screen-size", function() {
+        if (screenXs.is(":visible")) {
+            doc.removeClass("screen-sm screen-md screen-lg");
+            doc.addClass("screen-xs").attr("data-screen", "xs");
+        } else if (screenSm.is(":visible")) {
+            doc.removeClass("screen-xs screen-md screen-lg");
+            doc.addClass("screen-sm").attr("data-screen", "sm");
+        } else if (screenMd.is(":visible")) {
+            doc.removeClass("screen-xs screen-sm screen-lg");
+            doc.addClass("screen-md").attr("data-screen", "md");
+        } else if (screenLg.is(":visible")) {
+            doc.removeClass("screen-xs screen-sm screen-md");
+            doc.addClass("screen-lg").attr("data-screen", "lg");
+        }
+    });
+    wnd.trigger("resize.screen-size");
+});
+
 /* Application */
 require(["jquery", "bootstrap"], function($) {
     "use strict";
     var wnd = $(window), doc = $(document);
 
     /* APPLICATION CODE HERE */
-
 });
 
 /* Datetimepicker */
