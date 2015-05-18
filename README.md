@@ -12,6 +12,7 @@
 * Совсместимо со всеми современными браузерами (минимальная версия Internet Exploere это 8 -- используйте классы `.lt-ie9`, `.lt-ie8` и `.lt-ie7`)
 * Для поля ввода даты используется [Bootstrap Datepicker](https://eonasdan.github.io/bootstrap-datetimepicker/)
 * Для замены select-полей используется  [Selectize](http://brianreavis.github.io/selectize.js/)
+* Responsive images через [Picturefill](http://scottjehl.github.io/picturefill)
 
 ## Примечания:
 * Ваша задача состоит в стилизации bootstrap.
@@ -131,6 +132,7 @@ require(["jquery", "bootstrap"], function($) {
 * [RequireJS](http://requirejs.org/): MIT License
 * [Bootstrap Datepicker](https://eonasdan.github.io/bootstrap-datetimepicker/): MIT License
 * [Selectize](http://brianreavis.github.io/selectize.js/): Apache License
+* [Picturefill](http://scottjehl.github.io/picturefill): MIT License
 
 ## Ссылки:
 * [Less](http://lesscss.org/)
@@ -140,3 +142,4 @@ require(["jquery", "bootstrap"], function($) {
 * [Principles of writing consistent, idiomatic CSS](https://github.com/necolas/idiomatic-css/tree/master/translations/ru-RU).
 * [Asynchronous Module Definition](https://github.com/amdjs/amdjs-api/wiki/AMD).
 * [Модульный подход к разработке web-приложений с использованием JavaScript: AMD и RequireJS](http://habrahabr.ru/post/152833/).
+* [Picturefill 2.0: Responsive Images And The Perfect Polyfill](http://www.smashingmagazine.com/2014/05/12/picturefill-2-0-responsive-images-and-the-perfect-polyfill/).

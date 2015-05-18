@@ -60,6 +60,7 @@ require.config({
         "datetimepicker": "bootstrap-datetimepicker.min",
         "jquery.migrate": "jquery-migrate.min",
         "moment": "moment.min",
+        "picturefill": "picturefill.min",
         "selectize": "selectize.min"
     },
     shim: {
@@ -73,12 +74,11 @@ define("jquery", [], function() {
 });
 
 /* Application */
-require(["jquery", "bootstrap"], function($) {
+require(["jquery", "bootstrap", "picturefill"], function($) {
     "use strict";
     var wnd = $(window), doc = $(document);
 
     /* APPLICATION CODE HERE */
-
 });
 
 /* Datetimepicker */
