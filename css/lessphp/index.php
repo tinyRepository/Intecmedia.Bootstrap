@@ -54,6 +54,10 @@ ob_start();
 @ini_set("zlib.output_compression", true);
 @ini_set("zlib.output_compression_level", 9);
 
+// https://github.com/oyejorge/less.php/issues/55
+// http://stackoverflow.com/questions/7620910/regexp-in-preg-match-function-returning-browser-error
+@ini_set("pcre.recursion_limit", 524);
+
 try {
     // security check
     if (!$input || strpos($input, $docroot) !== 0) {
