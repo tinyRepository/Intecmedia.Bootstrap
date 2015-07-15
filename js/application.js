@@ -65,6 +65,8 @@ require.config({
         "selectize": "selectize.min"
     },
     shim: {
+        "selectize.init": ["selectize"],
+        "datetimepicker.init": ["datetimepicker"],
         "datetimepicker": ["bootstrap", "moment"]
     }
 });
@@ -85,8 +87,8 @@ require(["jquery", "bootstrap"], function($) {
     /* APPLICATION CODE HERE */
 });
 
-/* Datetimepicker input */
-require(["jquery", "moment", "datetimepicker"], function($) {
+/* Datetimepicker input: define */
+define("datetimepicker.init", ["jquery", "moment", "datetimepicker"], function($, moment) {
     "use strict";
 
     $.fn.datetimepicker.defaults = $.extend(true, {}, $.fn.datetimepicker.defaults, {
@@ -117,8 +119,8 @@ require(["jquery", "moment", "datetimepicker"], function($) {
     );
 });
 
-/* Selectize input */
-require(["jquery", "selectize"], function($) {
+/* Selectize input: define */
+define("selectize.init", ["jquery", "selectize"], function($) {
     "use strict";
 
     $("select.form-control:not(.form-select)").each(function() {
@@ -131,4 +133,15 @@ require(["jquery", "selectize"], function($) {
         options = $.extend(true, {}, options, select.data());
         select.selectize(options);
     });
+});
+
+require(["jquery"], function($) {
+    /* Datetimepicker input: lazy load */
+    if ($("input[data-provide=\"datetimepicker\"]").length) {
+        require(["datetimepicker.init"]);
+    }
+    /* Selectize input: lazy load */
+    if ($("select.form-control:not(.form-select)").length) {
+        require(["selectize.init"]);
+    }
 });
