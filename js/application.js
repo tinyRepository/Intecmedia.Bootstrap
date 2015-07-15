@@ -15,7 +15,7 @@ var getBaseUrl = function() {
             break;
         }
     }
-    if (path.indexOf(":/") == -1 && path.slice(0, 2) != "//") {
+    if (path.indexOf(":/") === -1 && path.slice(0, 2) !== "//") {
         if (path.indexOf("/") === 0) {
             path = location.href.match(/^.*?:\/\/[^\/]*/)[0] + path;
         } else {
@@ -106,14 +106,14 @@ require(["jquery", "moment", "datetimepicker"], function($) {
     });
 
     $(document).on(
-        "focus.datetimepicker.data-api click.datetimepicker.data-api",
-        "input[data-provide=\"datetimepicker\"]",
-        function (event) {
-            var self = $(this);
-            var datetimepicker = self.data("DateTimePicker") || self.datetimepicker();
-            event.preventDefault();
-            datetimepicker.show();
-        }
+            "focus.datetimepicker.data-api click.datetimepicker.data-api",
+            "input[data-provide=\"datetimepicker\"]",
+            function(event) {
+                var self = $(this);
+                var datetimepicker = self.data("DateTimePicker") || self.datetimepicker();
+                event.preventDefault();
+                datetimepicker.show();
+            }
     );
 });
 
@@ -125,7 +125,6 @@ require(["jquery", "selectize"], function($) {
         var select = $(this), options = {plugins: {}};
         if (select.prop("multiple")) {
             options.hideSelected = false;
-            options.plugins["remove_button"] = {};
         }
         options.allowEmptyOption = true;
         options = $.extend(true, {}, options, select.data());
