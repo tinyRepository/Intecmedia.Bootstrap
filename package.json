@@ -1,7 +1,22 @@
 {
+    "name": "Intecmedia.Bootstrap",
+    "description": "Intecmedia HTML Template",
+    "version": "0.0.1",
+    "homepage": "http://intecmedia.ru",
+    "author": "Intecmedia, Ltd.",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/intecmedia/Intecmedia.Bootstrap.git"
+    },
+    "bugs": {
+        "url": "https://github.com/intecmedia/Intecmedia.Bootstrap/issues"
+    },
+    "license": "MIT",
     "dependencies": {
         "grunt": "x.x.x",
         "grunt-lesslint": "x.x.x",
-        "grunt-contrib-jshint": "x.x.x"
+        "grunt-contrib-less": "x.x.x",
+        "grunt-contrib-jshint": "x.x.x",
+        "grunt-contrib-watch": "x.x.x"
     }
 }

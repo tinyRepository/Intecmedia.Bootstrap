@@ -1,8 +1,10 @@
 module.exports = function (grunt) {
     "use strict";
 
-    grunt.loadNpmTasks("grunt-lesslint");
     grunt.loadNpmTasks("grunt-contrib-jshint");
+    grunt.loadNpmTasks("grunt-contrib-less");
+    grunt.loadNpmTasks("grunt-contrib-watch");
+    grunt.loadNpmTasks("grunt-lesslint");
 
     grunt.initConfig({
         jshint: {
@@ -16,12 +18,34 @@ module.exports = function (grunt) {
                 }
             }
         },
+        less: {
+            production: {
+                options: {
+                    strictMath: true
+                },
+                files: {
+                    "css/style.css": "css/style.less"
+                }
+            },
+            development: {
+                options: {
+                    strictMath: true
+                },
+                files: {
+                    "css/style.css": "css/style.less"
+                }
+            }
+        },
+        watch: {
+            files: "css/*.less",
+            tasks: ["less"]
+        },
         lesslint: {
             src: ["css/bootstrap.less", "css/style.less"]
         }
     });
 
-    grunt.registerTask("test", ["jshint", "lesslint"]);
-    grunt.registerTask("default", ["jshint", "lesslint"]);
-
+    grunt.registerTask("lint", ["jshint", "lesslint"]);
+    grunt.registerTask("less", ["less"]);
+    grunt.registerTask("watch", ["watch"]);
 };

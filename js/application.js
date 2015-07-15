@@ -125,7 +125,6 @@ require(["jquery", "selectize"], function($) {
         var select = $(this), options = {plugins: {}};
         if (select.prop("multiple")) {
             options.hideSelected = false;
-            options.plugins["remove_button"] = {};
         }
         options.allowEmptyOption = true;
         options = $.extend(true, {}, options, select.data());
