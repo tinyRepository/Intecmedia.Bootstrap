@@ -36,19 +36,20 @@ var getBaseUrl = function() {
     var define = window.define;
     window.define = null;
     var startTime = new Date(), html = jQuery("html").css("opacity", 0);
+    window.less = {env: "development", logLevel: 2, async: false, fileAsync: false, rootpath: "./css/"};
     jQuery.ajax(getBaseUrl() + "less.js", {
         async: false,
         dataType: "script",
         success: function() {
             window.define = define;
-            less.logLevel = 2;
+            window.less.logLevel = 2;
             jQuery("link[rel~='stylesheet'][href$='.less']").each(function() {
-                less.sheets.push(this);
+                window.less.sheets.push(this);
                 jQuery(this).remove();
             });
-            less.refresh();
+            window.less.refresh();
             html.css("opacity", 1);
-            less.poll = 1.5 * (new Date() - startTime);
+            window.less.poll = 1.5 * (new Date() - startTime);
         }
     });
 })();
@@ -125,6 +126,7 @@ require(["jquery", "selectize"], function($) {
         var select = $(this), options = {plugins: {}};
         if (select.prop("multiple")) {
             options.hideSelected = false;
+            options.plugins.remove_button = {};
         }
         options.allowEmptyOption = true;
         options = $.extend(true, {}, options, select.data());
