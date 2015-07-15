@@ -42,7 +42,6 @@ var getBaseUrl = function() {
         dataType: "script",
         success: function() {
             window.define = define;
-            window.less.logLevel = 2;
             jQuery("link[rel~='stylesheet'][href$='.less']").each(function() {
                 window.less.sheets.push(this);
                 jQuery(this).remove();
