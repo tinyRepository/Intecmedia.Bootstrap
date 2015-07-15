@@ -11,7 +11,7 @@ module.exports = function (grunt) {
                     strictMath: true
                 },
                 files: {
-                    "css/style.css": "css/style.less"
+                    "css/style.min.css": "css/style.less"
                 }
             },
             development: {
@@ -19,14 +19,14 @@ module.exports = function (grunt) {
                     strictMath: true
                 },
                 files: {
-                    "css/style.css": "css/style.less"
+                    "css/style.min.css": "css/style.less"
                 }
             }
         },
         watch: {
             files: "css/*.less",
             tasks: ["less"]
-        },
+        }
     });
 
     grunt.registerTask("less", ["less"]);
