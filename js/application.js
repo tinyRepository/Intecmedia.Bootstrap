@@ -36,7 +36,7 @@ var getBaseUrl = function() {
     var define = window.define;
     window.define = null;
     var startTime = new Date(), html = jQuery("html").css("opacity", 0);
-    window.less = {env: "development", logLevel: 2, async: false, fileAsync: false, rootpath: "./css/"};
+    window.less = {env: "development", logLevel: 2, async: false, fileAsync: false, relativeUrls: false};
     jQuery.ajax(getBaseUrl() + "less.js", {
         async: false,
         dataType: "script",
