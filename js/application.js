@@ -1,6 +1,6 @@
 /*! Intecmedia.Bootstrap  | (c) 2015 Intecmedia. | license public domain */
 
-/* Base modules url */
+/* Base modules url (js directory) */
 var getBaseUrl = function() {
     "use strict";
     if (window.getBaseUrlPath) {
@@ -26,6 +26,7 @@ var getBaseUrl = function() {
     return path;
 };
 
+/* Remove this function before using in production */
 (function() {
     "use strict";
     /* Run less.js parser for only file protocol */
@@ -73,15 +74,18 @@ define("jquery", [], function() {
     return jQuery;
 });
 
-/* Application */
-require(["jquery", "bootstrap", "picturefill"], function($) {
+/* Responsive image polyfill */
+require(["picturefill"]);
+
+/* Main application */
+require(["jquery", "bootstrap"], function($) {
     "use strict";
     var wnd = $(window), doc = $(document);
 
     /* APPLICATION CODE HERE */
 });
 
-/* Datetimepicker */
+/* Datetimepicker input */
 require(["jquery", "moment", "datetimepicker"], function($) {
     "use strict";
 
@@ -113,7 +117,7 @@ require(["jquery", "moment", "datetimepicker"], function($) {
     );
 });
 
-/* Selectize */
+/* Selectize input */
 require(["jquery", "selectize"], function($) {
     "use strict";
 
