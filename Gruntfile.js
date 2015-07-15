@@ -33,14 +33,14 @@ module.exports = function (grunt) {
                     imageAlpha: true,
                     jpegMini: false
                 },
-                src: ["img/*.png"]
+                src: ["img/*.png", "img/*/*.png"]
             },
             allJpgs: {
                 options: {
                     imageAlpha: false,
                     jpegMini: true
                 },
-                src: ["img/*.jpg", "img/*.jpeg"]
+                src: ["img/*.jpg", "img/*.jpeg", "img/*/*.jpg", "img/*/*.jpeg"]
             }
         }
     });
