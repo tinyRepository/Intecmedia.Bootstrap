@@ -80,6 +80,8 @@ try {
         "sourceMapRootpath" => substr(dirname($input), strlen($docroot)),
         "cache_dir" => __DIR__ . DIRECTORY_SEPARATOR . "cache",
         "cache_method" => false,
+        "strictMath" => true,
+        "relativeUrls" => false,
     );
 
     $options["sourceMapWriteTo"] = $options["cache_dir"] . DIRECTORY_SEPARATOR . "lessphp_" . md5($input) . ".map";
@@ -90,7 +92,7 @@ try {
 
     include_once "lib" . DIRECTORY_SEPARATOR . "Less.php";
     include_once "lib" . DIRECTORY_SEPARATOR . "Cache.php";
-    $output = Less_Cache::Get(array($input => $options["sourceMapRootpath"]), $options);
+    $output = Less_Cache::Get(array($input => $options["sourceMapRootpath"] . "/"), $options);
     $css = file_get_contents($options["cache_dir"] . DIRECTORY_SEPARATOR . $output);
     $mtime = filectime($options["cache_dir"] . DIRECTORY_SEPARATOR . $output);
     if (isset($_SERVER["HTTP_IF_MODIFIED_SINCE"]) && strtotime($_SERVER["HTTP_IF_MODIFIED_SINCE"]) >= $mtime) {
