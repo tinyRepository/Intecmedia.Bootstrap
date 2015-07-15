@@ -7,7 +7,7 @@
 * Встроен Font Awesome 4.2.0
 * Модульный AMD-подход(Asynchronous Module Definition) в организации Javascript через RequireJS
 * Основан на LESS (для обработки на клиенте используется less.js, на сервере lessphp)
-* Встроена работа с media=print, responsive-css и HTML5-разметки (для IE используется HTML5 Shiv)
+* Встроена работа с media=print, responsive-css и HTML5-разметки
 * Содержит базовую типографику текста, форм, таблиц, списков, заголовков
 * Совсместимо со всеми современными браузерами (минимальная версия Internet Explorer 9)
 * Для поля ввода даты используется [Bootstrap Datepicker](https://eonasdan.github.io/bootstrap-datetimepicker/)
@@ -118,9 +118,6 @@ require(["jquery", "bootstrap"], function($) {
 * [Less.php](http://lessphp.gpeasy.com): Apache License v2.0
 * [less.js](http://lesscss.org ): MIT/GPL3 Licensed
 * [jQuery](http://jquery.com/): MIT/GPL license
-* [HTML5 Shiv](https://code.google.com/p/html5shiv/): MIT/GPL2 Licensed
-* [Respond.js](https://github.com/scottjehl/Respond): MIT Licensed
-* [es5-shim](https://github.com/es-shims/es5-shim): MIT Licensed
 * [Font Awesome](http://fortawesome.github.io/Font-Awesome/): MIT License
 * [Pace](http://github.hubspot.com/pace/): MIT License
 * [RequireJS](http://requirejs.org/): MIT License
