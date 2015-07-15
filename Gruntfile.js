@@ -29,6 +29,6 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask("less", ["less"]);
-    grunt.registerTask("watch", ["watch"]);
+    grunt.registerTask("less", ["less:dist"]);
+    grunt.registerTask("watch", ["watch:dist"]);
 };
