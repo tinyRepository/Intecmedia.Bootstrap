@@ -3,7 +3,6 @@ module.exports = function (grunt) {
 
     grunt.loadNpmTasks("grunt-contrib-less");
     grunt.loadNpmTasks("grunt-contrib-watch");
-    grunt.loadNpmTasks('grunt-imageoptim');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON("package.json"),
@@ -23,29 +22,9 @@ module.exports = function (grunt) {
         watch: {
             files: "css/*.less",
             tasks: ["less"]
-        },
-        imageoptim: {
-            options: {
-                quitAfter: true
-            },
-            allPngs: {
-                options: {
-                    imageAlpha: true,
-                    jpegMini: false
-                },
-                src: ["img/*.png", "img/*/*.png"]
-            },
-            allJpgs: {
-                options: {
-                    imageAlpha: false,
-                    jpegMini: true
-                },
-                src: ["img/*.jpg", "img/*.jpeg", "img/*/*.jpg", "img/*/*.jpeg"]
-            }
         }
     });
 
     grunt.registerTask("myLess", ["less:intecmedia"]);
     grunt.registerTask("myWatch", ["watch:intecmedia"]);
-    grunt.registerTask("myImageOptim", ["imageoptim:intecmedia"]);
 };
