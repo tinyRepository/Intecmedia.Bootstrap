@@ -29,6 +29,6 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask("less", ["less:dist"]);
-    grunt.registerTask("watch", ["watch:dist"]);
+    grunt.registerTask("myLess", ["less:intecmedia"]);
+    grunt.registerTask("myWatch", ["watch:intecmedia"]);
 };
