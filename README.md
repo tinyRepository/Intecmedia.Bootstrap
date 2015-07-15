@@ -9,7 +9,7 @@
 * Основан на LESS (для обработки на клиенте используется less.js, на сервере lessphp)
 * Встроена работа с media=print, responsive-css и HTML5-разметки (для IE используется HTML5 Shiv)
 * Содержит базовую типографику текста, форм, таблиц, списков, заголовков
-* Совсместимо со всеми современными браузерами (минимальная версия Internet Exploere это 8 -- используйте классы `.lt-ie9`, `.lt-ie8` и `.lt-ie7`)
+* Совсместимо со всеми современными браузерами (минимальная версия Internet Explorer 9)
 * Для поля ввода даты используется [Bootstrap Datepicker](https://eonasdan.github.io/bootstrap-datetimepicker/)
 * Для замены select-полей используется  [Selectize](http://brianreavis.github.io/selectize.js/)
 * Responsive images через [Picturefill](http://scottjehl.github.io/picturefill)
