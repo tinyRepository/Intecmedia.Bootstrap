@@ -6,7 +6,7 @@
 
 Отнеситесь к прочтению внимательно, да бы не терять свое и чужое время. 
 
-Предложения и замечания приветствуются в разделе [Issue](https://github.com/Intecmedia/Intecmedia.Bootstrap/issues/new).
+Предложения и замечания приветствуются в разделе [Issues](https://github.com/Intecmedia/Intecmedia.Bootstrap/issues/new) или [Pull requests](https://github.com/intecmedia/Intecmedia.Bootstrap/pulls).
 
 ## Особености:
 * Основан на Bootstrap 3.3
