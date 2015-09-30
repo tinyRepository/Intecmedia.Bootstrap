@@ -9,8 +9,7 @@ require_once( dirname(__FILE__) . '/Version.php');
  * @subpackage cache
  *
  */
-class Less_Cache
-{
+class Less_Cache {
 
     // directory less.php can use for storing data
     public static $cache_dir = false;
@@ -31,8 +30,7 @@ class Less_Cache
      * @param array $modify_vars Array of variables
      * @return string Name of the css file
      */
-    public static function Get($less_files, $parser_options = array(), $modify_vars = array())
-    {
+    public static function Get($less_files, $parser_options = array(), $modify_vars = array()) {
 
 
         //check $cache_dir
@@ -89,7 +87,7 @@ class Less_Cache
                 self::ListFiles($list_file, $list, $cached_name);
                 $compiled_name = self::CompiledName($list);
 
-                // if $cached_name != $compiled_name, we know we need to recompile
+                // if $cached_name is the same as the $compiled name, don't regenerate
                 if (!$cached_name || $cached_name === $compiled_name) {
 
                     $output_file = self::OutputFile($compiled_name, $parser_options);
@@ -136,14 +134,12 @@ class Less_Cache
      * @param array $modify_vars Array of variables
      * @return string Name of the css file
      */
-    public static function Regen($less_files, $parser_options = array(), $modify_vars = array())
-    {
+    public static function Regen($less_files, $parser_options = array(), $modify_vars = array()) {
         $parser_options['use_cache'] = false;
         return self::Get($less_files, $parser_options, $modify_vars);
     }
 
-    public static function Cache(&$less_files, $parser_options = array())
-    {
+    public static function Cache(&$less_files, $parser_options = array()) {
 
 
         // get less.php if it exists
@@ -176,8 +172,7 @@ class Less_Cache
         return $compiled;
     }
 
-    private static function OutputFile($compiled_name, $parser_options)
-    {
+    private static function OutputFile($compiled_name, $parser_options) {
 
         //custom output file
         if (!empty($parser_options['output'])) {
@@ -193,8 +188,7 @@ class Less_Cache
         return Less_Cache::$cache_dir . $compiled_name;
     }
 
-    private static function CompiledName($files)
-    {
+    private static function CompiledName($files) {
 
         //save the file list
         $temp = array(Less_Version::cache_version);
@@ -205,13 +199,11 @@ class Less_Cache
         return Less_Cache::$prefix . sha1(json_encode($temp)) . '.css';
     }
 
-    public static function SetCacheDir($dir)
-    {
+    public static function SetCacheDir($dir) {
         Less_Cache::$cache_dir = $dir;
     }
 
-    public static function CheckCacheDir()
-    {
+    public static function CheckCacheDir() {
 
         Less_Cache::$cache_dir = str_replace('\\', '/', Less_Cache::$cache_dir);
         Less_Cache::$cache_dir = rtrim(Less_Cache::$cache_dir, '/') . '/';
@@ -231,8 +223,7 @@ class Less_Cache
      * Delete unused less.php files
      *
      */
-    public static function CleanCache()
-    {
+    public static function CleanCache() {
         static $clean = false;
 
         if ($clean) {
@@ -249,7 +240,7 @@ class Less_Cache
                     continue;
                 }
 
-                $full_path = Less_Cache::$cache_dir . '/' . $file;
+                $full_path = Less_Cache::$cache_dir . $file;
 
                 // make sure the file still exists
                 // css files may have already been deleted
@@ -277,7 +268,7 @@ class Less_Cache
                 if ($type === 'list') {
                     self::ListFiles($full_path, $list, $css_file_name);
                     if ($css_file_name) {
-                        $css_file = Less_Cache::$cache_dir . '/' . $css_file_name;
+                        $css_file = Less_Cache::$cache_dir . $css_file_name;
                         if (file_exists($css_file)) {
                             unlink($css_file);
                         }
@@ -295,8 +286,7 @@ class Less_Cache
      * Get the list of less files and generated css file from a list file
      *
      */
-    static function ListFiles($list_file, &$list, &$css_file_name)
-    {
+    static function ListFiles($list_file, &$list, &$css_file_name) {
 
         $list = explode("\n", file_get_contents($list_file));
 
