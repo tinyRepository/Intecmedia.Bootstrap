@@ -9,8 +9,7 @@ require_once( dirname(__FILE__) . '/Cache.php');
  * @subpackage parser
  *
  */
-class Less_Parser
-{
+class Less_Parser {
 
     /**
      * Default parser options
@@ -40,12 +39,13 @@ class Less_Parser
     private $pos;     // current index in `input`
     private $saveStack = array(); // holds state for backtracking
     private $furthest;
+    private $mb_internal_encoding = ''; // for remember exists value of mbstring.internal_encoding
 
     /**
      * @var Less_Environment
      */
     private $env;
-    private $rules = array();
+    protected $rules = array();
     private static $imports = array();
     public static $has_extends = false;
     public static $next_id = 0;
@@ -60,8 +60,7 @@ class Less_Parser
     /**
      * @param Less_Environment|array|null $env
      */
-    public function __construct($env = null)
-    {
+    public function __construct($env = null) {
 
         // Top parser on an import tree must be sure there is one "env"
         // which will then be passed around by reference.
@@ -71,14 +70,21 @@ class Less_Parser
             $this->SetOptions(Less_Parser::$default_options);
             $this->Reset($env);
         }
+
+        // mbstring.func_overload > 1 bugfix
+        // The encoding value must be set for each source file,
+        // therefore, to conserve resources and improve the speed of this design is taken here
+        if (ini_get('mbstring.func_overload')) {
+            $this->mb_internal_encoding = ini_get('mbstring.internal_encoding');
+            @ini_set('mbstring.internal_encoding', 'ascii');
+        }
     }
 
     /**
      * Reset the parser state completely
      *
      */
-    public function Reset($options = null)
-    {
+    public function Reset($options = null) {
         $this->rules = array();
         self::$imports = array();
         self::$has_extends = false;
@@ -100,8 +106,7 @@ class Less_Parser
      *  options: import_dirs, cache_dir, cache_method
      *
      */
-    public function SetOptions($options)
-    {
+    public function SetOptions($options) {
         foreach ($options as $option => $value) {
             $this->SetOption($option, $value);
         }
@@ -111,8 +116,7 @@ class Less_Parser
      * Set one compiler option
      *
      */
-    public function SetOption($option, $value)
-    {
+    public function SetOption($option, $value) {
 
         switch ($option) {
 
@@ -137,8 +141,7 @@ class Less_Parser
      * @param  string   $name     function name
      * @param  callable $callback callback
      */
-    public function registerFunction($name, $callback)
-    {
+    public function registerFunction($name, $callback) {
         $this->env->functions[$name] = $callback;
     }
 
@@ -147,8 +150,7 @@ class Less_Parser
      *
      * @param  string $name function name
      */
-    public function unregisterFunction($name)
-    {
+    public function unregisterFunction($name) {
         if (isset($this->env->functions[$name]))
             unset($this->env->functions[$name]);
     }
@@ -158,8 +160,7 @@ class Less_Parser
      *
      * @return string
      */
-    public function getCss()
-    {
+    public function getCss() {
 
         $precision = ini_get('precision');
         @ini_set('precision', 16);
@@ -202,10 +203,19 @@ class Less_Parser
         @ini_set('precision', $precision);
         setlocale(LC_NUMERIC, $locale);
 
+        // If you previously defined $this->mb_internal_encoding 
+        // is required to return the encoding as it was before
+        if ($this->mb_internal_encoding != '') {
+            @ini_set("mbstring.internal_encoding", $this->mb_internal_encoding);
+            $this->mb_internal_encoding = '';
+        }
+
         // Rethrow exception after we handled resetting the environment
         if (!empty($exc)) {
             throw $exc;
         }
+
+
 
         return $css;
     }
@@ -214,8 +224,7 @@ class Less_Parser
      * Run pre-compile visitors
      *
      */
-    private function PreVisitors($root)
-    {
+    private function PreVisitors($root) {
 
         if (Less_Parser::$options['plugins']) {
             foreach (Less_Parser::$options['plugins'] as $plugin) {
@@ -230,8 +239,7 @@ class Less_Parser
      * Run post-compile visitors
      *
      */
-    private function PostVisitors($evaldRoot)
-    {
+    private function PostVisitors($evaldRoot) {
 
         $visitors = array();
         $visitors[] = new Less_Visitor_joinSelector();
@@ -268,15 +276,14 @@ class Less_Parser
      * @param string $uri_root The url of the file
      * @return Less_Tree_Ruleset|Less_Parser
      */
-    public function parse($str, $file_uri = null)
-    {
+    public function parse($str, $file_uri = null) {
 
         if (!$file_uri) {
             $uri_root = '';
             $filename = 'anonymous-file-' . Less_Parser::$next_id++ . '.less';
         } else {
             $file_uri = self::WinPath($file_uri);
-            $filename = basename($file_uri);
+            $filename = $file_uri;
             $uri_root = dirname($file_uri);
         }
 
@@ -303,8 +310,7 @@ class Less_Parser
      * @param bool $returnRoot Indicates whether the return value should be a css string a root node
      * @return Less_Tree_Ruleset|Less_Parser
      */
-    public function parseFile($filename, $uri_root = '', $returnRoot = false)
-    {
+    public function parseFile($filename, $uri_root = '', $returnRoot = false) {
 
         if (!file_exists($filename)) {
             $this->Error(sprintf('File `%s` not found.', $filename));
@@ -350,8 +356,7 @@ class Less_Parser
      * @param array $vars
      * @return Less_Parser
      */
-    public function ModifyVars($vars)
-    {
+    public function ModifyVars($vars) {
 
         $this->input = Less_Parser::serializeVars($vars);
         $this->_parse();
@@ -362,8 +367,7 @@ class Less_Parser
     /**
      * @param string $filename
      */
-    public function SetFileInfo($filename, $uri_root = '')
-    {
+    public function SetFileInfo($filename, $uri_root = '') {
 
         $filename = Less_Environment::normalizePath($filename);
         $dirname = preg_replace('/[^\/\\\\]*$/', '', $filename);
@@ -403,8 +407,7 @@ class Less_Parser
      * @deprecated 1.5.1.2
      *
      */
-    public function SetCacheDir($dir)
-    {
+    public function SetCacheDir($dir) {
 
         if (!file_exists($dir)) {
             if (mkdir($dir)) {
@@ -427,8 +430,7 @@ class Less_Parser
      *
      * @param array $dirs
      */
-    public function SetImportDirs($dirs)
-    {
+    public function SetImportDirs($dirs) {
         Less_Parser::$options['import_dirs'] = array();
 
         foreach ($dirs as $path => $uri_root) {
@@ -452,19 +454,8 @@ class Less_Parser
     /**
      * @param string $file_path
      */
-    private function _parse($file_path = null)
-    {
-        if (ini_get("mbstring.func_overload")) {
-            $mb_internal_encoding = ini_get("mbstring.internal_encoding");
-            @ini_set("mbstring.internal_encoding", "ascii");
-        }
-
+    private function _parse($file_path = null) {
         $this->rules = array_merge($this->rules, $this->GetRules($file_path));
-
-        //reset php settings
-        if (isset($mb_internal_encoding)) {
-            @ini_set("mbstring.internal_encoding", $mb_internal_encoding);
-        }
     }
 
     /**
@@ -473,8 +464,7 @@ class Less_Parser
      *
      * @param string|null $file_path
      */
-    private function GetRules($file_path)
-    {
+    private function GetRules($file_path) {
 
         $this->SetInput($file_path);
 
@@ -558,8 +548,7 @@ class Less_Parser
      * Set up the input buffer
      *
      */
-    public function SetInput($file_path)
-    {
+    public function SetInput($file_path) {
 
         if ($file_path) {
             $this->input = file_get_contents($file_path);
@@ -582,14 +571,12 @@ class Less_Parser
      * Free up some memory
      *
      */
-    public function UnsetInput()
-    {
+    public function UnsetInput() {
         unset($this->input, $this->pos, $this->input_len, $this->furthest);
         $this->saveStack = array();
     }
 
-    public function CacheFile($file_path)
-    {
+    public function CacheFile($file_path) {
 
         if ($file_path && $this->CacheEnabled()) {
 
@@ -607,41 +594,34 @@ class Less_Parser
         }
     }
 
-    static function AddParsedFile($file)
-    {
+    static function AddParsedFile($file) {
         self::$imports[] = $file;
     }
 
-    static function AllParsedFiles()
-    {
+    static function AllParsedFiles() {
         return self::$imports;
     }
 
     /**
      * @param string $file
      */
-    static function FileParsed($file)
-    {
+    static function FileParsed($file) {
         return in_array($file, self::$imports);
     }
 
-    function save()
-    {
+    function save() {
         $this->saveStack[] = $this->pos;
     }
 
-    private function restore()
-    {
+    private function restore() {
         $this->pos = array_pop($this->saveStack);
     }
 
-    private function forget()
-    {
+    private function forget() {
         array_pop($this->saveStack);
     }
 
-    private function isWhitespace($offset = 0)
-    {
+    private function isWhitespace($offset = 0) {
         return preg_match('/\s/', $this->input[$this->pos + $offset]);
     }
 
@@ -651,8 +631,7 @@ class Less_Parser
      * @param array $toks
      * @return array
      */
-    private function match($toks)
-    {
+    private function match($toks) {
 
         // The match is confirmed, add the match length to `this::pos`,
         // and consume any extra white-space characters (' ' || '\n')
@@ -688,8 +667,7 @@ class Less_Parser
      *
      * @return string
      */
-    private function MatchFuncs($toks)
-    {
+    private function MatchFuncs($toks) {
 
         if ($this->pos < $this->input_len) {
             foreach ($toks as $tok) {
@@ -702,8 +680,7 @@ class Less_Parser
     }
 
     // Match a single character in the input,
-    private function MatchChar($tok)
-    {
+    private function MatchChar($tok) {
         if (($this->pos < $this->input_len) && ($this->input[$this->pos] === $tok)) {
             $this->skipWhitespace(1);
             return $tok;
@@ -711,8 +688,7 @@ class Less_Parser
     }
 
     // Match a regexp from the current start point
-    private function MatchReg($tok)
-    {
+    private function MatchReg($tok) {
 
         if (preg_match($tok, $this->input, $match, 0, $this->pos)) {
             $this->skipWhitespace(strlen($match[0]));
@@ -727,16 +703,14 @@ class Less_Parser
      * @param string $tok
      * @return integer
      */
-    public function PeekReg($tok)
-    {
+    public function PeekReg($tok) {
         return preg_match($tok, $this->input, $match, 0, $this->pos);
     }
 
     /**
      * @param string $tok
      */
-    public function PeekChar($tok)
-    {
+    public function PeekChar($tok) {
         //return ($this->input[$this->pos] === $tok );
         return ($this->pos < $this->input_len) && ($this->input[$this->pos] === $tok );
     }
@@ -744,8 +718,7 @@ class Less_Parser
     /**
      * @param integer $length
      */
-    public function skipWhitespace($length)
-    {
+    public function skipWhitespace($length) {
 
         $this->pos += $length;
 
@@ -762,8 +735,7 @@ class Less_Parser
      * @param string $tok
      * @param string|null $msg
      */
-    public function expect($tok, $msg = NULL)
-    {
+    public function expect($tok, $msg = NULL) {
         $result = $this->match(array($tok));
         if (!$result) {
             $this->Error($msg ? "Expected '" . $tok . "' got '" . $this->input[$this->pos] . "'" : $msg );
@@ -775,8 +747,7 @@ class Less_Parser
     /**
      * @param string $tok
      */
-    public function expectChar($tok, $msg = null)
-    {
+    public function expectChar($tok, $msg = null) {
         $result = $this->MatchChar($tok);
         if (!$result) {
             $this->Error($msg ? "Expected '" . $tok . "' got '" . $this->input[$this->pos] . "'" : $msg );
@@ -830,8 +801,7 @@ class Less_Parser
 	// Only at one point is the primary rule not called from the
     // block rule: at the root level.
     //
-	private function parsePrimary()
-    {
+	private function parsePrimary() {
         $root = array();
 
         while (true) {
@@ -866,8 +836,7 @@ class Less_Parser
     // We create a Comment node for CSS comments `/* */`,
     // but keep the LeSS comments `//` silent, by just skipping
     // over them.
-    private function parseComment()
-    {
+    private function parseComment() {
 
         if ($this->input[$this->pos] !== '/') {
             return;
@@ -885,8 +854,7 @@ class Less_Parser
         }
     }
 
-    private function parseComments()
-    {
+    private function parseComments() {
         $comments = array();
 
         while ($this->pos < $this->input_len) {
@@ -906,8 +874,7 @@ class Less_Parser
     //
 	//	 "milky way" 'he\'s the one!'
     //
-	private function parseEntitiesQuoted()
-    {
+	private function parseEntitiesQuoted() {
         $j = $this->pos;
         $e = false;
         $index = $this->pos;
@@ -941,8 +908,7 @@ class Less_Parser
     //
 	//	 black border-collapse
     //
-	private function parseEntitiesKeyword()
-    {
+	private function parseEntitiesKeyword() {
 
         //$k = $this->MatchReg('/\\G[_A-Za-z-][_A-Za-z0-9-]*/');
         $k = $this->MatchReg('/\\G%|\\G[_A-Za-z-][_A-Za-z0-9-]*/');
@@ -957,8 +923,7 @@ class Less_Parser
     }
 
     // duplicate of Less_Tree_Color::FromKeyword
-    private function FromKeyword($keyword)
-    {
+    private function FromKeyword($keyword) {
         $keyword = strtolower($keyword);
 
         if (Less_Colors::hasOwnProperty($keyword)) {
@@ -981,8 +946,7 @@ class Less_Parser
     //
 	// The arguments are parsed with the `entities.arguments` parser.
     //
-	private function parseEntitiesCall()
-    {
+	private function parseEntitiesCall() {
         $index = $this->pos;
 
         if (!preg_match('/\\G([\w-]+|%|progid:[\w\.]+)\(/', $this->input, $name, 0, $this->pos)) {
@@ -1022,8 +986,7 @@ class Less_Parser
      *
      * @return array
      */
-    private function parseEntitiesArguments()
-    {
+    private function parseEntitiesArguments() {
 
         $args = array();
         while (true) {
@@ -1040,8 +1003,7 @@ class Less_Parser
         return $args;
     }
 
-    private function parseEntitiesLiteral()
-    {
+    private function parseEntitiesLiteral() {
         return $this->MatchFuncs(array('parseEntitiesDimension', 'parseEntitiesColor', 'parseEntitiesQuoted', 'parseUnicodeDescriptor'));
     }
 
@@ -1050,8 +1012,7 @@ class Less_Parser
     //
 	//	 filter: progid:DXImageTransform.Microsoft.Alpha( *opacity=50* )
     //
-	private function parseEntitiesAssignment()
-    {
+	private function parseEntitiesAssignment() {
 
         $key = $this->MatchReg('/\\G\w+(?=\s?=)/');
         if (!$key) {
@@ -1075,8 +1036,7 @@ class Less_Parser
     // standard function calls. The difference is that the argument doesn't have
     // to be enclosed within a string, so it can't be parsed as an Expression.
     //
-	private function parseEntitiesUrl()
-    {
+	private function parseEntitiesUrl() {
 
 
         if ($this->input[$this->pos] !== 'u' || !$this->matchReg('/\\Gurl\(/')) {
@@ -1107,8 +1067,7 @@ class Less_Parser
 	// We use a different parser for variable definitions,
     // see `parsers.variable`.
     //
-	private function parseEntitiesVariable()
-    {
+	private function parseEntitiesVariable() {
         $index = $this->pos;
         if ($this->PeekChar('@') && ($name = $this->MatchReg('/\\G@@?[\w-]+/'))) {
             return $this->NewObj3('Less_Tree_Variable', array($name[0], $index, $this->env->currentFileInfo));
@@ -1116,8 +1075,7 @@ class Less_Parser
     }
 
     // A variable entity useing the protective {} e.g. @{var}
-    private function parseEntitiesVariableCurly()
-    {
+    private function parseEntitiesVariableCurly() {
         $index = $this->pos;
 
         if ($this->input_len > ($this->pos + 1) && $this->input[$this->pos] === '@' && ($curly = $this->MatchReg('/\\G@\{([\w-]+)\}/'))) {
@@ -1132,8 +1090,7 @@ class Less_Parser
     //
 	// `rgb` and `hsl` colors are parsed through the `entities.call` parser.
     //
-	private function parseEntitiesColor()
-    {
+	private function parseEntitiesColor() {
         if ($this->PeekChar('#') && ($rgb = $this->MatchReg('/\\G#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/'))) {
             return $this->NewObj1('Less_Tree_Color', $rgb[1]);
         }
@@ -1144,8 +1101,7 @@ class Less_Parser
     //
 	//	 0.5em 95%
     //
-	private function parseEntitiesDimension()
-    {
+	private function parseEntitiesDimension() {
 
         $c = @ord($this->input[$this->pos]);
 
@@ -1169,8 +1125,7 @@ class Less_Parser
     //
 	// U+0?? or U+00A1-00A9
     //
-	function parseUnicodeDescriptor()
-    {
+	function parseUnicodeDescriptor() {
         $ud = $this->MatchReg('/\\G(U\+[0-9a-fA-F?]+)(\-[0-9a-fA-F?]+)?/');
         if ($ud) {
             return $this->NewObj1('Less_Tree_UnicodeDescriptor', $ud[0]);
@@ -1182,8 +1137,7 @@ class Less_Parser
     //
 	//	 `window.location.href`
     //
-	private function parseEntitiesJavascript()
-    {
+	private function parseEntitiesJavascript() {
         $e = false;
         $j = $this->pos;
         if ($this->input[$j] === '~') {
@@ -1207,8 +1161,7 @@ class Less_Parser
     //
 	//	 @fink:
     //
-	private function parseVariable()
-    {
+	private function parseVariable() {
         if ($this->PeekChar('@') && ($name = $this->MatchReg('/\\G(@[\w-]+)\s*:/'))) {
             return $name[1];
         }
@@ -1219,8 +1172,7 @@ class Less_Parser
     //
 	// @fink();
     //
-	private function parseRulesetCall()
-    {
+	private function parseRulesetCall() {
 
         if ($this->input[$this->pos] === '@' && ($name = $this->MatchReg('/\\G(@[\w-]+)\s*\(\s*\)\s*;/'))) {
             return $this->NewObj1('Less_Tree_RulesetCall', $name[1]);
@@ -1230,8 +1182,7 @@ class Less_Parser
     //
     // extend syntax - used to extend selectors
     //
-	function parseExtend($isRule = false)
-    {
+	function parseExtend($isRule = false) {
 
         $index = $this->pos;
         $extendList = array();
@@ -1283,8 +1234,7 @@ class Less_Parser
     // namespaced, but we only support the child and descendant
     // selector for now.
     //
-	private function parseMixinCall()
-    {
+	private function parseMixinCall() {
 
         $char = $this->input[$this->pos];
         if ($char !== '.' && $char !== '#') {
@@ -1317,8 +1267,7 @@ class Less_Parser
         $this->restore();
     }
 
-    private function parseMixinCallElements()
-    {
+    private function parseMixinCallElements() {
         $elements = array();
         $c = null;
 
@@ -1338,8 +1287,7 @@ class Less_Parser
     /**
      * @param boolean $isCall
      */
-    private function parseMixinArgs($isCall)
-    {
+    private function parseMixinArgs($isCall) {
         $expressions = array();
         $argsSemiColon = array();
         $isSemiColonSeperated = null;
@@ -1495,8 +1443,7 @@ class Less_Parser
 	// Once we've got our params list, and a closing `)`, we parse
     // the `{...}` block.
     //
-	private function parseMixinDefinition()
-    {
+	private function parseMixinDefinition() {
         $cond = null;
 
         $char = $this->input[$this->pos];
@@ -1550,8 +1497,7 @@ class Less_Parser
     // Entities are the smallest recognized token,
     // and can be found inside a rule's value.
     //
-	private function parseEntity()
-    {
+	private function parseEntity() {
 
         return $this->MatchFuncs(array('parseEntitiesLiteral', 'parseEntitiesVariable', 'parseEntitiesUrl', 'parseEntitiesCall', 'parseEntitiesKeyword', 'parseEntitiesJavascript', 'parseComment'));
     }
@@ -1561,8 +1507,7 @@ class Less_Parser
     // because the `block` rule will be expecting it, but we still need to make sure
     // it's there, if ';' was ommitted.
     //
-	private function parseEnd()
-    {
+	private function parseEnd() {
         return $this->MatchChar(';') || $this->PeekChar('}');
     }
 
@@ -1571,8 +1516,7 @@ class Less_Parser
     //
 	//	 alpha(opacity=88)
     //
-	private function parseAlpha()
-    {
+	private function parseAlpha() {
 
         if (!$this->MatchReg('/\\G\(opacity=/i')) {
             return;
@@ -1604,8 +1548,7 @@ class Less_Parser
     // they are made out of a `Combinator` (see combinator rule),
     // and an element name, such as a tag a class, or `*`.
     //
-	private function parseElement()
-    {
+	private function parseElement() {
         $c = $this->parseCombinator();
         $index = $this->pos;
 
@@ -1639,8 +1582,7 @@ class Less_Parser
     // as it's an empty space. We have to check the previous character
     // in the input, to see if it's a ` ` character.
     //
-	private function parseCombinator()
-    {
+	private function parseCombinator() {
         if ($this->pos < $this->input_len) {
             $c = $this->input[$this->pos];
             if ($c === '>' || $c === '+' || $c === '~' || $c === '|' || $c === '^') {
@@ -1666,8 +1608,7 @@ class Less_Parser
     // A CSS selector (see selector below)
     // with less extensions e.g. the ability to extend and guard
     //
-	private function parseLessSelector()
-    {
+	private function parseLessSelector() {
         return $this->parseSelector(true);
     }
 
@@ -1679,8 +1620,7 @@ class Less_Parser
     //
 	// Selectors are made out of one or more Elements, see above.
     //
-	private function parseSelector($isLess = false)
-    {
+	private function parseSelector($isLess = false) {
         $elements = array();
         $extendList = array();
         $condition = null;
@@ -1721,13 +1661,11 @@ class Less_Parser
         }
     }
 
-    private function parseTag()
-    {
+    private function parseTag() {
         return ( $tag = $this->MatchReg('/\\G[A-Za-z][A-Za-z-]*[0-9]?/') ) ? $tag : $this->MatchChar('*');
     }
 
-    private function parseAttribute()
-    {
+    private function parseAttribute() {
 
         $val = null;
 
@@ -1754,8 +1692,7 @@ class Less_Parser
     // The `block` rule is used by `ruleset` and `mixin.definition`.
     // It's a wrapper around the `primary` rule, with added `{}`.
     //
-	private function parseBlock()
-    {
+	private function parseBlock() {
         if ($this->MatchChar('{')) {
             $content = $this->parsePrimary();
             if ($this->MatchChar('}')) {
@@ -1764,8 +1701,7 @@ class Less_Parser
         }
     }
 
-    private function parseBlockRuleset()
-    {
+    private function parseBlockRuleset() {
         $block = $this->parseBlock();
 
         if ($block) {
@@ -1775,8 +1711,7 @@ class Less_Parser
         return $block;
     }
 
-    private function parseDetachedRuleset()
-    {
+    private function parseDetachedRuleset() {
         $blockRuleset = $this->parseBlockRuleset();
         if ($blockRuleset) {
             return $this->NewObj1('Less_Tree_DetachedRuleset', $blockRuleset);
@@ -1786,8 +1721,7 @@ class Less_Parser
     //
     // div, .class, body > p {...}
     //
-	private function parseRuleset()
-    {
+	private function parseRuleset() {
         $selectors = array();
 
         $this->save();
@@ -1832,8 +1766,7 @@ class Less_Parser
      * ex: width:100px;
      *
      */
-    private function parseNameValue()
-    {
+    private function parseNameValue() {
 
         $index = $this->pos;
         $this->save();
@@ -1857,8 +1790,7 @@ class Less_Parser
         $this->restore();
     }
 
-    private function parseRule($tryAnonymous = null)
-    {
+    private function parseRule($tryAnonymous = null) {
 
         $merge = false;
         $startOfRule = $this->pos;
@@ -1921,8 +1853,7 @@ class Less_Parser
         }
     }
 
-    function parseAnonymousValue()
-    {
+    function parseAnonymousValue() {
 
         if (preg_match('/\\G([^@+\/\'"*`(;{}-]*);/', $this->input, $match, 0, $this->pos)) {
             $this->pos += strlen($match[1]);
@@ -1940,8 +1871,7 @@ class Less_Parser
     // file-system operation. The function used for importing is
     // stored in `import`, which we pass to the Import constructor.
     //
-	private function parseImport()
-    {
+	private function parseImport() {
 
         $this->save();
 
@@ -1967,8 +1897,7 @@ class Less_Parser
         $this->restore();
     }
 
-    private function parseImportOptions()
-    {
+    private function parseImportOptions() {
 
         $options = array();
 
@@ -2000,16 +1929,14 @@ class Less_Parser
         return $options;
     }
 
-    private function parseImportOption()
-    {
+    private function parseImportOption() {
         $opt = $this->MatchReg('/\\G(less|css|multiple|once|inline|reference)/');
         if ($opt) {
             return $opt[1];
         }
     }
 
-    private function parseMediaFeature()
-    {
+    private function parseMediaFeature() {
         $nodes = array();
 
         do {
@@ -2038,8 +1965,7 @@ class Less_Parser
         }
     }
 
-    private function parseMediaFeatures()
-    {
+    private function parseMediaFeatures() {
         $features = array();
 
         do {
@@ -2061,8 +1987,7 @@ class Less_Parser
         return $features ? $features : null;
     }
 
-    private function parseMedia()
-    {
+    private function parseMedia() {
         if ($this->MatchReg('/\\G@media/')) {
             $features = $this->parseMediaFeatures();
             $rules = $this->parseBlock();
@@ -2078,8 +2003,7 @@ class Less_Parser
     //
 	// @charset "utf-8";
     //
-	private function parseDirective()
-    {
+	private function parseDirective() {
 
         if (!$this->PeekChar('@')) {
             return;
@@ -2194,8 +2118,7 @@ class Less_Parser
 	// In a Rule, a Value represents everything after the `:`,
     // and before the `;`.
     //
-	private function parseValue()
-    {
+	private function parseValue() {
         $expressions = array();
 
         do {
@@ -2213,15 +2136,13 @@ class Less_Parser
         }
     }
 
-    private function parseImportant()
-    {
+    private function parseImportant() {
         if ($this->PeekChar('!') && $this->MatchReg('/\\G! *important/')) {
             return ' !important';
         }
     }
 
-    private function parseSub()
-    {
+    private function parseSub() {
 
         if ($this->MatchChar('(')) {
             $a = $this->parseAddition();
@@ -2237,8 +2158,7 @@ class Less_Parser
      *
      * @return Less_Tree_Operation|null
      */
-    function parseMultiplication()
-    {
+    function parseMultiplication() {
 
         $return = $m = $this->parseOperand();
         if ($return) {
@@ -2277,8 +2197,7 @@ class Less_Parser
      *
      * @return Less_Tree_Operation|null
      */
-    private function parseAddition()
-    {
+    private function parseAddition() {
 
         $return = $m = $this->parseMultiplication();
         if ($return) {
@@ -2317,8 +2236,7 @@ class Less_Parser
      *
      * @return Less_Tree_Condition|null
      */
-    private function parseConditions()
-    {
+    private function parseConditions() {
         $index = $this->pos;
         $return = $a = $this->parseCondition();
         if ($a) {
@@ -2337,8 +2255,7 @@ class Less_Parser
         }
     }
 
-    private function parseCondition()
-    {
+    private function parseCondition() {
         $index = $this->pos;
         $negate = false;
         $c = null;
@@ -2371,8 +2288,7 @@ class Less_Parser
      * such as a Color, or a Variable
      *
      */
-    private function parseOperand()
-    {
+    private function parseOperand() {
 
         $negate = false;
         $offset = $this->pos + 1;
@@ -2403,8 +2319,7 @@ class Less_Parser
      *
      * @return Less_Tree_Expression|null
      */
-    private function parseExpression()
-    {
+    private function parseExpression() {
         $entities = array();
 
         do {
@@ -2432,8 +2347,7 @@ class Less_Parser
      *
      * @return string
      */
-    private function parseProperty()
-    {
+    private function parseProperty() {
         $name = $this->MatchReg('/\\G(\*?-?[_a-zA-Z0-9-]+)\s*:/');
         if ($name) {
             return $name[1];
@@ -2446,8 +2360,7 @@ class Less_Parser
      *
      * @return string
      */
-    private function parseRuleProperty()
-    {
+    private function parseRuleProperty() {
         $offset = $this->pos;
         $name = array();
         $index = array();
@@ -2477,8 +2390,7 @@ class Less_Parser
         }
     }
 
-    private function rulePropertyMatch($re, &$offset, &$length, &$index, &$name)
-    {
+    private function rulePropertyMatch($re, &$offset, &$length, &$index, &$name) {
         preg_match($re, $this->input, $a, 0, $offset);
         if ($a) {
             $index[] = $this->pos + $length;
@@ -2489,8 +2401,7 @@ class Less_Parser
         }
     }
 
-    public static function serializeVars($vars)
-    {
+    public static function serializeVars($vars) {
         $s = '';
 
         foreach ($vars as $name => $value) {
@@ -2505,8 +2416,7 @@ class Less_Parser
      *
      * @param string $b
      */
-    public static function is_method($a, $b)
-    {
+    public static function is_method($a, $b) {
         return is_object($a) && method_exists($a, $b);
     }
 
@@ -2515,8 +2425,7 @@ class Less_Parser
      * eg: 1.499999 to 1 instead of 2
      *
      */
-    public static function round($i, $precision = 0)
-    {
+    public static function round($i, $precision = 0) {
 
         $precision = pow(10, $precision);
         $i = $i * $precision;
@@ -2535,8 +2444,7 @@ class Less_Parser
      *
      * @return mixed
      */
-    public function NewObj0($class)
-    {
+    public function NewObj0($class) {
         $obj = new $class();
         if ($this->CacheEnabled()) {
             $obj->cache_string = ' new ' . $class . '()';
@@ -2544,8 +2452,7 @@ class Less_Parser
         return $obj;
     }
 
-    public function NewObj1($class, $arg)
-    {
+    public function NewObj1($class, $arg) {
         $obj = new $class($arg);
         if ($this->CacheEnabled()) {
             $obj->cache_string = ' new ' . $class . '(' . Less_Parser::ArgString($arg) . ')';
@@ -2553,8 +2460,7 @@ class Less_Parser
         return $obj;
     }
 
-    public function NewObj2($class, $args)
-    {
+    public function NewObj2($class, $args) {
         $obj = new $class($args[0], $args[1]);
         if ($this->CacheEnabled()) {
             $this->ObjCache($obj, $class, $args);
@@ -2562,8 +2468,7 @@ class Less_Parser
         return $obj;
     }
 
-    public function NewObj3($class, $args)
-    {
+    public function NewObj3($class, $args) {
         $obj = new $class($args[0], $args[1], $args[2]);
         if ($this->CacheEnabled()) {
             $this->ObjCache($obj, $class, $args);
@@ -2571,8 +2476,7 @@ class Less_Parser
         return $obj;
     }
 
-    public function NewObj4($class, $args)
-    {
+    public function NewObj4($class, $args) {
         $obj = new $class($args[0], $args[1], $args[2], $args[3]);
         if ($this->CacheEnabled()) {
             $this->ObjCache($obj, $class, $args);
@@ -2580,8 +2484,7 @@ class Less_Parser
         return $obj;
     }
 
-    public function NewObj5($class, $args)
-    {
+    public function NewObj5($class, $args) {
         $obj = new $class($args[0], $args[1], $args[2], $args[3], $args[4]);
         if ($this->CacheEnabled()) {
             $this->ObjCache($obj, $class, $args);
@@ -2589,8 +2492,7 @@ class Less_Parser
         return $obj;
     }
 
-    public function NewObj6($class, $args)
-    {
+    public function NewObj6($class, $args) {
         $obj = new $class($args[0], $args[1], $args[2], $args[3], $args[4], $args[5]);
         if ($this->CacheEnabled()) {
             $this->ObjCache($obj, $class, $args);
@@ -2598,8 +2500,7 @@ class Less_Parser
         return $obj;
     }
 
-    public function NewObj7($class, $args)
-    {
+    public function NewObj7($class, $args) {
         $obj = new $class($args[0], $args[1], $args[2], $args[3], $args[4], $args[5], $args[6]);
         if ($this->CacheEnabled()) {
             $this->ObjCache($obj, $class, $args);
@@ -2608,13 +2509,11 @@ class Less_Parser
     }
 
     //caching
-    public function ObjCache($obj, $class, $args = array())
-    {
+    public function ObjCache($obj, $class, $args = array()) {
         $obj->cache_string = ' new ' . $class . '(' . self::ArgCache($args) . ')';
     }
 
-    public function ArgCache($args)
-    {
+    public function ArgCache($args) {
         return implode(',', array_map(array('Less_Parser', 'ArgString'), $args));
     }
 
@@ -2623,8 +2522,7 @@ class Less_Parser
      *
      * @return string
      */
-    public static function ArgString($arg)
-    {
+    public static function ArgString($arg) {
 
         $type = gettype($arg);
 
@@ -2643,18 +2541,15 @@ class Less_Parser
         return var_export($arg, true);
     }
 
-    public function Error($msg)
-    {
+    public function Error($msg) {
         throw new Less_Exception_Parser($msg, null, $this->furthest, $this->env->currentFileInfo);
     }
 
-    public static function WinPath($path)
-    {
+    public static function WinPath($path) {
         return str_replace('\\', '/', $path);
     }
 
-    public function CacheEnabled()
-    {
+    public function CacheEnabled() {
         return (Less_Parser::$options['cache_method'] && (Less_Cache::$cache_dir || (Less_Parser::$options['cache_method'] == 'callback')));
     }
 
@@ -2666,8 +2561,7 @@ class Less_Parser
  * @package Less
  * @subpackage color
  */
-class Less_Colors
-{
+class Less_Colors {
 
     public static $colors = array(
         'aliceblue' => '#f0f8ff',
@@ -2819,13 +2713,11 @@ class Less_Colors
         'yellowgreen' => '#9acd32'
     );
 
-    public static function hasOwnProperty($color)
-    {
+    public static function hasOwnProperty($color) {
         return isset(self::$colors[$color]);
     }
 
-    public static function color($color)
-    {
+    public static function color($color) {
         return self::$colors[$color];
     }
 
@@ -2837,8 +2729,7 @@ class Less_Colors
  * @package Less
  * @subpackage environment
  */
-class Less_Environment
-{
+class Less_Environment {
 
     //public $paths = array();				// option - unmodified - paths to search for imports on
     //public static $files = array();		// list of files that have been imported, used for import-once
@@ -2876,8 +2767,7 @@ class Less_Environment
      */
     public $functions = array();
 
-    public function Init()
-    {
+    public function Init() {
 
         self::$parensStack = 0;
         self::$tabLevel = 0;
@@ -2917,20 +2807,17 @@ class Less_Environment
         }
     }
 
-    public function copyEvalEnv($frames = array())
-    {
+    public function copyEvalEnv($frames = array()) {
         $new_env = new Less_Environment();
         $new_env->frames = $frames;
         return $new_env;
     }
 
-    public static function isMathOn()
-    {
+    public static function isMathOn() {
         return !Less_Parser::$options['strictMath'] || Less_Environment::$parensStack;
     }
 
-    public static function isPathRelative($path)
-    {
+    public static function isPathRelative($path) {
         return !preg_match('/^(?:[a-z-]+:|\/)/', $path);
     }
 
@@ -2941,8 +2828,7 @@ class Less_Environment
      * @return string Canonicalized path
      *
      */
-    public static function normalizePath($path)
-    {
+    public static function normalizePath($path) {
 
         $segments = explode('/', $path);
         $segments = array_reverse($segments);
@@ -2977,13 +2863,11 @@ class Less_Environment
         return implode('/', $path);
     }
 
-    public function unshiftFrame($frame)
-    {
+    public function unshiftFrame($frame) {
         array_unshift($this->frames, $frame);
     }
 
-    public function shiftFrame()
-    {
+    public function shiftFrame() {
         return array_shift($this->frames);
     }
 
@@ -2996,14 +2880,12 @@ class Less_Environment
  * @subpackage function
  * @see http://lesscss.org/functions/
  */
-class Less_Functions
-{
+class Less_Functions {
 
     public $env;
     public $currentFileInfo;
 
-    function __construct($env, $currentFileInfo = null)
-    {
+    function __construct($env, $currentFileInfo = null) {
         $this->env = $env;
         $this->currentFileInfo = $currentFileInfo;
     }
@@ -3011,8 +2893,7 @@ class Less_Functions
     /**
      * @param string $op
      */
-    public static function operate($op, $a, $b)
-    {
+    public static function operate($op, $a, $b) {
         switch ($op) {
             case '+': return $a + $b;
             case '-': return $a - $b;
@@ -3021,13 +2902,11 @@ class Less_Functions
         }
     }
 
-    public static function clamp($val, $max = 1)
-    {
+    public static function clamp($val, $max = 1) {
         return min(max($val, 0), $max);
     }
 
-    public static function fround($value)
-    {
+    public static function fround($value) {
 
         if ($value === 0) {
             return $value;
@@ -3040,8 +2919,7 @@ class Less_Functions
         return $value;
     }
 
-    public static function number($n)
-    {
+    public static function number($n) {
 
         if ($n instanceof Less_Tree_Dimension) {
             return floatval($n->unit->is('%') ? $n->value / 100 : $n->value);
@@ -3052,8 +2930,7 @@ class Less_Functions
         }
     }
 
-    public static function scaled($n, $size = 255)
-    {
+    public static function scaled($n, $size = 255) {
         if ($n instanceof Less_Tree_Dimension && $n->unit->is('%')) {
             return (float) $n->value * $size / 100;
         } else {
@@ -3061,13 +2938,14 @@ class Less_Functions
         }
     }
 
-    public function rgb($r, $g, $b)
-    {
+    public function rgb($r = null, $g = null, $b = null) {
+        if (is_null($r) || is_null($g) || is_null($b)) {
+            throw new Less_Exception_Compiler("rgb expects three parameters");
+        }
         return $this->rgba($r, $g, $b, 1.0);
     }
 
-    public function rgba($r, $g, $b, $a)
-    {
+    public function rgba($r = null, $g = null, $b = null, $a = null) {
         $rgb = array($r, $g, $b);
         $rgb = array_map(array('Less_Functions', 'scaled'), $rgb);
 
@@ -3075,13 +2953,11 @@ class Less_Functions
         return new Less_Tree_Color($rgb, $a);
     }
 
-    public function hsl($h, $s, $l)
-    {
+    public function hsl($h, $s, $l) {
         return $this->hsla($h, $s, $l, 1.0);
     }
 
-    public function hsla($h, $s, $l, $a)
-    {
+    public function hsla($h, $s, $l, $a) {
 
         $h = fmod(self::number($h), 360) / 360; // Classic % operator will change float to int
         $s = self::clamp(self::number($s));
@@ -3098,8 +2974,7 @@ class Less_Functions
     /**
      * @param double $h
      */
-    public function hsla_hue($h, $m1, $m2)
-    {
+    public function hsla_hue($h, $m1, $m2) {
         $h = $h < 0 ? $h + 1 : ($h > 1 ? $h - 1 : $h);
         if ($h * 6 < 1)
             return $m1 + ($m2 - $m1) * $h * 6;
@@ -3111,16 +2986,14 @@ class Less_Functions
             return $m1;
     }
 
-    public function hsv($h, $s, $v)
-    {
+    public function hsv($h, $s, $v) {
         return $this->hsva($h, $s, $v, 1.0);
     }
 
     /**
      * @param double $a
      */
-    public function hsva($h, $s, $v, $a)
-    {
+    public function hsva($h, $s, $v, $a) {
         $h = ((Less_Functions::number($h) % 360) / 360 ) * 360;
         $s = Less_Functions::number($s);
         $v = Less_Functions::number($v);
@@ -3144,82 +3017,125 @@ class Less_Functions
         return $this->rgba($vs[$perm[$i][0]] * 255, $vs[$perm[$i][1]] * 255, $vs[$perm[$i][2]] * 255, $a);
     }
 
-    public function hue($color)
-    {
+    public function hue($color = null) {
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to hue must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         $c = $color->toHSL();
         return new Less_Tree_Dimension(Less_Parser::round($c['h']));
     }
 
-    public function saturation($color)
-    {
+    public function saturation($color = null) {
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to saturation must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         $c = $color->toHSL();
         return new Less_Tree_Dimension(Less_Parser::round($c['s'] * 100), '%');
     }
 
-    public function lightness($color)
-    {
+    public function lightness($color = null) {
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to lightness must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         $c = $color->toHSL();
         return new Less_Tree_Dimension(Less_Parser::round($c['l'] * 100), '%');
     }
 
-    public function hsvhue($color)
-    {
+    public function hsvhue($color = null) {
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to hsvhue must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         $hsv = $color->toHSV();
         return new Less_Tree_Dimension(Less_Parser::round($hsv['h']));
     }
 
-    public function hsvsaturation($color)
-    {
+    public function hsvsaturation($color = null) {
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to hsvsaturation must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         $hsv = $color->toHSV();
         return new Less_Tree_Dimension(Less_Parser::round($hsv['s'] * 100), '%');
     }
 
-    public function hsvvalue($color)
-    {
+    public function hsvvalue($color = null) {
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to hsvvalue must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         $hsv = $color->toHSV();
         return new Less_Tree_Dimension(Less_Parser::round($hsv['v'] * 100), '%');
     }
 
-    public function red($color)
-    {
+    public function red($color = null) {
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to red must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         return new Less_Tree_Dimension($color->rgb[0]);
     }
 
-    public function green($color)
-    {
+    public function green($color = null) {
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to green must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         return new Less_Tree_Dimension($color->rgb[1]);
     }
 
-    public function blue($color)
-    {
+    public function blue($color = null) {
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to blue must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         return new Less_Tree_Dimension($color->rgb[2]);
     }
 
-    public function alpha($color)
-    {
+    public function alpha($color = null) {
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to alpha must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         $c = $color->toHSL();
         return new Less_Tree_Dimension($c['a']);
     }
 
-    public function luma($color)
-    {
+    public function luma($color = null) {
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to luma must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         return new Less_Tree_Dimension(Less_Parser::round($color->luma() * $color->alpha * 100), '%');
     }
 
-    public function luminance($color)
-    {
+    public function luminance($color = null) {
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to luminance must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         $luminance = (0.2126 * $color->rgb[0] / 255) + (0.7152 * $color->rgb[1] / 255) + (0.0722 * $color->rgb[2] / 255);
 
         return new Less_Tree_Dimension(Less_Parser::round($luminance * $color->alpha * 100), '%');
     }
 
-    public function saturate($color, $amount = null)
-    {
+    public function saturate($color = null, $amount = null) {
         // filter: saturate(3.2);
         // should be kept as is, so check for color
-        if (!property_exists($color, 'rgb')) {
+        if ($color instanceof Less_Tree_Dimension) {
             return null;
         }
+
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to saturate must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+        if (!$amount instanceof Less_Tree_Dimension) {
+            throw new Less_Exception_Compiler('The second argument to saturate must be a percentage' . ($amount instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         $hsl = $color->toHSL();
 
         $hsl['s'] += $amount->value / 100;
@@ -3231,8 +3147,14 @@ class Less_Functions
     /**
      * @param Less_Tree_Dimension $amount
      */
-    public function desaturate($color, $amount)
-    {
+    public function desaturate($color = null, $amount = null) {
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to desaturate must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+        if (!$amount instanceof Less_Tree_Dimension) {
+            throw new Less_Exception_Compiler('The second argument to desaturate must be a percentage' . ($amount instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         $hsl = $color->toHSL();
 
         $hsl['s'] -= $amount->value / 100;
@@ -3241,8 +3163,14 @@ class Less_Functions
         return $this->hsla($hsl['h'], $hsl['s'], $hsl['l'], $hsl['a']);
     }
 
-    public function lighten($color, $amount)
-    {
+    public function lighten($color = null, $amount = null) {
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to lighten must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+        if (!$amount instanceof Less_Tree_Dimension) {
+            throw new Less_Exception_Compiler('The second argument to lighten must be a percentage' . ($amount instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         $hsl = $color->toHSL();
 
         $hsl['l'] += $amount->value / 100;
@@ -3251,38 +3179,57 @@ class Less_Functions
         return $this->hsla($hsl['h'], $hsl['s'], $hsl['l'], $hsl['a']);
     }
 
-    public function darken($color, $amount)
-    {
-
-        if ($color instanceof Less_Tree_Color) {
-            $hsl = $color->toHSL();
-            $hsl['l'] -= $amount->value / 100;
-            $hsl['l'] = self::clamp($hsl['l']);
-
-            return $this->hsla($hsl['h'], $hsl['s'], $hsl['l'], $hsl['a']);
+    public function darken($color = null, $amount = null) {
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to darken must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+        if (!$amount instanceof Less_Tree_Dimension) {
+            throw new Less_Exception_Compiler('The second argument to darken must be a percentage' . ($amount instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
         }
 
-        Less_Functions::Expected('color', $color);
+        $hsl = $color->toHSL();
+        $hsl['l'] -= $amount->value / 100;
+        $hsl['l'] = self::clamp($hsl['l']);
+
+        return $this->hsla($hsl['h'], $hsl['s'], $hsl['l'], $hsl['a']);
     }
 
-    public function fadein($color, $amount)
-    {
+    public function fadein($color = null, $amount = null) {
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to fadein must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+        if (!$amount instanceof Less_Tree_Dimension) {
+            throw new Less_Exception_Compiler('The second argument to fadein must be a percentage' . ($amount instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         $hsl = $color->toHSL();
         $hsl['a'] += $amount->value / 100;
         $hsl['a'] = self::clamp($hsl['a']);
         return $this->hsla($hsl['h'], $hsl['s'], $hsl['l'], $hsl['a']);
     }
 
-    public function fadeout($color, $amount)
-    {
+    public function fadeout($color = null, $amount = null) {
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to fadeout must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+        if (!$amount instanceof Less_Tree_Dimension) {
+            throw new Less_Exception_Compiler('The second argument to fadeout must be a percentage' . ($amount instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         $hsl = $color->toHSL();
         $hsl['a'] -= $amount->value / 100;
         $hsl['a'] = self::clamp($hsl['a']);
         return $this->hsla($hsl['h'], $hsl['s'], $hsl['l'], $hsl['a']);
     }
 
-    public function fade($color, $amount)
-    {
+    public function fade($color = null, $amount = null) {
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to fade must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+        if (!$amount instanceof Less_Tree_Dimension) {
+            throw new Less_Exception_Compiler('The second argument to fade must be a percentage' . ($amount instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         $hsl = $color->toHSL();
 
         $hsl['a'] = $amount->value / 100;
@@ -3290,8 +3237,14 @@ class Less_Functions
         return $this->hsla($hsl['h'], $hsl['s'], $hsl['l'], $hsl['a']);
     }
 
-    public function spin($color, $amount)
-    {
+    public function spin($color = null, $amount = null) {
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to spin must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+        if (!$amount instanceof Less_Tree_Dimension) {
+            throw new Less_Exception_Compiler('The second argument to spin must be a number' . ($amount instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         $hsl = $color->toHSL();
         $hue = fmod($hsl['h'] + $amount->value, 360);
 
@@ -3309,10 +3262,18 @@ class Less_Functions
 	/**
      * @param Less_Tree_Color $color1
      */
-    public function mix($color1, $color2, $weight = null)
-    {
+    public function mix($color1 = null, $color2 = null, $weight = null) {
+        if (!$color1 instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to mix must be a color' . ($color1 instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+        if (!$color2 instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The second argument to mix must be a color' . ($color2 instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
         if (!$weight) {
             $weight = new Less_Tree_Dimension('50', '%');
+        }
+        if (!$weight instanceof Less_Tree_Dimension) {
+            throw new Less_Exception_Compiler('The third argument to contrast must be a percentage' . ($weight instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
         }
 
         $p = $weight->value / 100.0;
@@ -3333,16 +3294,14 @@ class Less_Functions
         return new Less_Tree_Color($rgb, $alpha);
     }
 
-    public function greyscale($color)
-    {
-        return $this->desaturate($color, new Less_Tree_Dimension(100));
+    public function greyscale($color) {
+        return $this->desaturate($color, new Less_Tree_Dimension(100, '%'));
     }
 
-    public function contrast($color, $dark = null, $light = null, $threshold = null)
-    {
+    public function contrast($color, $dark = null, $light = null, $threshold = null) {
         // filter: contrast(3.2);
         // should be kept as is, so check for color
-        if (!property_exists($color, 'rgb')) {
+        if (!$color instanceof Less_Tree_Color) {
             return null;
         }
         if (!$light) {
@@ -3351,6 +3310,14 @@ class Less_Functions
         if (!$dark) {
             $dark = $this->rgba(0, 0, 0, 1.0);
         }
+
+        if (!$dark instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The second argument to contrast must be a color' . ($dark instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+        if (!$light instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The third argument to contrast must be a color' . ($light instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         //Figure out which is actually light and dark!
         if ($dark->luma() > $light->luma()) {
             $t = $light;
@@ -3370,16 +3337,14 @@ class Less_Functions
         }
     }
 
-    public function e($str)
-    {
+    public function e($str) {
         if (is_string($str)) {
             return new Less_Tree_Anonymous($str);
         }
         return new Less_Tree_Anonymous($str instanceof Less_Tree_JavaScript ? $str->expression : $str->value);
     }
 
-    public function escape($str)
-    {
+    public function escape($str) {
 
         $revert = array('%21' => '!', '%2A' => '*', '%27' => "'", '%3F' => '?', '%26' => '&', '%2C' => ',', '%2F' => '/', '%40' => '@', '%2B' => '+', '%24' => '$');
 
@@ -3390,8 +3355,7 @@ class Less_Functions
      * todo: This function will need some additional work to make it work the same as less.js
      *
      */
-    public function replace($string, $pattern, $replacement, $flags = null)
-    {
+    public function replace($string, $pattern, $replacement, $flags = null) {
         $result = $string->value;
 
         $expr = '/' . str_replace('/', '\\/', $pattern->value) . '/';
@@ -3408,8 +3372,7 @@ class Less_Functions
         return new Less_Tree_Quoted('', $result);
     }
 
-    public static function replace_flags($flags)
-    {
+    public static function replace_flags($flags) {
         $flags = str_split($flags, 1);
         $new_flags = '';
 
@@ -3428,8 +3391,7 @@ class Less_Functions
         return $new_flags;
     }
 
-    public function _percent()
-    {
+    public function _percent() {
         $string = func_get_arg(0);
 
         $args = func_get_args();
@@ -3449,8 +3411,7 @@ class Less_Functions
         return new Less_Tree_Quoted($string->quote, $result, $string->escaped);
     }
 
-    public function unit($val, $unit = null)
-    {
+    public function unit($val, $unit = null) {
         if (!($val instanceof Less_Tree_Dimension)) {
             throw new Less_Exception_Compiler('The first argument to unit must be a number' . ($val instanceof Less_Tree_Operation ? '. Have you forgotten parenthesis?' : '.'));
         }
@@ -3467,13 +3428,11 @@ class Less_Functions
         return new Less_Tree_Dimension($val->value, $unit);
     }
 
-    public function convert($val, $unit)
-    {
+    public function convert($val, $unit) {
         return $val->convertTo($unit->value);
     }
 
-    public function round($n, $f = false)
-    {
+    public function round($n, $f = false) {
 
         $fraction = 0;
         if ($f !== false) {
@@ -3483,18 +3442,15 @@ class Less_Functions
         return $this->_math('Less_Parser::round', null, $n, $fraction);
     }
 
-    public function pi()
-    {
+    public function pi() {
         return new Less_Tree_Dimension(M_PI);
     }
 
-    public function mod($a, $b)
-    {
+    public function mod($a, $b) {
         return new Less_Tree_Dimension($a->value % $b->value, $a->unit);
     }
 
-    public function pow($x, $y)
-    {
+    public function pow($x, $y) {
         if (is_numeric($x) && is_numeric($y)) {
             $x = new Less_Tree_Dimension($x);
             $y = new Less_Tree_Dimension($y);
@@ -3506,58 +3462,47 @@ class Less_Functions
     }
 
     // var mathFunctions = [{name:"ce ...
-    public function ceil($n)
-    {
+    public function ceil($n) {
         return $this->_math('ceil', null, $n);
     }
 
-    public function floor($n)
-    {
+    public function floor($n) {
         return $this->_math('floor', null, $n);
     }
 
-    public function sqrt($n)
-    {
+    public function sqrt($n) {
         return $this->_math('sqrt', null, $n);
     }
 
-    public function abs($n)
-    {
+    public function abs($n) {
         return $this->_math('abs', null, $n);
     }
 
-    public function tan($n)
-    {
+    public function tan($n) {
         return $this->_math('tan', '', $n);
     }
 
-    public function sin($n)
-    {
+    public function sin($n) {
         return $this->_math('sin', '', $n);
     }
 
-    public function cos($n)
-    {
+    public function cos($n) {
         return $this->_math('cos', '', $n);
     }
 
-    public function atan($n)
-    {
+    public function atan($n) {
         return $this->_math('atan', 'rad', $n);
     }
 
-    public function asin($n)
-    {
+    public function asin($n) {
         return $this->_math('asin', 'rad', $n);
     }
 
-    public function acos($n)
-    {
+    public function acos($n) {
         return $this->_math('acos', 'rad', $n);
     }
 
-    private function _math()
-    {
+    private function _math() {
         $args = func_get_args();
         $fn = array_shift($args);
         $unit = array_shift($args);
@@ -3581,8 +3526,7 @@ class Less_Functions
     /**
      * @param boolean $isMin
      */
-    private function _minmax($isMin, $args)
-    {
+    private function _minmax($isMin, $args) {
 
         $arg_count = count($args);
 
@@ -3647,7 +3591,7 @@ class Less_Functions
 
             if ($order[$j]->unit->toString() === "" && $unitClone) {
                 $temp = new Less_Tree_Dimension($order[$j]->value, $unitClone);
-                $referenceUnified = $temp->unifiy();
+                $referenceUnified = $temp->unify();
             } else {
                 $referenceUnified = $order[$j]->unify();
             }
@@ -3666,35 +3610,33 @@ class Less_Functions
         return new Less_Tree_Anonymous(($isMin ? 'min(' : 'max(') . implode(Less_Environment::$_outputMap[','], $args) . ')');
     }
 
-    public function min()
-    {
+    public function min() {
         $args = func_get_args();
         return $this->_minmax(true, $args);
     }
 
-    public function max()
-    {
+    public function max() {
         $args = func_get_args();
         return $this->_minmax(false, $args);
     }
 
-    public function getunit($n)
-    {
+    public function getunit($n) {
         return new Less_Tree_Anonymous($n->unit);
     }
 
-    public function argb($color)
-    {
+    public function argb($color) {
+        if (!$color instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to argb must be a color' . ($dark instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         return new Less_Tree_Anonymous($color->toARGB());
     }
 
-    public function percentage($n)
-    {
+    public function percentage($n) {
         return new Less_Tree_Dimension($n->value * 100, '%');
     }
 
-    public function color($n)
-    {
+    public function color($n) {
 
         if ($n instanceof Less_Tree_Quoted) {
             $colorCandidate = $n->value;
@@ -3711,74 +3653,61 @@ class Less_Functions
         }
     }
 
-    public function iscolor($n)
-    {
+    public function iscolor($n) {
         return $this->_isa($n, 'Less_Tree_Color');
     }
 
-    public function isnumber($n)
-    {
+    public function isnumber($n) {
         return $this->_isa($n, 'Less_Tree_Dimension');
     }
 
-    public function isstring($n)
-    {
+    public function isstring($n) {
         return $this->_isa($n, 'Less_Tree_Quoted');
     }
 
-    public function iskeyword($n)
-    {
+    public function iskeyword($n) {
         return $this->_isa($n, 'Less_Tree_Keyword');
     }
 
-    public function isurl($n)
-    {
+    public function isurl($n) {
         return $this->_isa($n, 'Less_Tree_Url');
     }
 
-    public function ispixel($n)
-    {
+    public function ispixel($n) {
         return $this->isunit($n, 'px');
     }
 
-    public function ispercentage($n)
-    {
+    public function ispercentage($n) {
         return $this->isunit($n, '%');
     }
 
-    public function isem($n)
-    {
+    public function isem($n) {
         return $this->isunit($n, 'em');
     }
 
     /**
      * @param string $unit
      */
-    public function isunit($n, $unit)
-    {
+    public function isunit($n, $unit) {
         return ($n instanceof Less_Tree_Dimension) && $n->unit->is(( property_exists($unit, 'value') ? $unit->value : $unit)) ? new Less_Tree_Keyword('true') : new Less_Tree_Keyword('false');
     }
 
     /**
      * @param string $type
      */
-    private function _isa($n, $type)
-    {
+    private function _isa($n, $type) {
         return is_a($n, $type) ? new Less_Tree_Keyword('true') : new Less_Tree_Keyword('false');
     }
 
-    public function tint($color, $amount)
-    {
+    public function tint($color, $amount) {
         return $this->mix($this->rgb(255, 255, 255), $color, $amount);
     }
 
-    public function shade($color, $amount)
-    {
+    public function shade($color, $amount) {
         return $this->mix($this->rgb(0, 0, 0), $color, $amount);
     }
 
-    public function extract($values, $index)
-    {
+    public function extract($values, $index) {
         $index = (int) $index->value - 1; // (1-based index)
         // handle non-array values as an array of length 1
         // return 'undefined' if index is invalid
@@ -3794,14 +3723,12 @@ class Less_Functions
         return null;
     }
 
-    public function length($values)
-    {
+    public function length($values) {
         $n = (property_exists($values, 'value') && is_array($values->value)) ? count($values->value) : 1;
         return new Less_Tree_Dimension($n);
     }
 
-    public function datauri($mimetypeNode, $filePathNode = null)
-    {
+    public function datauri($mimetypeNode, $filePathNode = null) {
 
         $filePath = ( $filePathNode ? $filePathNode->value : null );
         $mimetype = $mimetypeNode->value;
@@ -3877,8 +3804,7 @@ class Less_Functions
     }
 
     //svg-gradient
-    public function svggradient($direction)
-    {
+    public function svggradient($direction) {
 
         $throw_message = 'svg-gradient expects direction, start_color [start_position], [color position,]..., end_color [end_position]';
         $arguments = func_get_args();
@@ -3957,28 +3883,12 @@ class Less_Functions
     }
 
     /**
-     * @param string $type
-     */
-    private static function Expected($type, $arg)
-    {
-
-        $debug = debug_backtrace();
-        array_shift($debug);
-        $last = array_shift($debug);
-        $last = array_intersect_key($last, array('function' => '', 'class' => '', 'line' => ''));
-
-        $message = 'Object of type ' . get_class($arg) . ' passed to darken function. Expecting `' . $type . '`. ' . $arg->toCSS() . '. ' . print_r($last, true);
-        throw new Less_Exception_Compiler($message);
-    }
-
-    /**
      * Php version of javascript's `encodeURIComponent` function
      *
      * @param string $string The string to encode
      * @return string The encoded string
      */
-    public static function encodeURIComponent($string)
-    {
+    public static function encodeURIComponent($string) {
         $revert = array('%21' => '!', '%2A' => '*', '%27' => "'", '%28' => '(', '%29' => ')');
         return strtr(rawurlencode($string), $revert);
     }
@@ -3986,8 +3896,7 @@ class Less_Functions
     // Color Blending
     // ref: http://www.w3.org/TR/compositing-1
 
-    public function colorBlend($mode, $color1, $color2)
-    {
+    public function colorBlend($mode, $color1, $color2) {
         $ab = $color1->alpha; // backdrop
         $as = $color2->alpha; // source
         $r = array();   // result
@@ -4006,44 +3915,64 @@ class Less_Functions
         return new Less_Tree_Color($r, $ar);
     }
 
-    public function multiply($color1, $color2)
-    {
+    public function multiply($color1 = null, $color2 = null) {
+        if (!$color1 instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to multiply must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+        if (!$color2 instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The second argument to multiply must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         return $this->colorBlend(array($this, 'colorBlendMultiply'), $color1, $color2);
     }
 
-    private function colorBlendMultiply($cb, $cs)
-    {
+    private function colorBlendMultiply($cb, $cs) {
         return $cb * $cs;
     }
 
-    public function screen($color1, $color2)
-    {
+    public function screen($color1 = null, $color2 = null) {
+        if (!$color1 instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to screen must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+        if (!$color2 instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The second argument to screen must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         return $this->colorBlend(array($this, 'colorBlendScreen'), $color1, $color2);
     }
 
-    private function colorBlendScreen($cb, $cs)
-    {
+    private function colorBlendScreen($cb, $cs) {
         return $cb + $cs - $cb * $cs;
     }
 
-    public function overlay($color1, $color2)
-    {
+    public function overlay($color1 = null, $color2 = null) {
+        if (!$color1 instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to overlay must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+        if (!$color2 instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The second argument to overlay must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         return $this->colorBlend(array($this, 'colorBlendOverlay'), $color1, $color2);
     }
 
-    private function colorBlendOverlay($cb, $cs)
-    {
+    private function colorBlendOverlay($cb, $cs) {
         $cb *= 2;
         return ($cb <= 1) ? $this->colorBlendMultiply($cb, $cs) : $this->colorBlendScreen($cb - 1, $cs);
     }
 
-    public function softlight($color1, $color2)
-    {
+    public function softlight($color1 = null, $color2 = null) {
+        if (!$color1 instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to softlight must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+        if (!$color2 instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The second argument to softlight must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         return $this->colorBlend(array($this, 'colorBlendSoftlight'), $color1, $color2);
     }
 
-    private function colorBlendSoftlight($cb, $cs)
-    {
+    private function colorBlendSoftlight($cb, $cs) {
         $d = 1;
         $e = $cb;
         if ($cs > 0.5) {
@@ -4053,54 +3982,79 @@ class Less_Functions
         return $cb - (1 - 2 * $cs) * $e * ($d - $cb);
     }
 
-    public function hardlight($color1, $color2)
-    {
+    public function hardlight($color1 = null, $color2 = null) {
+        if (!$color1 instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to hardlight must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+        if (!$color2 instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The second argument to hardlight must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         return $this->colorBlend(array($this, 'colorBlendHardlight'), $color1, $color2);
     }
 
-    private function colorBlendHardlight($cb, $cs)
-    {
+    private function colorBlendHardlight($cb, $cs) {
         return $this->colorBlendOverlay($cs, $cb);
     }
 
-    public function difference($color1, $color2)
-    {
+    public function difference($color1 = null, $color2 = null) {
+        if (!$color1 instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to difference must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+        if (!$color2 instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The second argument to difference must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         return $this->colorBlend(array($this, 'colorBlendDifference'), $color1, $color2);
     }
 
-    private function colorBlendDifference($cb, $cs)
-    {
+    private function colorBlendDifference($cb, $cs) {
         return abs($cb - $cs);
     }
 
-    public function exclusion($color1, $color2)
-    {
+    public function exclusion($color1 = null, $color2 = null) {
+        if (!$color1 instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to exclusion must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+        if (!$color2 instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The second argument to exclusion must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         return $this->colorBlend(array($this, 'colorBlendExclusion'), $color1, $color2);
     }
 
-    private function colorBlendExclusion($cb, $cs)
-    {
+    private function colorBlendExclusion($cb, $cs) {
         return $cb + $cs - 2 * $cb * $cs;
     }
 
-    public function average($color1, $color2)
-    {
+    public function average($color1 = null, $color2 = null) {
+        if (!$color1 instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to average must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+        if (!$color2 instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The second argument to average must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         return $this->colorBlend(array($this, 'colorBlendAverage'), $color1, $color2);
     }
 
     // non-w3c functions:
-    public function colorBlendAverage($cb, $cs)
-    {
+    public function colorBlendAverage($cb, $cs) {
         return ($cb + $cs) / 2;
     }
 
-    public function negation($color1, $color2)
-    {
+    public function negation($color1 = null, $color2 = null) {
+        if (!$color1 instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The first argument to negation must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+        if (!$color2 instanceof Less_Tree_Color) {
+            throw new Less_Exception_Compiler('The second argument to negation must be a color' . ($color instanceof Less_Tree_Expression ? ' (did you forgot commas?)' : ''));
+        }
+
         return $this->colorBlend(array($this, 'colorBlendNegation'), $color1, $color2);
     }
 
-    public function colorBlendNegation($cb, $cs)
-    {
+    public function colorBlendNegation($cb, $cs) {
         return 1 - abs($cb + $cs - 1);
     }
 
@@ -4113,8 +4067,7 @@ class Less_Functions
  * @package Less
  * @subpackage node
  */
-class Less_Mime
-{
+class Less_Mime {
 
     // this map is intentionally incomplete
     // if you want more, install 'mime' dep
@@ -4132,8 +4085,7 @@ class Less_Mime
         '.svg' => 'image/svg+xml',
     );
 
-    public static function lookup($filepath)
-    {
+    public static function lookup($filepath) {
         $parts = explode('.', $filepath);
         $ext = '.' . strtolower(array_pop($parts));
 
@@ -4143,8 +4095,7 @@ class Less_Mime
         return self::$_types[$ext];
     }
 
-    public static function charsets_lookup($type = null)
-    {
+    public static function charsets_lookup($type = null) {
         // assumes all text types are UTF-8
         return $type && preg_match('/^text\//', $type) ? 'UTF-8' : '';
     }
@@ -4157,13 +4108,11 @@ class Less_Mime
  * @package Less
  * @subpackage tree
  */
-class Less_Tree
-{
+class Less_Tree {
 
     public $cache_string;
 
-    public function toCSS()
-    {
+    public function toCSS() {
         $output = new Less_Output();
         $this->genCSS($output);
         return $output->toString();
@@ -4175,16 +4124,14 @@ class Less_Tree
      * @param Less_Output $output The output
      * @return void
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
         
     }
 
     /**
      * @param Less_Tree_Ruleset[] $rules
      */
-    public static function outputRuleset($output, $rules)
-    {
+    public static function outputRuleset($output, $rules) {
 
         $ruleCnt = count($rules);
         Less_Environment::$tabLevel++;
@@ -4216,13 +4163,11 @@ class Less_Tree
         $output->add($tabSetStr . '}');
     }
 
-    public function accept($visitor)
-    {
+    public function accept($visitor) {
         
     }
 
-    public static function ReferencedArray($rules)
-    {
+    public static function ReferencedArray($rules) {
         foreach ($rules as $rule) {
             if (method_exists($rule, 'markReferenced')) {
                 $rule->markReferenced();
@@ -4233,8 +4178,7 @@ class Less_Tree
     /**
      * Requires php 5.3+
      */
-    public static function __set_state($args)
-    {
+    public static function __set_state($args) {
 
         $class = get_called_class();
         $obj = new $class(null, null, null, null);
@@ -4252,8 +4196,7 @@ class Less_Tree
  * @package Less
  * @subpackage output
  */
-class Less_Output
-{
+class Less_Output {
 
     /**
      * Output holder
@@ -4270,8 +4213,7 @@ class Less_Output
      * @param integer $index The index
      * @param mixed $mapLines
      */
-    public function add($chunk, $fileInfo = null, $index = 0, $mapLines = null)
-    {
+    public function add($chunk, $fileInfo = null, $index = 0, $mapLines = null) {
         $this->strs[] = $chunk;
     }
 
@@ -4280,8 +4222,7 @@ class Less_Output
      *
      * @return boolean
      */
-    public function isEmpty()
-    {
+    public function isEmpty() {
         return count($this->strs) === 0;
     }
 
@@ -4290,8 +4231,7 @@ class Less_Output
      *
      * @return string
      */
-    public function toString()
-    {
+    public function toString() {
         return implode('', $this->strs);
     }
 
@@ -4303,20 +4243,17 @@ class Less_Output
  * @package Less
  * @subpackage visitor
  */
-class Less_Visitor
-{
+class Less_Visitor {
 
     protected $methods = array();
     protected $_visitFnCache = array();
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->_visitFnCache = get_class_methods(get_class($this));
         $this->_visitFnCache = array_flip($this->_visitFnCache);
     }
 
-    public function visitObj($node)
-    {
+    public function visitObj($node) {
 
         $funcName = 'visit' . $node->type;
         if (isset($this->_visitFnCache[$funcName])) {
@@ -4339,8 +4276,7 @@ class Less_Visitor
         return $node;
     }
 
-    public function visitArray($nodes)
-    {
+    public function visitArray($nodes) {
 
         array_map(array($this, 'visitObj'), $nodes);
         return $nodes;
@@ -4354,11 +4290,9 @@ class Less_Visitor
  * @package Less
  * @subpackage visitor
  */
-class Less_VisitorReplacing extends Less_Visitor
-{
+class Less_VisitorReplacing extends Less_Visitor {
 
-    public function visitObj($node)
-    {
+    public function visitObj($node) {
 
         $funcName = 'visit' . $node->type;
         if (isset($this->_visitFnCache[$funcName])) {
@@ -4383,8 +4317,7 @@ class Less_VisitorReplacing extends Less_Visitor
         return $node;
     }
 
-    public function visitArray($nodes)
-    {
+    public function visitArray($nodes) {
 
         $newNodes = array();
         foreach ($nodes as $node) {
@@ -4400,8 +4333,7 @@ class Less_VisitorReplacing extends Less_Visitor
         return $newNodes;
     }
 
-    public function flatten($arr, &$out)
-    {
+    public function flatten($arr, &$out) {
 
         foreach ($arr as $item) {
             if (!is_array($item)) {
@@ -4429,8 +4361,7 @@ class Less_VisitorReplacing extends Less_Visitor
  * @package Less
  * @subpackage Core
  */
-abstract class Less_Configurable
-{
+abstract class Less_Configurable {
 
     /**
      * Array of options
@@ -4456,8 +4387,7 @@ abstract class Less_Configurable
      * @param array|object $options
      *
      */
-    public function setOptions($options)
-    {
+    public function setOptions($options) {
         $options = array_intersect_key($options, $this->defaultOptions);
         $this->options = array_merge($this->defaultOptions, $this->options, $options);
     }
@@ -4471,8 +4401,7 @@ abstract class Less_Configurable
      * @param mixed $default Default value if confiuration of $name is not present
      * @return mixed
      */
-    public function getOption($name, $default = null)
-    {
+    public function getOption($name, $default = null) {
         if (isset($this->options[$name])) {
             return $this->options[$name];
         }
@@ -4485,8 +4414,7 @@ abstract class Less_Configurable
      * @param string $name
      * @param mixed $value
      */
-    public function setOption($name, $value)
-    {
+    public function setOption($name, $value) {
         $this->options[$name] = $value;
     }
 
@@ -4498,14 +4426,12 @@ abstract class Less_Configurable
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Alpha extends Less_Tree
-{
+class Less_Tree_Alpha extends Less_Tree {
 
     public $value;
     public $type = 'Alpha';
 
-    public function __construct($val)
-    {
+    public function __construct($val) {
         $this->value = $val;
     }
 
@@ -4513,8 +4439,7 @@ class Less_Tree_Alpha extends Less_Tree
     //	$this->value = $visitor->visit( $this->value );
     //}
 
-    public function compile($env)
-    {
+    public function compile($env) {
 
         if (is_object($this->value)) {
             $this->value = $this->value->compile($env);
@@ -4526,8 +4451,7 @@ class Less_Tree_Alpha extends Less_Tree
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
 
         $output->add("alpha(opacity=");
 
@@ -4540,8 +4464,7 @@ class Less_Tree_Alpha extends Less_Tree
         $output->add(')');
     }
 
-    public function toCSS()
-    {
+    public function toCSS() {
         return "alpha(opacity=" . (is_string($this->value) ? $this->value : $this->value->toCSS()) . ")";
     }
 
@@ -4553,8 +4476,7 @@ class Less_Tree_Alpha extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Anonymous extends Less_Tree
-{
+class Less_Tree_Anonymous extends Less_Tree {
 
     public $value;
     public $quote;
@@ -4567,21 +4489,18 @@ class Less_Tree_Anonymous extends Less_Tree
      * @param integer $index
      * @param boolean $mapLines
      */
-    public function __construct($value, $index = null, $currentFileInfo = null, $mapLines = null)
-    {
+    public function __construct($value, $index = null, $currentFileInfo = null, $mapLines = null) {
         $this->value = $value;
         $this->index = $index;
         $this->mapLines = $mapLines;
         $this->currentFileInfo = $currentFileInfo;
     }
 
-    public function compile()
-    {
+    public function compile() {
         return new Less_Tree_Anonymous($this->value, $this->index, $this->currentFileInfo, $this->mapLines);
     }
 
-    public function compare($x)
-    {
+    public function compare($x) {
         if (!is_object($x)) {
             return -1;
         }
@@ -4599,13 +4518,11 @@ class Less_Tree_Anonymous extends Less_Tree
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
         $output->add($this->value, $this->currentFileInfo, $this->index, $this->mapLines);
     }
 
-    public function toCSS()
-    {
+    public function toCSS() {
         return $this->value;
     }
 
@@ -4617,40 +4534,34 @@ class Less_Tree_Anonymous extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Assignment extends Less_Tree
-{
+class Less_Tree_Assignment extends Less_Tree {
 
     public $key;
     public $value;
     public $type = 'Assignment';
 
-    public function __construct($key, $val)
-    {
+    public function __construct($key, $val) {
         $this->key = $key;
         $this->value = $val;
     }
 
-    public function accept($visitor)
-    {
+    public function accept($visitor) {
         $this->value = $visitor->visitObj($this->value);
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
         return new Less_Tree_Assignment($this->key, $this->value->compile($env));
     }
 
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
         $output->add($this->key . '=');
         $this->value->genCSS($output);
     }
 
-    public function toCss()
-    {
+    public function toCss() {
         return $this->key . '=' . $this->value->toCSS();
     }
 
@@ -4662,23 +4573,20 @@ class Less_Tree_Assignment extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Attribute extends Less_Tree
-{
+class Less_Tree_Attribute extends Less_Tree {
 
     public $key;
     public $op;
     public $value;
     public $type = 'Attribute';
 
-    public function __construct($key, $op, $value)
-    {
+    public function __construct($key, $op, $value) {
         $this->key = $key;
         $this->op = $op;
         $this->value = $value;
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
 
         $key_obj = is_object($this->key);
         $val_obj = is_object($this->value);
@@ -4694,13 +4602,11 @@ class Less_Tree_Attribute extends Less_Tree
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
         $output->add($this->toCSS());
     }
 
-    public function toCSS()
-    {
+    public function toCSS() {
         $value = $this->key;
 
         if ($this->op) {
@@ -4719,8 +4625,7 @@ class Less_Tree_Attribute extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Call extends Less_Tree
-{
+class Less_Tree_Call extends Less_Tree {
 
     public $value;
     protected $name;
@@ -4729,16 +4634,14 @@ class Less_Tree_Call extends Less_Tree
     protected $currentFileInfo;
     public $type = 'Call';
 
-    public function __construct($name, $args, $index, $currentFileInfo = null)
-    {
+    public function __construct($name, $args, $index, $currentFileInfo = null) {
         $this->name = $name;
         $this->args = $args;
         $this->index = $index;
         $this->currentFileInfo = $currentFileInfo;
     }
 
-    public function accept($visitor)
-    {
+    public function accept($visitor) {
         $this->args = $visitor->visitArray($this->args);
     }
 
@@ -4754,8 +4657,7 @@ class Less_Tree_Call extends Less_Tree
     // we try to pass a variable to a function, like: `saturate(@color)`.
     // The function should receive the value, not the variable.
     //
-    public function compile($env = null)
-    {
+    public function compile($env = null) {
         $args = array();
         foreach ($this->args as $a) {
             $args[] = $a->compile($env);
@@ -4813,8 +4715,7 @@ class Less_Tree_Call extends Less_Tree
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
 
         $output->add($this->name . '(', $this->currentFileInfo, $this->index);
         $args_len = count($this->args);
@@ -4839,16 +4740,14 @@ class Less_Tree_Call extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Color extends Less_Tree
-{
+class Less_Tree_Color extends Less_Tree {
 
     public $rgb;
     public $alpha;
     public $isTransparentKeyword;
     public $type = 'Color';
 
-    public function __construct($rgb, $a = 1, $isTransparentKeyword = null)
-    {
+    public function __construct($rgb, $a = 1, $isTransparentKeyword = null) {
 
         if ($isTransparentKeyword) {
             $this->rgb = $rgb;
@@ -4872,13 +4771,11 @@ class Less_Tree_Color extends Less_Tree
         $this->alpha = is_numeric($a) ? $a : 1;
     }
 
-    public function compile()
-    {
+    public function compile() {
         return $this;
     }
 
-    public function luma()
-    {
+    public function luma() {
         $r = $this->rgb[0] / 255;
         $g = $this->rgb[1] / 255;
         $b = $this->rgb[2] / 255;
@@ -4893,13 +4790,11 @@ class Less_Tree_Color extends Less_Tree
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
         $output->add($this->toCSS());
     }
 
-    public function toCSS($doNotCompress = false)
-    {
+    public function toCSS($doNotCompress = false) {
         $compress = Less_Parser::$options['compress'] && !$doNotCompress;
         $alpha = Less_Functions::fround($this->alpha);
 
@@ -4950,8 +4845,7 @@ class Less_Tree_Color extends Less_Tree
 	/**
      * @param string $op
      */
-    public function operate($op, $other)
-    {
+    public function operate($op, $other) {
         $rgb = array();
         $alpha = $this->alpha * (1 - $other->alpha) + $other->alpha;
         for ($c = 0; $c < 3; $c++) {
@@ -4960,13 +4854,11 @@ class Less_Tree_Color extends Less_Tree
         return new Less_Tree_Color($rgb, $alpha);
     }
 
-    public function toRGB()
-    {
+    public function toRGB() {
         return $this->toHex($this->rgb);
     }
 
-    public function toHSL()
-    {
+    public function toHSL() {
         $r = $this->rgb[0] / 255;
         $g = $this->rgb[1] / 255;
         $b = $this->rgb[2] / 255;
@@ -4995,8 +4887,7 @@ class Less_Tree_Color extends Less_Tree
     }
 
     //Adapted from http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
-    public function toHSV()
-    {
+    public function toHSV() {
         $r = $this->rgb[0] / 255;
         $g = $this->rgb[1] / 255;
         $b = $this->rgb[2] / 255;
@@ -5029,14 +4920,12 @@ class Less_Tree_Color extends Less_Tree
         return array('h' => $h * 360, 's' => $s, 'v' => $v, 'a' => $a);
     }
 
-    public function toARGB()
-    {
+    public function toARGB() {
         $argb = array_merge((array) Less_Parser::round($this->alpha * 255), $this->rgb);
         return $this->toHex($argb);
     }
 
-    public function compare($x)
-    {
+    public function compare($x) {
 
         if (!property_exists($x, 'rgb')) {
             return -1;
@@ -5049,8 +4938,7 @@ class Less_Tree_Color extends Less_Tree
                 $x->alpha === $this->alpha) ? 0 : -1;
     }
 
-    public function toHex($v)
-    {
+    public function toHex($v) {
 
         $ret = '#';
         foreach ($v as $c) {
@@ -5067,8 +4955,7 @@ class Less_Tree_Color extends Less_Tree
     /**
      * @param string $keyword
      */
-    public static function fromKeyword($keyword)
-    {
+    public static function fromKeyword($keyword) {
         $keyword = strtolower($keyword);
 
         if (Less_Colors::hasOwnProperty($keyword)) {
@@ -5089,8 +4976,7 @@ class Less_Tree_Color extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Comment extends Less_Tree
-{
+class Less_Tree_Comment extends Less_Tree {
 
     public $value;
     public $silent;
@@ -5098,8 +4984,7 @@ class Less_Tree_Comment extends Less_Tree
     public $currentFileInfo;
     public $type = 'Comment';
 
-    public function __construct($value, $silent, $index = null, $currentFileInfo = null)
-    {
+    public function __construct($value, $silent, $index = null, $currentFileInfo = null) {
         $this->value = $value;
         $this->silent = !!$silent;
         $this->currentFileInfo = $currentFileInfo;
@@ -5108,33 +4993,28 @@ class Less_Tree_Comment extends Less_Tree
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
         //if( $this->debugInfo ){
         //$output->add( tree.debugInfo($env, $this), $this->currentFileInfo, $this->index);
         //}
         $output->add(trim($this->value)); //TODO shouldn't need to trim, we shouldn't grab the \n
     }
 
-    public function toCSS()
-    {
+    public function toCSS() {
         return Less_Parser::$options['compress'] ? '' : $this->value;
     }
 
-    public function isSilent()
-    {
+    public function isSilent() {
         $isReference = ($this->currentFileInfo && isset($this->currentFileInfo['reference']) && (!isset($this->isReferenced) || !$this->isReferenced) );
         $isCompressed = Less_Parser::$options['compress'] && !preg_match('/^\/\*!/', $this->value);
         return $this->silent || $isReference || $isCompressed;
     }
 
-    public function compile()
-    {
+    public function compile() {
         return $this;
     }
 
-    public function markReferenced()
-    {
+    public function markReferenced() {
         $this->isReferenced = true;
     }
 
@@ -5146,8 +5026,7 @@ class Less_Tree_Comment extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Condition extends Less_Tree
-{
+class Less_Tree_Condition extends Less_Tree {
 
     public $op;
     public $lvalue;
@@ -5156,8 +5035,7 @@ class Less_Tree_Condition extends Less_Tree
     public $negate;
     public $type = 'Condition';
 
-    public function __construct($op, $l, $r, $i = 0, $negate = false)
-    {
+    public function __construct($op, $l, $r, $i = 0, $negate = false) {
         $this->op = trim($op);
         $this->lvalue = $l;
         $this->rvalue = $r;
@@ -5165,14 +5043,12 @@ class Less_Tree_Condition extends Less_Tree
         $this->negate = $negate;
     }
 
-    public function accept($visitor)
-    {
+    public function accept($visitor) {
         $this->lvalue = $visitor->visitObj($this->lvalue);
         $this->rvalue = $visitor->visitObj($this->rvalue);
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
         $a = $this->lvalue->compile($env);
         $b = $this->rvalue->compile($env);
 
@@ -5221,14 +5097,12 @@ class Less_Tree_Condition extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_DefaultFunc
-{
+class Less_Tree_DefaultFunc {
 
     static $error_;
     static $value_;
 
-    public static function compile()
-    {
+    public static function compile() {
         if (self::$error_) {
             throw new Exception(self::$error_);
         }
@@ -5237,18 +5111,15 @@ class Less_Tree_DefaultFunc
         }
     }
 
-    public static function value($v)
-    {
+    public static function value($v) {
         self::$value_ = $v;
     }
 
-    public static function error($e)
-    {
+    public static function error($e) {
         self::$error_ = $e;
     }
 
-    public static function reset()
-    {
+    public static function reset() {
         self::$value_ = self::$error_ = null;
     }
 
@@ -5260,26 +5131,22 @@ class Less_Tree_DefaultFunc
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_DetachedRuleset extends Less_Tree
-{
+class Less_Tree_DetachedRuleset extends Less_Tree {
 
     public $ruleset;
     public $frames;
     public $type = 'DetachedRuleset';
 
-    public function __construct($ruleset, $frames = null)
-    {
+    public function __construct($ruleset, $frames = null) {
         $this->ruleset = $ruleset;
         $this->frames = $frames;
     }
 
-    public function accept($visitor)
-    {
+    public function accept($visitor) {
         $this->ruleset = $visitor->visitObj($this->ruleset);
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
         if ($this->frames) {
             $frames = $this->frames;
         } else {
@@ -5288,8 +5155,7 @@ class Less_Tree_DetachedRuleset extends Less_Tree
         return new Less_Tree_DetachedRuleset($this->ruleset, $frames);
     }
 
-    public function callEval($env)
-    {
+    public function callEval($env) {
         if ($this->frames) {
             return $this->ruleset->compile($env->copyEvalEnv(array_merge($this->frames, $env->frames)));
         }
@@ -5304,15 +5170,13 @@ class Less_Tree_DetachedRuleset extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Dimension extends Less_Tree
-{
+class Less_Tree_Dimension extends Less_Tree {
 
     public $value;
     public $unit;
     public $type = 'Dimension';
 
-    public function __construct($value, $unit = null)
-    {
+    public function __construct($value, $unit = null) {
         $this->value = floatval($value);
 
         if ($unit && ($unit instanceof Less_Tree_Unit)) {
@@ -5324,26 +5188,22 @@ class Less_Tree_Dimension extends Less_Tree
         }
     }
 
-    public function accept($visitor)
-    {
+    public function accept($visitor) {
         $this->unit = $visitor->visitObj($this->unit);
     }
 
-    public function compile()
-    {
+    public function compile() {
         return $this;
     }
 
-    public function toColor()
-    {
+    public function toColor() {
         return new Less_Tree_Color(array($this->value, $this->value, $this->value));
     }
 
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
 
         if (Less_Parser::$options['strictUnits'] && !$this->unit->isSingular()) {
             throw new Less_Exception_Compiler("Multiple units in dimension. Correct the units or use the unit function. Bad unit: " . $this->unit->toString());
@@ -5375,8 +5235,7 @@ class Less_Tree_Dimension extends Less_Tree
         $this->unit->genCSS($output);
     }
 
-    public function __toString()
-    {
+    public function __toString() {
         return $this->toCSS();
     }
 
@@ -5387,8 +5246,7 @@ class Less_Tree_Dimension extends Less_Tree
     /**
      * @param string $op
      */
-    public function operate($op, $other)
-    {
+    public function operate($op, $other) {
 
         $value = Less_Functions::operate($op, $this->value, $other->value);
         $unit = clone $this->unit;
@@ -5425,8 +5283,7 @@ class Less_Tree_Dimension extends Less_Tree
         return new Less_Tree_Dimension($value, $unit);
     }
 
-    public function compare($other)
-    {
+    public function compare($other) {
         if ($other instanceof Less_Tree_Dimension) {
 
             if ($this->unit->isEmpty() || $other->unit->isEmpty()) {
@@ -5454,13 +5311,11 @@ class Less_Tree_Dimension extends Less_Tree
         }
     }
 
-    public function unify()
-    {
+    public function unify() {
         return $this->convertTo(array('length' => 'px', 'duration' => 's', 'angle' => 'rad'));
     }
 
-    public function convertTo($conversions)
-    {
+    public function convertTo($conversions) {
         $value = $this->value;
         $unit = clone $this->unit;
 
@@ -5516,8 +5371,7 @@ class Less_Tree_Dimension extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Directive extends Less_Tree
-{
+class Less_Tree_Directive extends Less_Tree {
 
     public $name;
     public $value;
@@ -5528,8 +5382,7 @@ class Less_Tree_Directive extends Less_Tree
     public $debugInfo;
     public $type = 'Directive';
 
-    public function __construct($name, $value = null, $rules, $index = null, $currentFileInfo = null, $debugInfo = null)
-    {
+    public function __construct($name, $value = null, $rules, $index = null, $currentFileInfo = null, $debugInfo = null) {
         $this->name = $name;
         $this->value = $value;
         if ($rules) {
@@ -5542,8 +5395,7 @@ class Less_Tree_Directive extends Less_Tree
         $this->debugInfo = $debugInfo;
     }
 
-    public function accept($visitor)
-    {
+    public function accept($visitor) {
         if ($this->rules) {
             $this->rules = $visitor->visitObj($this->rules);
         }
@@ -5555,8 +5407,7 @@ class Less_Tree_Directive extends Less_Tree
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
         $value = $this->value;
         $rules = $this->rules;
         $output->add($this->name, $this->currentFileInfo, $this->index);
@@ -5571,8 +5422,7 @@ class Less_Tree_Directive extends Less_Tree
         }
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
 
         $value = $this->value;
         $rules = $this->rules;
@@ -5588,15 +5438,13 @@ class Less_Tree_Directive extends Less_Tree
         return new Less_Tree_Directive($this->name, $value, $rules, $this->index, $this->currentFileInfo, $this->debugInfo);
     }
 
-    public function variable($name)
-    {
+    public function variable($name) {
         if ($this->rules) {
             return $this->rules->variable($name);
         }
     }
 
-    public function find($selector)
-    {
+    public function find($selector) {
         if ($this->rules) {
             return $this->rules->find($selector, $this);
         }
@@ -5604,8 +5452,7 @@ class Less_Tree_Directive extends Less_Tree
 
     //rulesets: function () { if (this.rules) return tree.Ruleset.prototype.rulesets.apply(this.rules); },
 
-    public function markReferenced()
-    {
+    public function markReferenced() {
         $this->isReferenced = true;
         if ($this->rules) {
             Less_Tree::ReferencedArray($this->rules->rules);
@@ -5620,8 +5467,7 @@ class Less_Tree_Directive extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Element extends Less_Tree
-{
+class Less_Tree_Element extends Less_Tree {
 
     public $combinator = '';
     public $value = '';
@@ -5630,8 +5476,7 @@ class Less_Tree_Element extends Less_Tree
     public $type = 'Element';
     public $value_is_object = false;
 
-    public function __construct($combinator, $value, $index = null, $currentFileInfo = null)
-    {
+    public function __construct($combinator, $value, $index = null, $currentFileInfo = null) {
 
         $this->value = $value;
         $this->value_is_object = is_object($value);
@@ -5644,15 +5489,13 @@ class Less_Tree_Element extends Less_Tree
         $this->currentFileInfo = $currentFileInfo;
     }
 
-    public function accept($visitor)
-    {
+    public function accept($visitor) {
         if ($this->value_is_object) { //object or string
             $this->value = $visitor->visitObj($this->value);
         }
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
 
         if (Less_Environment::$mixin_stack) {
             return new Less_Tree_Element($this->combinator, ($this->value_is_object ? $this->value->compile($env) : $this->value), $this->index, $this->currentFileInfo);
@@ -5668,13 +5511,11 @@ class Less_Tree_Element extends Less_Tree
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
         $output->add($this->toCSS(), $this->currentFileInfo, $this->index);
     }
 
-    public function toCSS()
-    {
+    public function toCSS() {
 
         if ($this->value_is_object) {
             $value = $this->value->toCSS();
@@ -5699,27 +5540,23 @@ class Less_Tree_Element extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Expression extends Less_Tree
-{
+class Less_Tree_Expression extends Less_Tree {
 
     public $value = array();
     public $parens = false;
     public $parensInOp = false;
     public $type = 'Expression';
 
-    public function __construct($value, $parens = null)
-    {
+    public function __construct($value, $parens = null) {
         $this->value = $value;
         $this->parens = $parens;
     }
 
-    public function accept($visitor)
-    {
+    public function accept($visitor) {
         $this->value = $visitor->visitArray($this->value);
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
 
         $doubleParen = false;
 
@@ -5764,8 +5601,7 @@ class Less_Tree_Expression extends Less_Tree
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
         $val_len = count($this->value);
         for ($i = 0; $i < $val_len; $i++) {
             $this->value[$i]->genCSS($output);
@@ -5775,8 +5611,7 @@ class Less_Tree_Expression extends Less_Tree
         }
     }
 
-    public function throwAwayComments()
-    {
+    public function throwAwayComments() {
 
         if (is_array($this->value)) {
             $new_value = array();
@@ -5798,8 +5633,7 @@ class Less_Tree_Expression extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Extend extends Less_Tree
-{
+class Less_Tree_Extend extends Less_Tree {
 
     public $selector;
     public $option;
@@ -5816,8 +5650,7 @@ class Less_Tree_Extend extends Less_Tree
     /**
      * @param integer $index
      */
-    public function __construct($selector, $option, $index)
-    {
+    public function __construct($selector, $option, $index) {
         static $i = 0;
         $this->selector = $selector;
         $this->option = $option;
@@ -5838,21 +5671,18 @@ class Less_Tree_Extend extends Less_Tree
         $this->parent_ids = array($this->object_id);
     }
 
-    public function accept($visitor)
-    {
+    public function accept($visitor) {
         $this->selector = $visitor->visitObj($this->selector);
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
         Less_Parser::$has_extends = true;
         $this->selector = $this->selector->compile($env);
         return $this;
         //return new Less_Tree_Extend( $this->selector->compile($env), $this->option, $this->index);
     }
 
-    public function findSelfSelectors($selectors)
-    {
+    public function findSelfSelectors($selectors) {
         $selfElements = array();
 
 
@@ -5886,8 +5716,7 @@ class Less_Tree_Extend extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Import extends Less_Tree
-{
+class Less_Tree_Import extends Less_Tree {
 
     public $options;
     public $index;
@@ -5899,8 +5728,7 @@ class Less_Tree_Import extends Less_Tree
     public $root;
     public $type = 'Import';
 
-    public function __construct($path, $features, $options, $index, $currentFileInfo = null)
-    {
+    public function __construct($path, $features, $options, $index, $currentFileInfo = null) {
         $this->options = $options;
         $this->index = $index;
         $this->path = $path;
@@ -5931,8 +5759,7 @@ class Less_Tree_Import extends Less_Tree
 // ruleset.
 //
 
-    public function accept($visitor)
-    {
+    public function accept($visitor) {
 
         if ($this->features) {
             $this->features = $visitor->visitObj($this->features);
@@ -5947,8 +5774,7 @@ class Less_Tree_Import extends Less_Tree
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
         if ($this->css) {
 
             $output->add('@import ', $this->currentFileInfo, $this->index);
@@ -5962,8 +5788,7 @@ class Less_Tree_Import extends Less_Tree
         }
     }
 
-    public function toCSS()
-    {
+    public function toCSS() {
         $features = $this->features ? ' ' . $this->features->toCSS() : '';
 
         if ($this->css) {
@@ -5976,8 +5801,7 @@ class Less_Tree_Import extends Less_Tree
     /**
      * @return string
      */
-    public function getPath()
-    {
+    public function getPath() {
         if ($this->path instanceof Less_Tree_Quoted) {
             $path = $this->path->value;
             $path = ( isset($this->css) || preg_match('/(\.[a-z]*$)|([\?;].*)$/', $path)) ? $path : $path . '.less';
@@ -5991,13 +5815,11 @@ class Less_Tree_Import extends Less_Tree
         return preg_replace('/[\?#][^\?]*$/', '', $path);
     }
 
-    public function compileForImport($env)
-    {
+    public function compileForImport($env) {
         return new Less_Tree_Import($this->path->compile($env), $this->features, $this->options, $this->index, $this->currentFileInfo);
     }
 
-    public function compilePath($env)
-    {
+    public function compilePath($env) {
         $path = $this->path->compile($env);
         $rootpath = '';
         if ($this->currentFileInfo && $this->currentFileInfo['rootpath']) {
@@ -6021,8 +5843,7 @@ class Less_Tree_Import extends Less_Tree
         return $path;
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
 
         $evald = $this->compileForImport($env);
 
@@ -6078,8 +5899,7 @@ class Less_Tree_Import extends Less_Tree
      *
      * @param Less_Tree_Import $evald
      */
-    public function PathAndUri()
-    {
+    public function PathAndUri() {
 
         $evald_path = $this->getPath();
 
@@ -6110,6 +5930,14 @@ class Less_Tree_Import extends Less_Tree
                         return array($full_path, $uri);
                     }
                 } elseif (!empty($rootpath)) {
+
+
+                    if ($rooturi) {
+                        if (strpos($evald_path, $rooturi) === 0) {
+                            $evald_path = substr($evald_path, strlen($rooturi));
+                        }
+                    }
+
                     $path = rtrim($rootpath, '/\\') . '/' . ltrim($evald_path, '/\\');
 
                     if (file_exists($path)) {
@@ -6131,8 +5959,7 @@ class Less_Tree_Import extends Less_Tree
      *
      * @return Less_Tree_Media|array
      */
-    public function ParseImport($full_path, $uri, $env)
-    {
+    public function ParseImport($full_path, $uri, $env) {
 
         $import_env = clone $env;
         if ((isset($this->options['reference']) && $this->options['reference']) || isset($this->currentFileInfo['reference'])) {
@@ -6158,8 +5985,7 @@ class Less_Tree_Import extends Less_Tree
      *
      * @return boolean|null
      */
-    private function Skip($path, $env)
-    {
+    private function Skip($path, $env) {
 
         $path = Less_Parser::winPath(realpath($path));
 
@@ -6181,8 +6007,7 @@ class Less_Tree_Import extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Javascript extends Less_Tree
-{
+class Less_Tree_Javascript extends Less_Tree {
 
     public $type = 'Javascript';
     public $escaped;
@@ -6193,15 +6018,13 @@ class Less_Tree_Javascript extends Less_Tree
      * @param boolean $index
      * @param boolean $escaped
      */
-    public function __construct($string, $index, $escaped)
-    {
+    public function __construct($string, $index, $escaped) {
         $this->escaped = $escaped;
         $this->expression = $string;
         $this->index = $index;
     }
 
-    public function compile()
-    {
+    public function compile() {
         return new Less_Tree_Anonymous('/* Sorry, can not do JavaScript evaluation in PHP... :( */');
     }
 
@@ -6213,8 +6036,7 @@ class Less_Tree_Javascript extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Keyword extends Less_Tree
-{
+class Less_Tree_Keyword extends Less_Tree {
 
     public $value;
     public $type = 'Keyword';
@@ -6222,21 +6044,18 @@ class Less_Tree_Keyword extends Less_Tree
     /**
      * @param string $value
      */
-    public function __construct($value)
-    {
+    public function __construct($value) {
         $this->value = $value;
     }
 
-    public function compile()
-    {
+    public function compile() {
         return $this;
     }
 
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
 
         if ($this->value === '%') {
             throw new Less_Exception_Compiler("Invalid % without number");
@@ -6245,8 +6064,7 @@ class Less_Tree_Keyword extends Less_Tree
         $output->add($this->value);
     }
 
-    public function compare($other)
-    {
+    public function compare($other) {
         if ($other instanceof Less_Tree_Keyword) {
             return $other->value === $this->value ? 0 : 1;
         } else {
@@ -6262,8 +6080,7 @@ class Less_Tree_Keyword extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Media extends Less_Tree
-{
+class Less_Tree_Media extends Less_Tree {
 
     public $features;
     public $rules;
@@ -6272,8 +6089,7 @@ class Less_Tree_Media extends Less_Tree
     public $isReferenced;
     public $type = 'Media';
 
-    public function __construct($value = array(), $features = array(), $index = null, $currentFileInfo = null)
-    {
+    public function __construct($value = array(), $features = array(), $index = null, $currentFileInfo = null) {
 
         $this->index = $index;
         $this->currentFileInfo = $currentFileInfo;
@@ -6286,8 +6102,7 @@ class Less_Tree_Media extends Less_Tree
         $this->rules[0]->allowImports = true;
     }
 
-    public function accept($visitor)
-    {
+    public function accept($visitor) {
         $this->features = $visitor->visitObj($this->features);
         $this->rules = $visitor->visitArray($this->rules);
     }
@@ -6295,16 +6110,14 @@ class Less_Tree_Media extends Less_Tree
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
 
         $output->add('@media ', $this->currentFileInfo, $this->index);
         $this->features->genCSS($output);
         Less_Tree::outputRuleset($output, $this->rules);
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
 
         $media = new Less_Tree_Media(array(), array(), $this->index, $this->currentFileInfo);
 
@@ -6332,34 +6145,29 @@ class Less_Tree_Media extends Less_Tree
         return !$env->mediaPath ? $media->compileTop($env) : $media->compileNested($env);
     }
 
-    public function variable($name)
-    {
+    public function variable($name) {
         return $this->rules[0]->variable($name);
     }
 
-    public function find($selector)
-    {
+    public function find($selector) {
         return $this->rules[0]->find($selector, $this);
     }
 
-    public function emptySelectors()
-    {
+    public function emptySelectors() {
         $el = new Less_Tree_Element('', '&', $this->index, $this->currentFileInfo);
         $sels = array(new Less_Tree_Selector(array($el), array(), null, $this->index, $this->currentFileInfo));
         $sels[0]->mediaEmpty = true;
         return $sels;
     }
 
-    public function markReferenced()
-    {
+    public function markReferenced() {
         $this->rules[0]->markReferenced();
         $this->isReferenced = true;
         Less_Tree::ReferencedArray($this->rules[0]->rules);
     }
 
     // evaltop
-    public function compileTop($env)
-    {
+    public function compileTop($env) {
         $result = $this;
 
         if (count($env->mediaBlocks) > 1) {
@@ -6374,8 +6182,7 @@ class Less_Tree_Media extends Less_Tree
         return $result;
     }
 
-    public function compileNested($env)
-    {
+    public function compileNested($env) {
         $path = array_merge($env->mediaPath, array($this));
 
         // Extract the media-query conditions separated with `,` (OR).
@@ -6414,8 +6221,7 @@ class Less_Tree_Media extends Less_Tree
         return new Less_Tree_Ruleset(array(), array());
     }
 
-    public function permute($arr)
-    {
+    public function permute($arr) {
         if (!$arr)
             return array();
 
@@ -6435,8 +6241,7 @@ class Less_Tree_Media extends Less_Tree
         return $result;
     }
 
-    public function bubbleSelectors($selectors)
-    {
+    public function bubbleSelectors($selectors) {
 
         if (!$selectors)
             return;
@@ -6456,8 +6261,7 @@ class Less_Tree_Media extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_NameValue extends Less_Tree
-{
+class Less_Tree_NameValue extends Less_Tree {
 
     public $name;
     public $value;
@@ -6465,16 +6269,14 @@ class Less_Tree_NameValue extends Less_Tree
     public $currentFileInfo;
     public $type = 'NameValue';
 
-    public function __construct($name, $value = null, $index = null, $currentFileInfo = null)
-    {
+    public function __construct($name, $value = null, $index = null, $currentFileInfo = null) {
         $this->name = $name;
         $this->value = $value;
         $this->index = $index;
         $this->currentFileInfo = $currentFileInfo;
     }
 
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
 
         $output->add(
                 $this->name
@@ -6484,8 +6286,7 @@ class Less_Tree_NameValue extends Less_Tree
                 , $this->currentFileInfo, $this->index);
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
         return $this;
     }
 
@@ -6497,14 +6298,12 @@ class Less_Tree_NameValue extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Negative extends Less_Tree
-{
+class Less_Tree_Negative extends Less_Tree {
 
     public $value;
     public $type = 'Negative';
 
-    public function __construct($node)
-    {
+    public function __construct($node) {
         $this->value = $node;
     }
 
@@ -6515,14 +6314,12 @@ class Less_Tree_Negative extends Less_Tree
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
         $output->add('-');
         $this->value->genCSS($output);
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
         if (Less_Environment::isMathOn()) {
             $ret = new Less_Tree_Operation('*', array(new Less_Tree_Dimension(-1), $this->value));
             return $ret->compile($env);
@@ -6538,8 +6335,7 @@ class Less_Tree_Negative extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Operation extends Less_Tree
-{
+class Less_Tree_Operation extends Less_Tree {
 
     public $op;
     public $operands;
@@ -6549,20 +6345,17 @@ class Less_Tree_Operation extends Less_Tree
     /**
      * @param string $op
      */
-    public function __construct($op, $operands, $isSpaced = false)
-    {
+    public function __construct($op, $operands, $isSpaced = false) {
         $this->op = trim($op);
         $this->operands = $operands;
         $this->isSpaced = $isSpaced;
     }
 
-    public function accept($visitor)
-    {
+    public function accept($visitor) {
         $this->operands = $visitor->visitArray($this->operands);
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
         $a = $this->operands[0]->compile($env);
         $b = $this->operands[1]->compile($env);
 
@@ -6588,8 +6381,7 @@ class Less_Tree_Operation extends Less_Tree
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
         $this->operands[0]->genCSS($output);
         if ($this->isSpaced) {
             $output->add(" ");
@@ -6609,34 +6401,29 @@ class Less_Tree_Operation extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Paren extends Less_Tree
-{
+class Less_Tree_Paren extends Less_Tree {
 
     public $value;
     public $type = 'Paren';
 
-    public function __construct($value)
-    {
+    public function __construct($value) {
         $this->value = $value;
     }
 
-    public function accept($visitor)
-    {
+    public function accept($visitor) {
         $this->value = $visitor->visitObj($this->value);
     }
 
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
         $output->add('(');
         $this->value->genCSS($output);
         $output->add(')');
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
         return new Less_Tree_Paren($this->value->compile($env));
     }
 
@@ -6648,8 +6435,7 @@ class Less_Tree_Paren extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Quoted extends Less_Tree
-{
+class Less_Tree_Quoted extends Less_Tree {
 
     public $escaped;
     public $value;
@@ -6661,8 +6447,7 @@ class Less_Tree_Quoted extends Less_Tree
     /**
      * @param string $str
      */
-    public function __construct($str, $content = '', $escaped = false, $index = false, $currentFileInfo = null)
-    {
+    public function __construct($str, $content = '', $escaped = false, $index = false, $currentFileInfo = null) {
         $this->escaped = $escaped;
         $this->value = $content;
         if ($str) {
@@ -6675,8 +6460,7 @@ class Less_Tree_Quoted extends Less_Tree
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
         if (!$this->escaped) {
             $output->add($this->quote, $this->currentFileInfo, $this->index);
         }
@@ -6686,8 +6470,7 @@ class Less_Tree_Quoted extends Less_Tree
         }
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
 
         $value = $this->value;
         if (preg_match_all('/`([^`]+)`/', $this->value, $matches)) {
@@ -6710,8 +6493,7 @@ class Less_Tree_Quoted extends Less_Tree
         return new Less_Tree_Quoted($this->quote . $value . $this->quote, $value, $this->escaped, $this->index, $this->currentFileInfo);
     }
 
-    public function compare($x)
-    {
+    public function compare($x) {
 
         if (!Less_Parser::is_method($x, 'toCSS')) {
             return -1;
@@ -6735,8 +6517,7 @@ class Less_Tree_Quoted extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Rule extends Less_Tree
-{
+class Less_Tree_Rule extends Less_Tree {
 
     public $name;
     public $value;
@@ -6751,8 +6532,7 @@ class Less_Tree_Rule extends Less_Tree
     /**
      * @param string $important
      */
-    public function __construct($name, $value = null, $important = null, $merge = null, $index = null, $currentFileInfo = null, $inline = false)
-    {
+    public function __construct($name, $value = null, $important = null, $merge = null, $index = null, $currentFileInfo = null, $inline = false) {
         $this->name = $name;
         $this->value = ($value instanceof Less_Tree_Value || $value instanceof Less_Tree_Ruleset) ? $value : new Less_Tree_Value(array($value));
         $this->important = $important ? ' ' . trim($important) : '';
@@ -6763,16 +6543,14 @@ class Less_Tree_Rule extends Less_Tree
         $this->variable = ( is_string($name) && $name[0] === '@');
     }
 
-    public function accept($visitor)
-    {
+    public function accept($visitor) {
         $this->value = $visitor->visitObj($this->value);
     }
 
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
 
         $output->add($this->name . Less_Environment::$_outputMap[': '], $this->currentFileInfo, $this->index);
         try {
@@ -6785,8 +6563,7 @@ class Less_Tree_Rule extends Less_Tree
         $output->add($this->important . (($this->inline || (Less_Environment::$lastRule && Less_Parser::$options['compress'])) ? "" : ";"), $this->currentFileInfo, $this->index);
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
 
         $name = $this->name;
         if (is_array($name)) {
@@ -6831,8 +6608,7 @@ class Less_Tree_Rule extends Less_Tree
         return $return;
     }
 
-    public function CompileName($env, $name)
-    {
+    public function CompileName($env, $name) {
         $output = new Less_Output();
         foreach ($name as $n) {
             $n->compile($env)->genCSS($output);
@@ -6840,8 +6616,7 @@ class Less_Tree_Rule extends Less_Tree
         return $output->toString();
     }
 
-    public function makeImportant()
-    {
+    public function makeImportant() {
         return new Less_Tree_Rule($this->name, $this->value, '!important', $this->merge, $this->index, $this->currentFileInfo, $this->inline);
     }
 
@@ -6853,8 +6628,7 @@ class Less_Tree_Rule extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Ruleset extends Less_Tree
-{
+class Less_Tree_Ruleset extends Less_Tree {
 
     protected $lookups;
     public $_variables;
@@ -6873,8 +6647,7 @@ class Less_Tree_Ruleset extends Less_Tree
     public $originalRuleset;
     public $first_oelements;
 
-    public function SetRulesetIndex()
-    {
+    public function SetRulesetIndex() {
         $this->ruleset_id = Less_Parser::$next_id++;
         $this->originalRuleset = $this->ruleset_id;
 
@@ -6887,8 +6660,7 @@ class Less_Tree_Ruleset extends Less_Tree
         }
     }
 
-    public function __construct($selectors, $rules, $strictImports = null)
-    {
+    public function __construct($selectors, $rules, $strictImports = null) {
         $this->selectors = $selectors;
         $this->rules = $rules;
         $this->lookups = array();
@@ -6896,8 +6668,7 @@ class Less_Tree_Ruleset extends Less_Tree
         $this->SetRulesetIndex();
     }
 
-    public function accept($visitor)
-    {
+    public function accept($visitor) {
         if ($this->paths) {
             $paths_len = count($this->paths);
             for ($i = 0, $paths_len; $i < $paths_len; $i++) {
@@ -6912,8 +6683,7 @@ class Less_Tree_Ruleset extends Less_Tree
         }
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
 
         $ruleset = $this->PrepareRuleset($env);
 
@@ -6986,8 +6756,7 @@ class Less_Tree_Ruleset extends Less_Tree
      * @param Less_Tree_Ruleset $ruleset
      * @param integer $rsRuleCnt
      */
-    private function EvalMixinCalls($ruleset, $env, &$rsRuleCnt)
-    {
+    private function EvalMixinCalls($ruleset, $env, &$rsRuleCnt) {
         for ($i = 0; $i < $rsRuleCnt; $i++) {
             $rule = $ruleset->rules[$i];
 
@@ -7036,8 +6805,7 @@ class Less_Tree_Ruleset extends Less_Tree
      * Compile the selectors and create a new ruleset object for the compile() method
      *
      */
-    private function PrepareRuleset($env)
-    {
+    private function PrepareRuleset($env) {
 
         $hasOnePassingSelector = false;
         $selectors = array();
@@ -7084,8 +6852,7 @@ class Less_Tree_Ruleset extends Less_Tree
         return $ruleset;
     }
 
-    function evalImports($env)
-    {
+    function evalImports($env) {
 
         $rules_len = count($this->rules);
         for ($i = 0; $i < $rules_len; $i++) {
@@ -7107,8 +6874,7 @@ class Less_Tree_Ruleset extends Less_Tree
         }
     }
 
-    function makeImportant()
-    {
+    function makeImportant() {
 
         $important_rules = array();
         foreach ($this->rules as $rule) {
@@ -7122,14 +6888,12 @@ class Less_Tree_Ruleset extends Less_Tree
         return new Less_Tree_Ruleset($this->selectors, $important_rules, $this->strictImports);
     }
 
-    public function matchArgs($args)
-    {
+    public function matchArgs($args) {
         return !$args;
     }
 
     // lets you call a css selector with a guard
-    public function matchCondition($args, $env)
-    {
+    public function matchCondition($args, $env) {
         $lastSelector = end($this->selectors);
 
         if (!$lastSelector->evaldCondition) {
@@ -7141,15 +6905,13 @@ class Less_Tree_Ruleset extends Less_Tree
         return true;
     }
 
-    function resetCache()
-    {
+    function resetCache() {
         $this->_rulesets = null;
         $this->_variables = null;
         $this->lookups = array();
     }
 
-    public function variables()
-    {
+    public function variables() {
         $this->_variables = array();
         foreach ($this->rules as $r) {
             if ($r instanceof Less_Tree_Rule && $r->variable === true) {
@@ -7158,8 +6920,7 @@ class Less_Tree_Ruleset extends Less_Tree
         }
     }
 
-    public function variable($name)
-    {
+    public function variable($name) {
 
         if (is_null($this->_variables)) {
             $this->variables();
@@ -7167,8 +6928,7 @@ class Less_Tree_Ruleset extends Less_Tree
         return isset($this->_variables[$name]) ? $this->_variables[$name] : null;
     }
 
-    public function find($selector, $self = null)
-    {
+    public function find($selector, $self = null) {
 
         $key = implode(' ', $selector->_oelements);
 
@@ -7209,8 +6969,7 @@ class Less_Tree_Ruleset extends Less_Tree
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
 
         if (!$this->root) {
             Less_Environment::$tabLevel++;
@@ -7314,8 +7073,7 @@ class Less_Tree_Ruleset extends Less_Tree
         }
     }
 
-    function markReferenced()
-    {
+    function markReferenced() {
         if (!$this->selectors) {
             return;
         }
@@ -7324,8 +7082,7 @@ class Less_Tree_Ruleset extends Less_Tree
         }
     }
 
-    public function joinSelectors($context, $selectors)
-    {
+    public function joinSelectors($context, $selectors) {
         $paths = array();
         if (is_array($selectors)) {
             foreach ($selectors as $selector) {
@@ -7335,8 +7092,7 @@ class Less_Tree_Ruleset extends Less_Tree
         return $paths;
     }
 
-    public function joinSelector(&$paths, $context, $selector)
-    {
+    public function joinSelector(&$paths, $context, $selector) {
 
         $hasParentSelector = false;
 
@@ -7474,8 +7230,7 @@ class Less_Tree_Ruleset extends Less_Tree
         }
     }
 
-    function mergeElementsOnToSelectors($elements, &$selectors)
-    {
+    function mergeElementsOnToSelectors($elements, &$selectors) {
 
         if (!$selectors) {
             $selectors[] = array(new Less_Tree_Selector($elements));
@@ -7503,24 +7258,20 @@ class Less_Tree_Ruleset extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_RulesetCall extends Less_Tree
-{
+class Less_Tree_RulesetCall extends Less_Tree {
 
     public $variable;
     public $type = "RulesetCall";
 
-    public function __construct($variable)
-    {
+    public function __construct($variable) {
         $this->variable = $variable;
     }
 
-    public function accept($visitor)
-    {
+    public function accept($visitor) {
         
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
         $variable = new Less_Tree_Variable($this->variable);
         $detachedRuleset = $variable->compile($env);
         return $detachedRuleset->callEval($env);
@@ -7534,8 +7285,7 @@ class Less_Tree_RulesetCall extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Selector extends Less_Tree
-{
+class Less_Tree_Selector extends Less_Tree {
 
     public $elements;
     public $condition;
@@ -7555,8 +7305,7 @@ class Less_Tree_Selector extends Less_Tree
     /**
      * @param boolean $isReferenced
      */
-    public function __construct($elements, $extendList = array(), $condition = null, $index = null, $currentFileInfo = null, $isReferenced = null)
-    {
+    public function __construct($elements, $extendList = array(), $condition = null, $index = null, $currentFileInfo = null, $isReferenced = null) {
 
         $this->elements = $elements;
         $this->elements_len = count($elements);
@@ -7573,8 +7322,7 @@ class Less_Tree_Selector extends Less_Tree
         $this->CacheElements();
     }
 
-    public function accept($visitor)
-    {
+    public function accept($visitor) {
         $this->elements = $visitor->visitArray($this->elements);
         $this->extendList = $visitor->visitArray($this->extendList);
         if ($this->condition) {
@@ -7586,15 +7334,13 @@ class Less_Tree_Selector extends Less_Tree
         }
     }
 
-    public function createDerived($elements, $extendList = null, $evaldCondition = null)
-    {
+    public function createDerived($elements, $extendList = null, $evaldCondition = null) {
         $newSelector = new Less_Tree_Selector($elements, ($extendList ? $extendList : $this->extendList), null, $this->index, $this->currentFileInfo, $this->isReferenced);
         $newSelector->evaldCondition = $evaldCondition ? $evaldCondition : $this->evaldCondition;
         return $newSelector;
     }
 
-    public function match($other)
-    {
+    public function match($other) {
 
         if (!$other->_oelements || ($this->elements_len < $other->_oelements_len)) {
             return 0;
@@ -7609,8 +7355,7 @@ class Less_Tree_Selector extends Less_Tree
         return $other->_oelements_len; // return number of matched elements
     }
 
-    public function CacheElements()
-    {
+    public function CacheElements() {
 
         $this->_oelements = array();
         $css = '';
@@ -7641,16 +7386,14 @@ class Less_Tree_Selector extends Less_Tree
         }
     }
 
-    public function isJustParentSelector()
-    {
+    public function isJustParentSelector() {
         return !$this->mediaEmpty &&
                 count($this->elements) === 1 &&
                 $this->elements[0]->value === '&' &&
                 ($this->elements[0]->combinator === ' ' || $this->elements[0]->combinator === '');
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
 
         $elements = array();
         foreach ($this->elements as $el) {
@@ -7673,8 +7416,7 @@ class Less_Tree_Selector extends Less_Tree
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output, $firstSelector = true)
-    {
+    public function genCSS($output, $firstSelector = true) {
 
         if (!$firstSelector && $this->elements[0]->combinator === "") {
             $output->add(' ', $this->currentFileInfo, $this->index);
@@ -7685,18 +7427,15 @@ class Less_Tree_Selector extends Less_Tree
         }
     }
 
-    public function markReferenced()
-    {
+    public function markReferenced() {
         $this->isReferenced = true;
     }
 
-    public function getIsReferenced()
-    {
+    public function getIsReferenced() {
         return !isset($this->currentFileInfo['reference']) || !$this->currentFileInfo['reference'] || $this->isReferenced;
     }
 
-    public function getIsOutput()
-    {
+    public function getIsOutput() {
         return $this->evaldCondition;
     }
 
@@ -7708,27 +7447,23 @@ class Less_Tree_Selector extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_UnicodeDescriptor extends Less_Tree
-{
+class Less_Tree_UnicodeDescriptor extends Less_Tree {
 
     public $value;
     public $type = 'UnicodeDescriptor';
 
-    public function __construct($value)
-    {
+    public function __construct($value) {
         $this->value = $value;
     }
 
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
         $output->add($this->value);
     }
 
-    public function compile()
-    {
+    public function compile() {
         return $this;
     }
 
@@ -7740,31 +7475,27 @@ class Less_Tree_UnicodeDescriptor extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Unit extends Less_Tree
-{
+class Less_Tree_Unit extends Less_Tree {
 
     var $numerator = array();
     var $denominator = array();
     public $backupUnit;
     public $type = 'Unit';
 
-    public function __construct($numerator = array(), $denominator = array(), $backupUnit = null)
-    {
+    public function __construct($numerator = array(), $denominator = array(), $backupUnit = null) {
         $this->numerator = $numerator;
         $this->denominator = $denominator;
         $this->backupUnit = $backupUnit;
     }
 
-    public function __clone()
-    {
+    public function __clone() {
         
     }
 
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
 
         if ($this->numerator) {
             $output->add($this->numerator[0]);
@@ -7776,8 +7507,7 @@ class Less_Tree_Unit extends Less_Tree
         }
     }
 
-    public function toString()
-    {
+    public function toString() {
         $returnStr = implode('*', $this->numerator);
         foreach ($this->denominator as $d) {
             $returnStr .= '/' . $d;
@@ -7785,47 +7515,39 @@ class Less_Tree_Unit extends Less_Tree
         return $returnStr;
     }
 
-    public function __toString()
-    {
+    public function __toString() {
         return $this->toString();
     }
 
     /**
      * @param Less_Tree_Unit $other
      */
-    public function compare($other)
-    {
+    public function compare($other) {
         return $this->is($other->toString()) ? 0 : -1;
     }
 
-    public function is($unitString)
-    {
+    public function is($unitString) {
         return $this->toString() === $unitString;
     }
 
-    public function isLength()
-    {
+    public function isLength() {
         $css = $this->toCSS();
         return !!preg_match('/px|em|%|in|cm|mm|pc|pt|ex/', $css);
     }
 
-    public function isAngle()
-    {
+    public function isAngle() {
         return isset(Less_Tree_UnitConversions::$angle[$this->toCSS()]);
     }
 
-    public function isEmpty()
-    {
+    public function isEmpty() {
         return !$this->numerator && !$this->denominator;
     }
 
-    public function isSingular()
-    {
+    public function isSingular() {
         return count($this->numerator) <= 1 && !$this->denominator;
     }
 
-    public function usedUnits()
-    {
+    public function usedUnits() {
         $result = array();
 
         foreach (Less_Tree_UnitConversions::$groups as $groupName) {
@@ -7847,8 +7569,7 @@ class Less_Tree_Unit extends Less_Tree
         return $result;
     }
 
-    public function cancel()
-    {
+    public function cancel() {
         $counter = array();
         $backup = null;
 
@@ -7897,8 +7618,7 @@ class Less_Tree_Unit extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_UnitConversions
-{
+class Less_Tree_UnitConversions {
 
     public static $groups = array('length', 'duration', 'angle');
     public static $length = array(
@@ -7929,8 +7649,7 @@ class Less_Tree_UnitConversions
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Url extends Less_Tree
-{
+class Less_Tree_Url extends Less_Tree {
 
     public $attrs;
     public $value;
@@ -7938,23 +7657,20 @@ class Less_Tree_Url extends Less_Tree
     public $isEvald;
     public $type = 'Url';
 
-    public function __construct($value, $currentFileInfo = null, $isEvald = null)
-    {
+    public function __construct($value, $currentFileInfo = null, $isEvald = null) {
         $this->value = $value;
         $this->currentFileInfo = $currentFileInfo;
         $this->isEvald = $isEvald;
     }
 
-    public function accept($visitor)
-    {
+    public function accept($visitor) {
         $this->value = $visitor->visitObj($this->value);
     }
 
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS($output)
-    {
+    public function genCSS($output) {
         $output->add('url(');
         $this->value->genCSS($output);
         $output->add(')');
@@ -7963,8 +7679,7 @@ class Less_Tree_Url extends Less_Tree
     /**
      * @param Less_Functions $ctx
      */
-    public function compile($ctx)
-    {
+    public function compile($ctx) {
         $val = $this->value->compile($ctx);
 
         if (!$this->isEvald) {
@@ -8006,24 +7721,20 @@ class Less_Tree_Url extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Value extends Less_Tree
-{
+class Less_Tree_Value extends Less_Tree {
 
     public $type = 'Value';
     public $value;
 
-    public function __construct($value)
-    {
+    public function __construct($value) {
         $this->value = $value;
     }
 
-    public function accept($visitor)
-    {
+    public function accept($visitor) {
         $this->value = $visitor->visitArray($this->value);
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
 
         $ret = array();
         $i = 0;
@@ -8039,8 +7750,7 @@ class Less_Tree_Value extends Less_Tree
     /**
      * @see Less_Tree::genCSS
      */
-    function genCSS($output)
-    {
+    function genCSS($output) {
         $len = count($this->value);
         for ($i = 0; $i < $len; $i++) {
             $this->value[$i]->genCSS($output);
@@ -8058,8 +7768,7 @@ class Less_Tree_Value extends Less_Tree
  * @package Less
  * @subpackage tree
  */
-class Less_Tree_Variable extends Less_Tree
-{
+class Less_Tree_Variable extends Less_Tree {
 
     public $name;
     public $index;
@@ -8070,15 +7779,13 @@ class Less_Tree_Variable extends Less_Tree
     /**
      * @param string $name
      */
-    public function __construct($name, $index = null, $currentFileInfo = null)
-    {
+    public function __construct($name, $index = null, $currentFileInfo = null) {
         $this->name = $name;
         $this->index = $index;
         $this->currentFileInfo = $currentFileInfo;
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
 
         if ($this->name[1] === '@') {
             $v = new Less_Tree_Variable(substr($this->name, 1), $this->index + 1, $this->currentFileInfo);
@@ -8106,8 +7813,7 @@ class Less_Tree_Variable extends Less_Tree
 
 }
 
-class Less_Tree_Mixin_Call extends Less_Tree
-{
+class Less_Tree_Mixin_Call extends Less_Tree {
 
     public $selector;
     public $arguments;
@@ -8120,8 +7826,7 @@ class Less_Tree_Mixin_Call extends Less_Tree
      * less.js: tree.mixin.Call
      *
      */
-    public function __construct($elements, $args, $index, $currentFileInfo, $important = false)
-    {
+    public function __construct($elements, $args, $index, $currentFileInfo, $important = false) {
         $this->selector = new Less_Tree_Selector($elements);
         $this->arguments = $args;
         $this->index = $index;
@@ -8135,8 +7840,7 @@ class Less_Tree_Mixin_Call extends Less_Tree
     //}
 
 
-    public function compile($env)
-    {
+    public function compile($env) {
 
         $rules = array();
         $match = false;
@@ -8259,8 +7963,7 @@ class Less_Tree_Mixin_Call extends Less_Tree
      * Format the args for use in exception messages
      *
      */
-    private function Format($args)
-    {
+    private function Format($args) {
         $message = array();
         if ($args) {
             foreach ($args as $a) {
@@ -8284,8 +7987,7 @@ class Less_Tree_Mixin_Call extends Less_Tree
      *
      * @return bool
      */
-    private function IsRecursive($env, $mixin)
-    {
+    private function IsRecursive($env, $mixin) {
 
         foreach ($env->frames as $recur_frame) {
             if (!($mixin instanceof Less_Tree_Mixin_Definition)) {
@@ -8305,8 +8007,7 @@ class Less_Tree_Mixin_Call extends Less_Tree
 
 }
 
-class Less_Tree_Mixin_Definition extends Less_Tree_Ruleset
-{
+class Less_Tree_Mixin_Definition extends Less_Tree_Ruleset {
 
     public $name;
     public $selectors;
@@ -8321,8 +8022,7 @@ class Less_Tree_Mixin_Definition extends Less_Tree_Ruleset
     public $type = 'MixinDefinition';
 
     // less.js : /lib/less/tree/mixin.js : tree.mixin.Definition
-    public function __construct($name, $params, $rules, $condition, $variadic = false, $frames = array())
-    {
+    public function __construct($name, $params, $rules, $condition, $variadic = false, $frames = array()) {
         $this->name = $name;
         $this->selectors = array(new Less_Tree_Selector(array(new Less_Tree_Element(null, $name))));
 
@@ -8351,14 +8051,12 @@ class Less_Tree_Mixin_Definition extends Less_Tree_Ruleset
     //}
 
 
-    public function toCSS()
-    {
+    public function toCSS() {
         return '';
     }
 
     // less.js : /lib/less/tree/mixin.js : tree.mixin.Definition.evalParams
-    public function compileParams($env, $mixinFrames, $args = array(), &$evaldArguments = array())
-    {
+    public function compileParams($env, $mixinFrames, $args = array(), &$evaldArguments = array()) {
         $frame = new Less_Tree_Ruleset(null, array());
         $params = $this->params;
         $mixinEnv = null;
@@ -8450,16 +8148,14 @@ class Less_Tree_Mixin_Definition extends Less_Tree_Ruleset
         return $frame;
     }
 
-    public function compile($env)
-    {
+    public function compile($env) {
         if ($this->frames) {
             return new Less_Tree_Mixin_Definition($this->name, $this->params, $this->rules, $this->condition, $this->variadic, $this->frames);
         }
         return new Less_Tree_Mixin_Definition($this->name, $this->params, $this->rules, $this->condition, $this->variadic, $env->frames);
     }
 
-    public function evalCall($env, $args = NULL, $important = NULL)
-    {
+    public function evalCall($env, $args = NULL, $important = NULL) {
 
         Less_Environment::$mixin_stack++;
 
@@ -8494,8 +8190,7 @@ class Less_Tree_Mixin_Definition extends Less_Tree_Ruleset
         return $ruleset;
     }
 
-    public function matchCondition($args, $env)
-    {
+    public function matchCondition($args, $env) {
 
         if (!$this->condition) {
             return true;
@@ -8520,8 +8215,7 @@ class Less_Tree_Mixin_Definition extends Less_Tree_Ruleset
         return (bool) $this->condition->compile($compile_env);
     }
 
-    public function matchArgs($args, $env = NULL)
-    {
+    public function matchArgs($args, $env = NULL) {
         $argsLength = count($args);
 
         if (!$this->variadic) {
@@ -8558,15 +8252,13 @@ class Less_Tree_Mixin_Definition extends Less_Tree_Ruleset
  * @package Less
  * @subpackage visitor
  */
-class Less_Visitor_extendFinder extends Less_Visitor
-{
+class Less_Visitor_extendFinder extends Less_Visitor {
 
     public $contexts = array();
     public $allExtendsStack;
     public $foundExtends;
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->contexts = array();
         $this->allExtendsStack = array(array());
         parent::__construct();
@@ -8575,25 +8267,21 @@ class Less_Visitor_extendFinder extends Less_Visitor
     /**
      * @param Less_Tree_Ruleset $root
      */
-    public function run($root)
-    {
+    public function run($root) {
         $root = $this->visitObj($root);
         $root->allExtends = & $this->allExtendsStack[0];
         return $root;
     }
 
-    public function visitRule($ruleNode, &$visitDeeper)
-    {
+    public function visitRule($ruleNode, &$visitDeeper) {
         $visitDeeper = false;
     }
 
-    public function visitMixinDefinition($mixinDefinitionNode, &$visitDeeper)
-    {
+    public function visitMixinDefinition($mixinDefinitionNode, &$visitDeeper) {
         $visitDeeper = false;
     }
 
-    public function visitRuleset($rulesetNode)
-    {
+    public function visitRuleset($rulesetNode) {
 
         if ($rulesetNode->root) {
             return;
@@ -8629,8 +8317,7 @@ class Less_Visitor_extendFinder extends Less_Visitor
         $this->contexts[] = $rulesetNode->selectors;
     }
 
-    public function allExtendsStackPush($rulesetNode, $selectorPath, $extend, &$j)
-    {
+    public function allExtendsStackPush($rulesetNode, $selectorPath, $extend, &$j) {
         $this->foundExtends = true;
         $extend = clone $extend;
         $extend->findSelfSelectors($selectorPath);
@@ -8644,32 +8331,27 @@ class Less_Visitor_extendFinder extends Less_Visitor
         $j++;
     }
 
-    public function visitRulesetOut($rulesetNode)
-    {
+    public function visitRulesetOut($rulesetNode) {
         if (!is_object($rulesetNode) || !$rulesetNode->root) {
             array_pop($this->contexts);
         }
     }
 
-    public function visitMedia($mediaNode)
-    {
+    public function visitMedia($mediaNode) {
         $mediaNode->allExtends = array();
         $this->allExtendsStack[] = & $mediaNode->allExtends;
     }
 
-    public function visitMediaOut()
-    {
+    public function visitMediaOut() {
         array_pop($this->allExtendsStack);
     }
 
-    public function visitDirective($directiveNode)
-    {
+    public function visitDirective($directiveNode) {
         $directiveNode->allExtends = array();
         $this->allExtendsStack[] = & $directiveNode->allExtends;
     }
 
-    public function visitDirectiveOut()
-    {
+    public function visitDirectiveOut() {
         array_pop($this->allExtendsStack);
     }
 
@@ -8817,31 +8499,26 @@ class Less_Visitor_extendFinder extends Less_Visitor
  * @package Less
  * @subpackage visitor
  */
-class Less_Visitor_joinSelector extends Less_Visitor
-{
+class Less_Visitor_joinSelector extends Less_Visitor {
 
     public $contexts = array(array());
 
     /**
      * @param Less_Tree_Ruleset $root
      */
-    public function run($root)
-    {
+    public function run($root) {
         return $this->visitObj($root);
     }
 
-    public function visitRule($ruleNode, &$visitDeeper)
-    {
+    public function visitRule($ruleNode, &$visitDeeper) {
         $visitDeeper = false;
     }
 
-    public function visitMixinDefinition($mixinDefinitionNode, &$visitDeeper)
-    {
+    public function visitMixinDefinition($mixinDefinitionNode, &$visitDeeper) {
         $visitDeeper = false;
     }
 
-    public function visitRuleset($rulesetNode)
-    {
+    public function visitRuleset($rulesetNode) {
 
         $paths = array();
 
@@ -8870,13 +8547,11 @@ class Less_Visitor_joinSelector extends Less_Visitor
         $this->contexts[] = $paths; //different from less.js. Placed after joinSelectors() so that $this->contexts will get correct $paths
     }
 
-    public function visitRulesetOut()
-    {
+    public function visitRulesetOut() {
         array_pop($this->contexts);
     }
 
-    public function visitMedia($mediaNode)
-    {
+    public function visitMedia($mediaNode) {
         $context = end($this->contexts); //$context = $this->contexts[ count($this->contexts) - 1];
 
         if (!count($context) || (is_object($context[0]) && $context[0]->multiMedia)) {
@@ -8892,16 +8567,14 @@ class Less_Visitor_joinSelector extends Less_Visitor
  * @package Less
  * @subpackage visitor
  */
-class Less_Visitor_processExtends extends Less_Visitor
-{
+class Less_Visitor_processExtends extends Less_Visitor {
 
     public $allExtendsStack;
 
     /**
      * @param Less_Tree_Ruleset $root
      */
-    public function run($root)
-    {
+    public function run($root) {
         $extendFinder = new Less_Visitor_extendFinder();
         $extendFinder->run($root);
         if (!$extendFinder->foundExtends) {
@@ -8916,8 +8589,7 @@ class Less_Visitor_processExtends extends Less_Visitor
         return $this->visitObj($root);
     }
 
-    private function doExtendChaining($extendsList, $extendsListTarget, $iterationCount = 0)
-    {
+    private function doExtendChaining($extendsList, $extendsListTarget, $iterationCount = 0) {
         //
         // chaining is different from normal extension.. if we extend an extend then we are not just copying, altering and pasting
         // the selector we would do normally, but we are also adding an extend with the same target selector
@@ -9010,23 +8682,19 @@ class Less_Visitor_processExtends extends Less_Visitor
         return array_merge($extendsList, $extendsToAdd);
     }
 
-    protected function visitRule($ruleNode, &$visitDeeper)
-    {
+    protected function visitRule($ruleNode, &$visitDeeper) {
         $visitDeeper = false;
     }
 
-    protected function visitMixinDefinition($mixinDefinitionNode, &$visitDeeper)
-    {
+    protected function visitMixinDefinition($mixinDefinitionNode, &$visitDeeper) {
         $visitDeeper = false;
     }
 
-    protected function visitSelector($selectorNode, &$visitDeeper)
-    {
+    protected function visitSelector($selectorNode, &$visitDeeper) {
         $visitDeeper = false;
     }
 
-    protected function visitRuleset($rulesetNode)
-    {
+    protected function visitRuleset($rulesetNode) {
 
 
         if ($rulesetNode->root) {
@@ -9056,8 +8724,7 @@ class Less_Visitor_processExtends extends Less_Visitor
         }
     }
 
-    private function ExtendMatch($rulesetNode, $extend, $selectorPath)
-    {
+    private function ExtendMatch($rulesetNode, $extend, $selectorPath) {
         $matches = $this->findMatch($extend, $selectorPath);
 
         if ($matches) {
@@ -9067,8 +8734,7 @@ class Less_Visitor_processExtends extends Less_Visitor
         }
     }
 
-    private function findMatch($extend, $haystackSelectorPath)
-    {
+    private function findMatch($extend, $haystackSelectorPath) {
 
 
         if (!$this->HasMatches($extend, $haystackSelectorPath)) {
@@ -9144,8 +8810,7 @@ class Less_Visitor_processExtends extends Less_Visitor
 
     // Before going through all the nested loops, lets check to see if a match is possible
     // Reduces Bootstrap 3.1 compile time from ~6.5s to ~5.6s
-    private function HasMatches($extend, $haystackSelectorPath)
-    {
+    private function HasMatches($extend, $haystackSelectorPath) {
 
         if (!$extend->selector->cacheable) {
             return true;
@@ -9169,8 +8834,7 @@ class Less_Visitor_processExtends extends Less_Visitor
     /**
      * @param integer $hackstackElementIndex
      */
-    private function PotentialMatch($potentialMatch, $needleElements, $haystackElement, $hackstackElementIndex)
-    {
+    private function PotentialMatch($potentialMatch, $needleElements, $haystackElement, $hackstackElementIndex) {
 
 
         if ($potentialMatch['matched'] > 0) {
@@ -9199,8 +8863,7 @@ class Less_Visitor_processExtends extends Less_Visitor
         return $potentialMatch;
     }
 
-    private function isElementValuesEqual($elementValue1, $elementValue2)
-    {
+    private function isElementValuesEqual($elementValue1, $elementValue2) {
 
         if ($elementValue1 === $elementValue2) {
             return true;
@@ -9225,8 +8888,7 @@ class Less_Visitor_processExtends extends Less_Visitor
     /**
      * @param Less_Tree_Selector $elementValue1
      */
-    private function isSelectorValuesEqual($elementValue1, $elementValue2)
-    {
+    private function isSelectorValuesEqual($elementValue1, $elementValue2) {
 
         $elementValue2 = $elementValue2->value;
         if (!($elementValue2 instanceof Less_Tree_Selector) || $elementValue1->elements_len !== $elementValue2->elements_len) {
@@ -9252,8 +8914,7 @@ class Less_Visitor_processExtends extends Less_Visitor
     /**
      * @param Less_Tree_Attribute $elementValue1
      */
-    private function isAttributeValuesEqual($elementValue1, $elementValue2)
-    {
+    private function isAttributeValuesEqual($elementValue1, $elementValue2) {
 
         if ($elementValue1->op !== $elementValue2->op || $elementValue1->key !== $elementValue2->key) {
             return false;
@@ -9272,8 +8933,7 @@ class Less_Visitor_processExtends extends Less_Visitor
         return $elementValue1 === $elementValue2;
     }
 
-    private function extendSelector($matches, $selectorPath, $replacementSelector)
-    {
+    private function extendSelector($matches, $selectorPath, $replacementSelector) {
 
         //for a set of matches, replace each match with the replacement selector
 
@@ -9333,25 +8993,21 @@ class Less_Visitor_processExtends extends Less_Visitor
         return $path;
     }
 
-    protected function visitMedia($mediaNode)
-    {
+    protected function visitMedia($mediaNode) {
         $newAllExtends = array_merge($mediaNode->allExtends, end($this->allExtendsStack));
         $this->allExtendsStack[] = $this->doExtendChaining($newAllExtends, $mediaNode->allExtends);
     }
 
-    protected function visitMediaOut()
-    {
+    protected function visitMediaOut() {
         array_pop($this->allExtendsStack);
     }
 
-    protected function visitDirective($directiveNode)
-    {
+    protected function visitDirective($directiveNode) {
         $newAllExtends = array_merge($directiveNode->allExtends, end($this->allExtendsStack));
         $this->allExtendsStack[] = $this->doExtendChaining($newAllExtends, $directiveNode->allExtends);
     }
 
-    protected function visitDirectiveOut()
-    {
+    protected function visitDirectiveOut() {
         array_pop($this->allExtendsStack);
     }
 
@@ -9363,55 +9019,47 @@ class Less_Visitor_processExtends extends Less_Visitor
  * @package Less
  * @subpackage visitor
  */
-class Less_Visitor_toCSS extends Less_VisitorReplacing
-{
+class Less_Visitor_toCSS extends Less_VisitorReplacing {
 
     private $charset;
 
-    public function __construct()
-    {
+    public function __construct() {
         parent::__construct();
     }
 
     /**
      * @param Less_Tree_Ruleset $root
      */
-    public function run($root)
-    {
+    public function run($root) {
         return $this->visitObj($root);
     }
 
-    public function visitRule($ruleNode)
-    {
+    public function visitRule($ruleNode) {
         if ($ruleNode->variable) {
             return array();
         }
         return $ruleNode;
     }
 
-    public function visitMixinDefinition($mixinNode)
-    {
+    public function visitMixinDefinition($mixinNode) {
         // mixin definitions do not get eval'd - this means they keep state
         // so we have to clear that state here so it isn't used if toCSS is called twice
         $mixinNode->frames = array();
         return array();
     }
 
-    public function visitExtend()
-    {
+    public function visitExtend() {
         return array();
     }
 
-    public function visitComment($commentNode)
-    {
+    public function visitComment($commentNode) {
         if ($commentNode->isSilent()) {
             return array();
         }
         return $commentNode;
     }
 
-    public function visitMedia($mediaNode, &$visitDeeper)
-    {
+    public function visitMedia($mediaNode, &$visitDeeper) {
         $mediaNode->accept($this);
         $visitDeeper = false;
 
@@ -9421,8 +9069,7 @@ class Less_Visitor_toCSS extends Less_VisitorReplacing
         return $mediaNode;
     }
 
-    public function visitDirective($directiveNode)
-    {
+    public function visitDirective($directiveNode) {
         if (isset($directiveNode->currentFileInfo['reference']) && (!property_exists($directiveNode, 'isReferenced') || !$directiveNode->isReferenced)) {
             return array();
         }
@@ -9446,8 +9093,7 @@ class Less_Visitor_toCSS extends Less_VisitorReplacing
         return $directiveNode;
     }
 
-    public function checkPropertiesInRoot($rulesetNode)
-    {
+    public function checkPropertiesInRoot($rulesetNode) {
 
         if (!$rulesetNode->firstRoot) {
             return;
@@ -9461,8 +9107,7 @@ class Less_Visitor_toCSS extends Less_VisitorReplacing
         }
     }
 
-    public function visitRuleset($rulesetNode, &$visitDeeper)
-    {
+    public function visitRuleset($rulesetNode, &$visitDeeper) {
 
         $visitDeeper = false;
 
@@ -9524,8 +9169,7 @@ class Less_Visitor_toCSS extends Less_VisitorReplacing
      *
      * return array|Less_Tree_Ruleset
      */
-    private function visitRulesetRoot($rulesetNode)
-    {
+    private function visitRulesetRoot($rulesetNode) {
         $rulesetNode->accept($this);
         if ($rulesetNode->firstRoot || $rulesetNode->rules) {
             return $rulesetNode;
@@ -9538,8 +9182,7 @@ class Less_Visitor_toCSS extends Less_VisitorReplacing
      *
      * @return array
      */
-    private function visitRulesetPaths($rulesetNode)
-    {
+    private function visitRulesetPaths($rulesetNode) {
 
         $paths = array();
         foreach ($rulesetNode->paths as $p) {
@@ -9558,8 +9201,7 @@ class Less_Visitor_toCSS extends Less_VisitorReplacing
         return $paths;
     }
 
-    protected function _removeDuplicateRules(&$rules)
-    {
+    protected function _removeDuplicateRules(&$rules) {
         // remove duplicates
         $ruleCache = array();
         for ($i = count($rules) - 1; $i >= 0; $i--) {
@@ -9586,8 +9228,7 @@ class Less_Visitor_toCSS extends Less_VisitorReplacing
         }
     }
 
-    protected function _mergeRules(&$rules)
-    {
+    protected function _mergeRules(&$rules) {
         $groups = array();
 
         //obj($rules);
@@ -9638,8 +9279,7 @@ class Less_Visitor_toCSS extends Less_VisitorReplacing
         }
     }
 
-    public static function toExpression($values)
-    {
+    public static function toExpression($values) {
         $mapped = array();
         foreach ($values as $p) {
             $mapped[] = $p->value;
@@ -9647,8 +9287,7 @@ class Less_Visitor_toCSS extends Less_VisitorReplacing
         return new Less_Tree_Expression($mapped);
     }
 
-    public static function toValue($values)
-    {
+    public static function toValue($values) {
         //return new Less_Tree_Value($values); ??
 
         $mapped = array();
@@ -9666,8 +9305,7 @@ class Less_Visitor_toCSS extends Less_VisitorReplacing
  * @package Less
  * @subpackage exception
  */
-class Less_Exception_Parser extends Exception
-{
+class Less_Exception_Parser extends Exception {
 
     /**
      * The current file
@@ -9694,8 +9332,7 @@ class Less_Exception_Parser extends Exception
      * @param Less_FileInfo|string $currentFile The file
      * @param integer $code The exception code
      */
-    public function __construct($message = null, Exception $previous = null, $index = null, $currentFile = null, $code = 0)
-    {
+    public function __construct($message = null, Exception $previous = null, $index = null, $currentFile = null, $code = 0) {
 
         if (PHP_VERSION_ID < 50300) {
             $this->previous = $previous;
@@ -9710,10 +9347,9 @@ class Less_Exception_Parser extends Exception
         $this->genMessage();
     }
 
-    protected function getInput()
-    {
+    protected function getInput() {
 
-        if (!$this->input && $this->currentFile && $this->currentFile['filename']) {
+        if (!$this->input && $this->currentFile && $this->currentFile['filename'] && file_exists($this->currentFile['filename'])) {
             $this->input = file_get_contents($this->currentFile['filename']);
         }
     }
@@ -9723,8 +9359,7 @@ class Less_Exception_Parser extends Exception
      *
      * @return string
      */
-    public function genMessage()
-    {
+    public function genMessage() {
 
         if ($this->currentFile && $this->currentFile['filename']) {
             $this->message .= ' in ' . basename($this->currentFile['filename']);
@@ -9754,8 +9389,7 @@ class Less_Exception_Parser extends Exception
      *
      * @return integer
      */
-    public function getLineNumber()
-    {
+    public function getLineNumber() {
         if ($this->index) {
             // https://bugs.php.net/bug.php?id=49790
             if (ini_get("mbstring.func_overload")) {
@@ -9772,8 +9406,7 @@ class Less_Exception_Parser extends Exception
      *
      * @return integer
      */
-    public function getColumn()
-    {
+    public function getColumn() {
 
         $part = substr($this->input, 0, $this->index);
         $pos = strrpos($part, "\n");
@@ -9788,8 +9421,7 @@ class Less_Exception_Parser extends Exception
  * @package Less
  * @subpackage exception
  */
-class Less_Exception_Chunk extends Less_Exception_Parser
-{
+class Less_Exception_Chunk extends Less_Exception_Parser {
 
     protected $parserCurrentIndex = 0;
     protected $emitFrom = 0;
@@ -9804,8 +9436,7 @@ class Less_Exception_Chunk extends Less_Exception_Parser
      * @param Less_FileInfo|string $currentFile The file
      * @param integer $code The exception code
      */
-    public function __construct($input, Exception $previous = null, $index = null, $currentFile = null, $code = 0)
-    {
+    public function __construct($input, Exception $previous = null, $index = null, $currentFile = null, $code = 0) {
 
         $this->message = 'ParseError: Unexpected input'; //default message
 
@@ -9825,8 +9456,7 @@ class Less_Exception_Chunk extends Less_Exception_Parser
      * We don't actually need the chunks
      *
      */
-    protected function Chunks()
-    {
+    protected function Chunks() {
         $level = 0;
         $parenLevel = 0;
         $lastMultiCommentEndBrace = null;
@@ -9970,13 +9600,11 @@ class Less_Exception_Chunk extends Less_Exception_Parser
         //$this->emitChunk(true);
     }
 
-    public function CharCode($pos)
-    {
+    public function CharCode($pos) {
         return ord($this->input[$pos]);
     }
 
-    public function fail($msg, $index = null)
-    {
+    public function fail($msg, $index = null) {
 
         if (!$index) {
             $this->index = $this->parserCurrentIndex;
@@ -10004,8 +9632,7 @@ class Less_Exception_Chunk extends Less_Exception_Parser
  * @package Less
  * @subpackage exception
  */
-class Less_Exception_Compiler extends Less_Exception_Parser
-{
+class Less_Exception_Compiler extends Less_Exception_Parser {
     
 }
 
@@ -10015,8 +9642,7 @@ class Less_Exception_Compiler extends Less_Exception_Parser
  * @package Less
  * @subpackage Output
  */
-class Less_Output_Mapped extends Less_Output
-{
+class Less_Output_Mapped extends Less_Output {
 
     /**
      * The source map generator
@@ -10052,8 +9678,7 @@ class Less_Output_Mapped extends Less_Output
      * @param array $contentsMap Array of filename to contents map
      * @param Less_SourceMap_Generator $generator
      */
-    public function __construct(array $contentsMap, $generator)
-    {
+    public function __construct(array $contentsMap, $generator) {
         $this->contentsMap = $contentsMap;
         $this->generator = $generator;
     }
@@ -10067,8 +9692,7 @@ class Less_Output_Mapped extends Less_Output
      * @param integer $index
      * @param mixed $mapLines
      */
-    public function add($chunk, $fileInfo = null, $index = 0, $mapLines = null)
-    {
+    public function add($chunk, $fileInfo = null, $index = 0, $mapLines = null) {
 
         //ignore adding empty strings
         if ($chunk === '') {
@@ -10138,8 +9762,7 @@ class Less_Output_Mapped extends Less_Output
  * @package Less
  * @subpackage SourceMap
  */
-class Less_SourceMap_Base64VLQ
-{
+class Less_SourceMap_Base64VLQ {
 
     /**
      * Shift
@@ -10200,8 +9823,7 @@ class Less_SourceMap_Base64VLQ
     /**
      * Constructor
      */
-    public function __construct()
-    {
+    public function __construct() {
         // I leave it here for future reference
         // foreach(str_split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/') as $i => $char)
         // {
@@ -10219,8 +9841,7 @@ class Less_SourceMap_Base64VLQ
      * even on a 64 bit machine.
      * @param string $aValue
      */
-    public function toVLQSigned($aValue)
-    {
+    public function toVLQSigned($aValue) {
         return 0xffffffff & ($aValue < 0 ? ((-$aValue) << 1) + 1 : ($aValue << 1) + 0);
     }
 
@@ -10235,8 +9856,7 @@ class Less_SourceMap_Base64VLQ
      * even on a 64 bit machine.
      * @param integer $aValue
      */
-    public function fromVLQSigned($aValue)
-    {
+    public function fromVLQSigned($aValue) {
         return $aValue & 1 ? $this->zeroFill(~$aValue + 2, 1) | (-1 - 0x7fffffff) : $this->zeroFill($aValue, 1);
     }
 
@@ -10246,8 +9866,7 @@ class Less_SourceMap_Base64VLQ
      * @param string $aValue The value to encode
      * @return string The encoded value
      */
-    public function encode($aValue)
-    {
+    public function encode($aValue) {
         $encoded = '';
         $vlq = $this->toVLQSigned($aValue);
         do {
@@ -10268,8 +9887,7 @@ class Less_SourceMap_Base64VLQ
      * @param string $encoded The encoded value to decode
      * @return integer The decoded value
      */
-    public function decode($encoded)
-    {
+    public function decode($encoded) {
         $vlq = 0;
         $i = 0;
         do {
@@ -10288,8 +9906,7 @@ class Less_SourceMap_Base64VLQ
      * @param integer $b number of bits to shift
      * @return integer
      */
-    public function zeroFill($a, $b)
-    {
+    public function zeroFill($a, $b) {
         return ($a >= 0) ? ($a >> $b) : ($a >> $b) & (PHP_INT_MAX >> ($b - 1));
     }
 
@@ -10300,8 +9917,7 @@ class Less_SourceMap_Base64VLQ
      * @return string
      * @throws Exception If the number is invalid
      */
-    public function base64Encode($number)
-    {
+    public function base64Encode($number) {
         if ($number < 0 || $number > 63) {
             throw new Exception(sprintf('Invalid number "%s" given. Must be between 0 and 63.', $number));
         }
@@ -10315,8 +9931,7 @@ class Less_SourceMap_Base64VLQ
      * @return number
      * @throws Exception If the number is invalid
      */
-    public function base64Decode($char)
-    {
+    public function base64Decode($char) {
         if (!array_key_exists($char, $this->charToIntMap)) {
             throw new Exception(sprintf('Invalid base 64 digit "%s" given.', $char));
         }
@@ -10331,8 +9946,7 @@ class Less_SourceMap_Base64VLQ
  * @package Less
  * @subpackage Output
  */
-class Less_SourceMap_Generator extends Less_Configurable
-{
+class Less_SourceMap_Generator extends Less_Configurable {
 
     /**
      * What version of source map does the generator generate?
@@ -10405,20 +10019,15 @@ class Less_SourceMap_Generator extends Less_Configurable
      * @param Less_Tree_Ruleset $root The root node
      * @param array $options Array of options
      */
-    public function __construct(Less_Tree_Ruleset $root, $contentsMap, $options = array())
-    {
+    public function __construct(Less_Tree_Ruleset $root, $contentsMap, $options = array()) {
         $this->root = $root;
         $this->contentsMap = $contentsMap;
         $this->encoder = new Less_SourceMap_Base64VLQ();
 
         $this->SetOptions($options);
 
-
-        // fix windows paths
-        if (!empty($this->options['sourceMapRootpath'])) {
-            $this->options['sourceMapRootpath'] = str_replace('\\', '/', $this->options['sourceMapRootpath']);
-            $this->options['sourceMapRootpath'] = rtrim($this->options['sourceMapRootpath'], '/') . '/';
-        }
+        $this->options['sourceMapRootpath'] = $this->fixWindowsPath($this->options['sourceMapRootpath'], true);
+        $this->options['sourceMapBasepath'] = $this->fixWindowsPath($this->options['sourceMapBasepath'], true);
     }
 
     /**
@@ -10426,8 +10035,7 @@ class Less_SourceMap_Generator extends Less_Configurable
      *
      * @return string
      */
-    public function generateCSS()
-    {
+    public function generateCSS() {
         $output = new Less_Output_Mapped($this->contentsMap, $this);
 
         // catch the output
@@ -10467,8 +10075,7 @@ class Less_SourceMap_Generator extends Less_Configurable
      * @param string $content The content to write
      * @throws Exception If the file could not be saved
      */
-    protected function saveMap($file, $content)
-    {
+    protected function saveMap($file, $content) {
         $dir = dirname($file);
         // directory does not exist
         if (!is_dir($dir)) {
@@ -10488,10 +10095,10 @@ class Less_SourceMap_Generator extends Less_Configurable
      * @param string $filename
      * @return string
      */
-    protected function normalizeFilename($filename)
-    {
+    protected function normalizeFilename($filename) {
 
-        $filename = str_replace('\\', '/', $filename);
+        $filename = $this->fixWindowsPath($filename);
+
         $rootpath = $this->getOption('sourceMapRootpath');
         $basePath = $this->getOption('sourceMapBasepath');
 
@@ -10517,8 +10124,7 @@ class Less_SourceMap_Generator extends Less_Configurable
      * @param integer $originalColumn The column number in original file
      * @param string $sourceFile The original source file
      */
-    public function addMapping($generatedLine, $generatedColumn, $originalLine, $originalColumn, $fileInfo)
-    {
+    public function addMapping($generatedLine, $generatedColumn, $originalLine, $originalColumn, $fileInfo) {
 
         $this->mappings[] = array(
             'generated_line' => $generatedLine,
@@ -10537,8 +10143,7 @@ class Less_SourceMap_Generator extends Less_Configurable
      * @return string
      * @see https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit#
      */
-    protected function generateJson()
-    {
+    protected function generateJson() {
 
         $sourceMap = array();
         $mappings = $this->generateMappings();
@@ -10594,8 +10199,7 @@ class Less_SourceMap_Generator extends Less_Configurable
      *
      * @return array|null
      */
-    protected function getSourcesContent()
-    {
+    protected function getSourcesContent() {
         if (empty($this->sources)) {
             return;
         }
@@ -10611,8 +10215,7 @@ class Less_SourceMap_Generator extends Less_Configurable
      *
      * @return string
      */
-    public function generateMappings()
-    {
+    public function generateMappings() {
 
         if (!count($this->mappings)) {
             return '';
@@ -10673,9 +10276,23 @@ class Less_SourceMap_Generator extends Less_Configurable
      * @param string $filename
      * @return integer|false
      */
-    protected function findFileIndex($filename)
-    {
+    protected function findFileIndex($filename) {
         return $this->source_keys[$filename];
+    }
+
+    /**
+     * fix windows paths
+     * @param  string $path
+     * @return string      
+     */
+    public function fixWindowsPath($path, $addEndSlash = false) {
+        $slash = ($addEndSlash) ? '/' : '';
+        if (!empty($path)) {
+            $path = str_replace('\\', '/', $path);
+            $path = rtrim($path, '/') . $slash;
+        }
+
+        return $path;
     }
 
 }
