@@ -39,6 +39,45 @@
 Для включение watch-режима запустите в консоли браузера следующией: window.less.watch()
 
 ## Responsive
+Для создания нестандартных сеток используйте grid-framework:
+```less
+.content {
+    @content-gutter: 60px;
+    .make-row(@content-gutter);
+    > .content-main {
+        .make-xs-column(12; @content-gutter);
+        .make-sm-column(8; @content-gutter);
+        .make-md-column(8; @content-gutter);
+        .make-lg-column(6; @content-gutter);
+    }
+    > .content-secondary {
+        .make-xs-column(12; @content-gutter);
+        .make-sm-column(4; @content-gutter);
+        .make-md-column(4; @content-gutter);
+        .make-lg-column(6; @content-gutter);
+    }
+}
+```
+
+Еще один пример 5-колонник:
+```less
+// 12/5 == 2.4
+.five-cols-row {
+    .col-lg-2_4 {
+        .make-lg-column(2.4, @grid-gutter-width);
+    }
+    .col-md-2_4 {
+        .make-md-column(2.4, @grid-gutter-width);
+    }
+    .col-sm-2_4 {
+        .make-sm-column(2.4, @grid-gutter-width)
+    }
+    .col-xs-2_4 {
+        .make-xs-column(2.4, @grid-gutter-width)
+    }
+}
+```
+
 Для создания адаптивной верстки используйте screen-mixin: `screen-xs`, `screen-sm`, `screen-sm-max`, `screen-md`, `screen-md-max` и `screen-lg`.
 ```less
 .foo {
