@@ -1,19 +1,47 @@
 // Responsive mixins
 .screen-xs(@rules) {
     @media (max-width: @screen-xs-max) { @rules(); }
-}
+};
 .screen-sm(@rules) {
     @media (min-width: @screen-sm-min) { @rules(); }
-}
+};
 .screen-sm-max(@rules) {
     @media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) { @rules(); }
-}
+};
 .screen-md(@rules) {
     @media (min-width: @screen-md-min) { @rules(); }
-}
+};
 .screen-md-max(@rules) {
     @media (min-width: @screen-md-min) and (max-width: @screen-md-max) { @rules(); }
-}
+};
 .screen-lg(@rules) {
     @media (min-width: @screen-lg-min) { @rules(); }
-}
+};
+
+// Extra grid framework
+.make-grid-loop(@prefx, @rules, @columns, @i: 1) when (@i =< @columns) {
+    @reverse: (@columns - @i + 1);
+    @column: ~".@{prefx}-@{reverse}_@{columns}";
+    > @{column} { @rules(); };
+    .make-grid-loop(@prefx, @rules, @columns, (@i + 1));
+};
+.make-grid-columns(@screen; @columns: @grid-columns; @gutter-width: @grid-gutter-width) when(@screen="lg") {
+    .make-grid-loop(~"col-@{screen}", {
+        .make-lg-column((@grid-columns / @columns); @gutter-width);
+    }, @columns);
+};
+.make-grid-columns(@screen; @columns: @grid-columns; @gutter-width: @grid-gutter-width) when(@screen="md") {
+    .make-grid-loop(~"col-@{screen}", {
+        .make-md-column((@grid-columns / @columns); @gutter-width);
+    }, @columns);
+};
+.make-grid-columns(@screen; @columns: @grid-columns; @gutter-width: @grid-gutter-width) when(@screen="sm") {
+    .make-grid-loop(~"col-@{screen}", {
+        .make-sm-column((@grid-columns / @columns); @gutter-width);
+    }, @columns);
+};
+.make-grid-columns(@screen; @columns: @grid-columns; @gutter-width: @grid-gutter-width) when(@screen="xs") {
+    .make-grid-loop(~"col-@{screen}", {
+        .make-xs-column((@grid-columns / @columns); @gutter-width);
+    }, @columns);
+};
