@@ -19,11 +19,11 @@
 };
 
 // Extra grid framework
-.make-grid-loop(@prefx, @rules, @columns, @i: 1) when (@i =< @columns) {
+.make-grid-loop(@prefix, @rules, @columns, @i: 1) when (@i =< @columns) {
     @reverse: (@columns - @i + 1);
-    @column: ~".@{prefx}-@{reverse}_@{columns}";
+    @column: ~".@{prefix}-@{reverse}_@{columns}";
     > @{column} { @rules(); };
-    .make-grid-loop(@prefx, @rules, @columns, (@i + 1));
+    .make-grid-loop(@prefix, @rules, @columns, (@i + 1));
 };
 .make-grid-columns(@screen; @columns: @grid-columns; @gutter-width: @grid-gutter-width) when(@screen="lg") {
     .make-grid-loop(~"col-@{screen}", {
