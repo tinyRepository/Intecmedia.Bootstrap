@@ -45,3 +45,7 @@
         .make-xs-column((@grid-columns / @columns); @gutter-width);
     }, @columns);
 };
+.make-grid-row(@screen; @columns: @grid-columns; @gutter-width: @grid-gutter-width) {
+   .make-row(@gutter-width);
+   .make-grid-columns(@screen, @columns, @gutter-width);
+};
