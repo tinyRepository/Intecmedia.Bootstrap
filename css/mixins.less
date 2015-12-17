@@ -19,29 +19,29 @@
 };
 
 // Extra grid framework
-.make-grid-loop(@prefix, @columns, @rules, @i: 1) when (@i =< @columns) {
+.make-grid-columns-loop(@prefix, @columns, @rules, @i: 1) when (@i =< @columns) {
     @reverse: (@columns - @i + 1);
     @column: ~".@{prefix}-@{reverse}_@{columns}";
     > @{column} { @rules(); };
-    .make-grid-loop(@prefix, @columns, @rules, (@i + 1));
+    .make-grid-columns-loop(@prefix, @columns, @rules, (@i + 1));
 };
 .make-grid-columns(@screen; @columns: @grid-columns; @gutter-width: @grid-gutter-width) when(@screen="lg") {
-    .make-grid-loop(~"col-@{screen}", @columns, {
+    .make-grid-columns-loop(~"col-@{screen}", @columns, {
         .make-lg-column((@grid-columns / @columns); @gutter-width);
     });
 };
 .make-grid-columns(@screen; @columns: @grid-columns; @gutter-width: @grid-gutter-width) when(@screen="md") {
-    .make-grid-loop(~"col-@{screen}", @columns, {
+    .make-grid-columns-loop(~"col-@{screen}", @columns, {
         .make-md-column((@grid-columns / @columns); @gutter-width);
     });
 };
 .make-grid-columns(@screen; @columns: @grid-columns; @gutter-width: @grid-gutter-width) when(@screen="sm") {
-    .make-grid-loop(~"col-@{screen}", @columns, {
+    .make-grid-columns-loop(~"col-@{screen}", @columns, {
         .make-sm-column((@grid-columns / @columns); @gutter-width);
     });
 };
 .make-grid-columns(@screen; @columns: @grid-columns; @gutter-width: @grid-gutter-width) when(@screen="xs") {
-    .make-grid-loop(~"col-@{screen}", @columns, {
+    .make-grid-columns-loop(~"col-@{screen}", @columns, {
         .make-xs-column((@grid-columns / @columns); @gutter-width);
     });
 };
