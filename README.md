@@ -42,6 +42,15 @@
 Для создания нестандартных сеток используйте grid-framework:
 ```less
 .content {
+    @content-gutter: 30px;
+    .make-grid-row("xs", 2, @content-gutter); // col-xs-1_2, col-xs-2_2
+    .make-grid-row("md", 10, @content-gutter); // col-md-1_10, col-md-2_10, col-md-3_10...
+}
+```
+
+Более развернуто:
+```less
+.content {
     @content-gutter: 60px;
     .make-row(@content-gutter);
     > .content-main {
