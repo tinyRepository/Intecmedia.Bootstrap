@@ -1,0 +1,62 @@
+// Extra framework grid generation
+//
+// Based on `bootstrap/grid-framework.less`
+
+.x-calc-grid-column(@index, @class, @columns, @type, @gutter-width) when (@type = "width") and (@index > 0) {
+    @item: ~".col-@{class}-@{index}-of-@{columns}";
+    @{item} {
+        float: left;
+        position: relative;
+        // Prevent columns from collapsing when empty
+        min-height: 1px;
+        // Inner gutter via padding
+        padding-left: ceil((@gutter-width / 2));
+        padding-right: floor((@gutter-width / 2));
+        width: percentage((@index / @columns));
+    }
+}
+.x-calc-grid-column(@index, @class, @columns, @type, @gutter-width) when (@type = "push") and (@index > 0) {
+    @item: ~".col-@{class}-push-@{index}-of-@{columns}";
+    @{item} {
+        left: percentage((@index / @columns));
+    }
+}
+.x-calc-grid-column(@index, @class, @columns, @type, @gutter-width) when (@type = "push") and (@index = 0) {
+    @item: ~".col-@{class}-push-0-of-@{columns}";
+    @{item} {
+        left: auto;
+    }
+}
+.x-calc-grid-column(@index, @class, @columns, @type, @gutter-width) when (@type = "pull") and (@index > 0) {
+    @item: ~".col-@{class}-pull-@{index}-of-@{columns}";
+    @{item} {
+        right: percentage((@index / @columns));
+    }
+}
+.x-calc-grid-column(@index, @class, @columns, @type, @gutter-width) when (@type = "pull") and (@index = 0) {
+    @item: ~".col-@{class}-pull-0-of-@{columns}";
+    @{item} {
+        right: auto;
+    }
+}
+.x-calc-grid-column(@index, @class, @columns, @type, @gutter-width) when (@type = "offset") {
+    @item: ~".col-@{class}-offset-@{index}-of-@{columns}";
+    @{item} {
+        margin-left: percentage((@index / @columns));
+    }
+}
+
+// Basic looping in LESS
+.x-loop-grid-columns(@index, @class, @columns, @type, @gutter-width) when (@index >= 0) {
+    .x-calc-grid-column(@index, @class, @columns, @type, @gutter-width);
+    // next iteration
+    .x-loop-grid-columns((@index - 1), @class, @columns, @type, @gutter-width);
+}
+
+// Create grid for specific class
+.x-make-grid(@class, @columns, @gutter-width) {
+    .x-loop-grid-columns(@columns, @class, @columns, "width", @gutter-width);
+    .x-loop-grid-columns(@columns, @class, @columns, "pull", @gutter-width);
+    .x-loop-grid-columns(@columns, @class, @columns, "push", @gutter-width);
+    .x-loop-grid-columns(@columns, @class, @columns, "offset", @gutter-width);
+}
