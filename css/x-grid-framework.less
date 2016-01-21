@@ -2,8 +2,8 @@
 //
 // Based on `bootstrap/grid-framework.less`
 
-.x-calc-grid-column(@index, @class, @columns, @type, @gutter-width) when (@type = "width") and (@index > 0) {
-    @item: ~".col-@{class}-@{index}-of-@{columns}";
+.x-calc-grid-column(@index, @class, @columns, @type, @gutter-width, @prefix) when (@type = "width") and (@index > 0) {
+    @item: ~"@{prefix}-@{class}-@{index}-of-@{columns}";
     @{item} {
         float: left;
         position: relative;
@@ -15,68 +15,68 @@
         width: percentage((@index / @columns));
     }
 }
-.x-calc-grid-column(@index, @class, @columns, @type, @gutter-width) when (@type = "push") and (@index > 0) {
-    @item: ~".col-@{class}-push-@{index}-of-@{columns}";
+.x-calc-grid-column(@index, @class, @columns, @type, @gutter-width, @prefix) when (@type = "push") and (@index > 0) {
+    @item: ~"@{prefix}-@{class}-push-@{index}-of-@{columns}";
     @{item} {
         left: percentage((@index / @columns));
     }
 }
-.x-calc-grid-column(@index, @class, @columns, @type, @gutter-width) when (@type = "push") and (@index = 0) {
-    @item: ~".col-@{class}-push-0-of-@{columns}";
+.x-calc-grid-column(@index, @class, @columns, @type, @gutter-width, @prefix) when (@type = "push") and (@index = 0) {
+    @item: ~"@{prefix}-@{class}-push-0-of-@{columns}";
     @{item} {
         left: auto;
     }
 }
-.x-calc-grid-column(@index, @class, @columns, @type, @gutter-width) when (@type = "pull") and (@index > 0) {
-    @item: ~".col-@{class}-pull-@{index}-of-@{columns}";
+.x-calc-grid-column(@index, @class, @columns, @type, @gutter-width, @prefix) when (@type = "pull") and (@index > 0) {
+    @item: ~"@{prefix}-@{class}-pull-@{index}-of-@{columns}";
     @{item} {
         right: percentage((@index / @columns));
     }
 }
-.x-calc-grid-column(@index, @class, @columns, @type, @gutter-width) when (@type = "pull") and (@index = 0) {
-    @item: ~".col-@{class}-pull-0-of-@{columns}";
+.x-calc-grid-column(@index, @class, @columns, @type, @gutter-width, @prefix) when (@type = "pull") and (@index = 0) {
+    @item: ~"@{prefix}-@{class}-pull-0-of-@{columns}";
     @{item} {
         right: auto;
     }
 }
-.x-calc-grid-column(@index, @class, @columns, @type, @gutter-width) when (@type = "offset") {
-    @item: ~".col-@{class}-offset-@{index}-of-@{columns}";
+.x-calc-grid-column(@index, @class, @columns, @type, @gutter-width, @prefix) when (@type = "offset") {
+    @item: ~"@{prefix}-@{class}-offset-@{index}-of-@{columns}";
     @{item} {
         margin-left: percentage((@index / @columns));
     }
 }
 
 // Create grid widths
-.x-make-grid-widths(@class, @columns, @gutter-width) {
-    .x-loop-grid-column(@columns, @class, @columns, "width", @gutter-width);
+.x-make-grid-widths(@class, @columns, @gutter-width, @prefix: "> .col") {
+    .x-loop-grid-column(@columns, @class, @columns, "width", @gutter-width, @prefix);
 }
 
 // Create grid pulls
-.x-make-grid-pulls(@class, @columns, @gutter-width) {
-    .x-loop-grid-column(@columns, @class, @columns, "pull", @gutter-width);
+.x-make-grid-pulls(@class, @columns, @gutter-width, @prefix: "> .col") {
+    .x-loop-grid-column(@columns, @class, @columns, "pull", @gutter-width, @prefix);
 }
 
 // Create grid pushs
-.x-make-grid-pushs(@class, @columns, @gutter-width) {
-    .x-loop-grid-column(@columns, @class, @columns, "push", @gutter-width);
+.x-make-grid-pushs(@class, @columns, @gutter-width, @prefix: "> .col") {
+    .x-loop-grid-column(@columns, @class, @columns, "push", @gutter-width, @prefix);
 }
 
 // Create grid offsets
-.x-make-grid-offsets(@class, @columns, @gutter-width) {
-    .x-loop-grid-column(@columns, @class, @columns, "offset", @gutter-width);
+.x-make-grid-offsets(@class, @columns, @gutter-width, @prefix: "> .col") {
+    .x-loop-grid-column(@columns, @class, @columns, "offset", @gutter-width, @prefix);
 }
 
 // Basic looping in LESS
-.x-loop-grid-column(@index, @class, @columns, @type, @gutter-width) when (@index >= 0) {
-    .x-calc-grid-column(@index, @class, @columns, @type, @gutter-width);
+.x-loop-grid-column(@index, @class, @columns, @type, @gutter-width, @prefix) when (@index >= 0) {
+    .x-calc-grid-column(@index, @class, @columns, @type, @gutter-width, @prefix);
     // next iteration
-    .x-loop-grid-column((@index - 1), @class, @columns, @type, @gutter-width);
+    .x-loop-grid-column((@index - 1), @class, @columns, @type, @gutter-width, @prefix);
 }
 
 // Create grid for specific class
-.x-make-grid(@class, @columns, @gutter-width) {
-    .x-make-grid-widths(@class, @columns, @gutter-width);
-    .x-make-grid-pulls(@class, @columns, @gutter-width);
-    .x-make-grid-pushs(@class, @columns, @gutter-width);
-    .x-make-grid-offsets(@class, @columns, @gutter-width);
+.x-make-grid(@class, @columns, @gutter-width, @prefix: "> .col") {
+    .x-make-grid-widths(@class, @columns, @gutter-width, @prefix);
+    .x-make-grid-pulls(@class, @columns, @gutter-width, @prefix);
+    .x-make-grid-pushs(@class, @columns, @gutter-width, @prefix);
+    .x-make-grid-offsets(@class, @columns, @gutter-width, @prefix);
 }
