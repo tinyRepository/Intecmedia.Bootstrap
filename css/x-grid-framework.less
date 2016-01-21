@@ -48,22 +48,22 @@
 
 // Create grid widths
 .x-make-grid-widths(@class, @columns, @gutter-width) {
-    .x-loop-grid-columns(@columns, @class, @columns, "width", @gutter-width);
+    .x-loop-grid-column(@columns, @class, @columns, "width", @gutter-width);
 }
 
 // Create grid pulls
 .x-make-grid-pulls(@class, @columns, @gutter-width) {
-    .x-loop-grid-columns(@columns, @class, @columns, "pull", @gutter-width);
+    .x-loop-grid-column(@columns, @class, @columns, "pull", @gutter-width);
 }
 
 // Create grid pushs
 .x-make-grid-pushs(@class, @columns, @gutter-width) {
-    .x-loop-grid-columns(@columns, @class, @columns, "push", @gutter-width);
+    .x-loop-grid-column(@columns, @class, @columns, "push", @gutter-width);
 }
 
 // Create grid offsets
 .x-make-grid-offsets(@class, @columns, @gutter-width) {
-    .x-loop-grid-columns(@columns, @class, @columns, "offset", @gutter-width);
+    .x-loop-grid-column(@columns, @class, @columns, "offset", @gutter-width);
 }
 
 // Basic looping in LESS
