@@ -82,13 +82,13 @@
 }
 
 // Generate the extra small columns
-.x-make-xs-column(@columns, @grid-columns, @gutter: @grid-gutter-width) {
+.x-make-xs-column(@columns, @grid-columns, @gutter-width) {
     position: relative;
     float: left;
     width: percentage((@columns / @grid-columns));
     min-height: 1px;
-    padding-left:  (@gutter / 2);
-    padding-right: (@gutter / 2);
+    padding-left:  (@gutter-width);
+    padding-right: (@gutter-width);
 }
 .x-make-xs-column-offset(@columns, @grid-columns) {
     margin-left: percentage((@columns / @grid-columns));
@@ -101,11 +101,11 @@
 }
 
 // Generate the small columns
-.x-make-sm-column(@columns, @grid-columns, @gutter: @grid-gutter-width) {
+.x-make-sm-column(@columns, @grid-columns, @gutter-width) {
     position: relative;
     min-height: 1px;
-    padding-left:  (@gutter / 2);
-    padding-right: (@gutter / 2);
+    padding-left:  (@gutter-width);
+    padding-right: (@gutter-width);
     @media (min-width: @screen-sm-min) {
         float: left;
         width: percentage((@columns / @grid-columns));
@@ -128,11 +128,11 @@
 }
 
 // Generate the medium columns
-.x-make-md-column(@columns, @grid-columns, @gutter: @grid-gutter-width) {
+.x-make-md-column(@columns, @grid-columns, @gutter-width) {
     position: relative;
     min-height: 1px;
-    padding-left:  (@gutter / 2);
-    padding-right: (@gutter / 2);
+    padding-left:  (@gutter-width);
+    padding-right: (@gutter-width);
     @media (min-width: @screen-md-min) {
         float: left;
         width: percentage((@columns / @grid-columns));
@@ -155,11 +155,11 @@
 }
 
 // Generate the large columns
-.x-make-lg-column(@columns, @grid-columns, @gutter: @grid-gutter-width) {
+.x-make-lg-column(@columns, @grid-columns, @gutter-width) {
     position: relative;
     min-height: 1px;
-    padding-left:  (@gutter / 2);
-    padding-right: (@gutter / 2);
+    padding-left:  (@gutter-width);
+    padding-right: (@gutter-width);
     @media (min-width: @screen-lg-min) {
         float: left;
         width: percentage((@columns / @grid-columns));
