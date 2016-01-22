@@ -42,15 +42,6 @@
 Для создания нестандартных сеток используйте grid-framework:
 ```less
 .content {
-    @content-gutter: 30px;
-    .make-grid-row("xs", 2, @content-gutter); // col-xs-1_2, col-xs-2_2
-    .make-grid-row("md", 10, @content-gutter); // col-md-1_10, col-md-2_10, col-md-3_10...
-}
-```
-
-Более развернуто:
-```less
-.content {
     @content-gutter: 60px;
     .make-row(@content-gutter);
     > .content-main {
@@ -88,6 +79,18 @@
     }
 }
 ```
+
+Другие mixin-ы могут быть интересны:
+`.x-make-grid(@class, @columns, @gutter-width, @prefix: "> .col")`
+`.x-make-grid-widths(@class, @columns, @gutter-width, @prefix);`
+`.x-make-grid-pulls(@class, @columns, @gutter-width, @prefix);`
+`.x-make-grid-pushs(@class, @columns, @gutter-width, @prefix);`
+`.x-make-grid-offsets(@class, @columns, @gutter-width, @prefix)`
+
+`x-make-xs-column`, `.x-make-xs-column-offset`, `.x-make-xs-column-push`, `.x-make-xs-column-pull`, 
+`x-make-sm-column`, `.x-make-sm-column-offset`, `.x-make-sm-column-push`, `.x-make-sm-column-pull`, 
+`x-make-md-column`, `.x-make-md-column-offset`, `.x-make-md-column-push`, `.x-make-md-column-pull`, 
+`x-make-lg-column`, `.x-make-lg-column-offset`, `.x-make-lg-column-push`, `.x-make-lg-column-pull`, 
 
 Для создания адаптивной верстки используйте screen-mixin: `screen-xs`, `screen-sm`, `screen-sm-max`, `screen-md`, `screen-md-max` и `screen-lg`.
 ```less
