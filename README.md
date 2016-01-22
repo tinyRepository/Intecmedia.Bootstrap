@@ -70,19 +70,21 @@
 
 Еще один пример 5-колонник:
 ```less
-// 12/5 == 2.4 да, это хак -- но рабочий. (:
-.five-cols-row {
-    .col-lg-2_4 {
-        .make-lg-column(2.4; @grid-gutter-width);
+.five-row {
+    @columns: 5;
+    @gutter: 30px;
+    .make-row(@gutter);
+    .col-lg-1-5 {
+        .make-lg-column(1, @columns, @gutter);
     }
-    .col-md-2_4 {
-        .make-md-column(2.4; @grid-gutter-width);
+    .col-md-1-5 {
+        .make-md-column(1, @columns, @gutter);
     }
-    .col-sm-2_4 {
-        .make-sm-column(2.4; @grid-gutter-width)
+    .col-sm-1-5 {
+        .make-sm-column(1, @columns, @gutter);
     }
-    .col-xs-2_4 {
-        .make-xs-column(2.4; @grid-gutter-width)
+    .col-xs-1-5 {
+        .make-xs-column(1, @columns, @gutter);
     }
 }
 ```
