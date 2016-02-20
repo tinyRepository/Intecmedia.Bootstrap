@@ -1,3 +1,5 @@
+// Globals mixins
+
 // Responsive mixins
 .screen-xs(@rules) {
     @media (max-width: @screen-xs-max) { @rules(); }
@@ -18,3 +20,10 @@
     @media (min-width: @screen-lg-min) { @rules(); }
 };
 
+// Keyframes
+.keyframes(@name; @rules) {
+    // WebKit
+    @-webkit-keyframes @name { @rules(); }
+    // Spec and IE10+
+    @keyframes @name { @rules(); }
+};
