@@ -12,6 +12,7 @@
 * Основан на Bootstrap 3.3
 * Встроен jQuery v1.11
 * Встроен Font Awesome 4.2.0
+* Встроен Modernizr
 * Модульный AMD-подход(Asynchronous Module Definition) в организации Javascript через RequireJS
 * Основан на LESS
 * Встроена работа с media=print, responsive-css и HTML5-разметки
@@ -174,6 +175,7 @@ require(["jquery", "bootstrap"], function($) {
 * [Bootstrap Datepicker](https://eonasdan.github.io/bootstrap-datetimepicker/): MIT License
 * [Selectize](http://brianreavis.github.io/selectize.js/): Apache License
 * [Picturefill](http://scottjehl.github.io/picturefill): MIT License
+* [Modernizr](https://modernizr.com/): MIT License
 
 ## Ссылки:
 * [Less](http://lesscss.org/)
