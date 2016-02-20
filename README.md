@@ -13,7 +13,7 @@
 * Встроен jQuery v1.11
 * Встроен Font Awesome 4.2.0
 * Модульный AMD-подход(Asynchronous Module Definition) в организации Javascript через RequireJS
-* Основан на LESS (для обработки на клиенте используется less.js, на сервере lessphp)
+* Основан на LESS
 * Встроена работа с media=print, responsive-css и HTML5-разметки
 * Содержит базовую типографику текста, форм, таблиц, списков, заголовков
 * Совсместимо со всеми современными браузерами (минимальная версия Internet Explorer 9)
@@ -27,16 +27,6 @@
 * Перед началом работы определите основные переменные в файле `css/variables.less`
 * Дополнительный css должен содержатся в файле `css/style.less`
 * Дополнительный javascript должен содержатся в `js/application.js` и загружаться через RequireJS
-
-## Если не работает Less.js в Chrome
-Ошибка в консоли браузера: `Cross origin requests are only supported for HTTP`. 
-Для просмотра html используйте веб-сервер или перезапустить хром с параметром `-allow-file-access-from-files`.
-
-## Если не работает Less.js в Opera Presto
-Должен быть включен флаг `opera:config#UserPrefs|AllowFileXMLHttpRequest`.
-
-## Watch mode
-Для включение watch-режима запустите в консоли браузера следующией: window.less.watch()
 
 ## Responsive
 Для создания нестандартных сеток используйте grid-framework:
@@ -149,7 +139,7 @@
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet/less" href="css/style.less" />
+    <link rel="stylesheet/css" href="css/style.less" />
     <script>
     $(function() {
         $("p").text( document.title );
@@ -178,7 +168,6 @@ require(["jquery", "bootstrap"], function($) {
 ## Компоненты:
 * [Bootstrap](http://getbootstrap.com/): Apache License v2.0
 * [Less.php](http://lessphp.gpeasy.com): Apache License v2.0
-* [less.js](http://lesscss.org ): MIT/GPL3 Licensed
 * [jQuery](http://jquery.com/): MIT/GPL license
 * [Font Awesome](http://fortawesome.github.io/Font-Awesome/): MIT License
 * [RequireJS](http://requirejs.org/): MIT License
