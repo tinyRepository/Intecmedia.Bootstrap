@@ -23,23 +23,15 @@
 * Responsive images через [Picturefill](http://scottjehl.github.io/picturefill)
 
 ## Примечания:
-* Ваша задача состоит в стилизации bootstrap.
+* Ваша задача состоит в стилизации bootstrap: путем их акуратного изменения.
 * Не следует разрушать стандартные компоненты bootstrap, они будут использоваться многовариантно.
 * Перед началом работы определите основные переменные в файле `css/variables.less`
-* Дополнительный css должен содержатся в файле `css/style.less`
 * Дополнительный javascript должен содержатся в `js/application.js` и загружаться через RequireJS
+* Обратите на структуру файлов: `footer.less`, `header.less`, `layout.less`, `utilities.less`.
+* Файл `wysiwyg.less` предназначен для стилизации тегов которые пришли из WYSIWYG-редактора.
 
 ## Responsive
 Для создания нестандартных сеток используйте grid-framework:
-```less
-.content {
-    @content-gutter: 30px;
-    .make-grid-row("xs", 2, @content-gutter); // col-xs-1_2, col-xs-2_2
-    .make-grid-row("md", 10, @content-gutter); // col-md-1_10, col-md-2_10, col-md-3_10...
-}
-```
-
-Более развернуто:
 ```less
 .content {
     @content-gutter: 60px;
@@ -61,21 +53,52 @@
 
 Еще один пример 5-колонник:
 ```less
-// 12/5 == 2.4
-.five-cols-row {
-    .col-lg-2_4 {
-        .make-lg-column(2.4, @grid-gutter-width);
+.five-row {
+    @columns: 5;
+    @gutter: 30px;
+    .make-row(@gutter);
+    .col-lg-1-5 {
+        .make-lg-column(1, @columns, @gutter);
     }
-    .col-md-2_4 {
-        .make-md-column(2.4, @grid-gutter-width);
+    .col-md-1-5 {
+        .make-md-column(1, @columns, @gutter);
     }
-    .col-sm-2_4 {
-        .make-sm-column(2.4, @grid-gutter-width)
+    .col-sm-1-5 {
+        .make-sm-column(1, @columns, @gutter);
     }
-    .col-xs-2_4 {
-        .make-xs-column(2.4, @grid-gutter-width)
+    .col-xs-1-5 {
+        .make-xs-column(1, @columns, @gutter);
     }
 }
+```
+
+Другие mixin-ы могут быть интересны:
+```less
+.x-make-grid(@class, @columns, @gutter-width, @prefix: "> .col");
+.x-make-grid-widths(@class, @columns, @gutter-width, @prefix);
+.x-make-grid-pulls(@class, @columns, @gutter-width, @prefix);
+.x-make-grid-pushs(@class, @columns, @gutter-width, @prefix);
+.x-make-grid-offsets(@class, @columns, @gutter-width, @prefix);
+
+.x-make-xs-column(@columns, @grid-columns, @gutter-width);
+.x-make-xs-column-offset(@columns, @grid-columns);
+.x-make-xs-column-push(@columns, @grid-columns);
+.x-make-xs-column-pull(@columns, @grid-columns);
+
+.x-make-sm-column(@columns, @grid-columns, @gutter-width);
+.x-make-sm-column-offset(@columns, @grid-columns);
+.x-make-sm-column-push(@columns, @grid-columns);
+.x-make-sm-column-pull(@columns, @grid-columns);
+
+.x-make-md-column(@columns, @grid-columns, @gutter-width);
+.x-make-md-column-offset(@columns, @grid-columns);
+.x-make-md-column-push(@columns, @grid-columns);
+.x-make-md-column-pull(@columns, @grid-columns);
+
+.x-make-lg-column(@columns, @grid-columns, @gutter-width);
+.x-make-lg-column-offset(@columns, @grid-columns);
+.x-make-lg-column-push(@columns, @grid-columns);
+.x-make-lg-column-pull(@columns, @grid-columns);
 ```
 
 Для создания адаптивной верстки используйте screen-mixin: `screen-xs`, `screen-sm`, `screen-sm-max`, `screen-md`, `screen-md-max` и `screen-lg`.
@@ -87,6 +110,7 @@
     });
 }
 ```
+
 ## **ВНИМАНИЕ!** Данные миксины призваны стандартизовать величины width в media query, однако это требует особого контроля за **количество запоросов**. 
 
 
