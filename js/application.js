@@ -6,7 +6,6 @@ require.config({
     paths: {
         "bootstrap": "bootstrap.min",
         "datetimepicker": "bootstrap-datetimepicker.min",
-        "jquery.migrate": "jquery-migrate.min",
         "moment": "moment.min",
         "picturefill": "picturefill.min",
         "selectize": "selectize.min"
