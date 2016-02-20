@@ -181,7 +181,6 @@ require(["jquery", "bootstrap"], function($) {
 * [less.js](http://lesscss.org ): MIT/GPL3 Licensed
 * [jQuery](http://jquery.com/): MIT/GPL license
 * [Font Awesome](http://fortawesome.github.io/Font-Awesome/): MIT License
-* [Pace](http://github.hubspot.com/pace/): MIT License
 * [RequireJS](http://requirejs.org/): MIT License
 * [Bootstrap Datepicker](https://eonasdan.github.io/bootstrap-datetimepicker/): MIT License
 * [Selectize](http://brianreavis.github.io/selectize.js/): Apache License
