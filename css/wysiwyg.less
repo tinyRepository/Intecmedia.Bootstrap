@@ -2,20 +2,21 @@
 .wysiwyg {
     // image with caption
     figure {
-        &:extend(.thumbnail);
+        &:extend(.thumbnail all);
         > figcaption {
-            &:extend(.thumbnail .caption);
+            &:extend(.thumbnail .caption all);
         }
     }
     // default tables
     table:not([class]) {
         width: 100%;
-        &:extend(.table, .table-bordered);
+        &:extend(.table all);
+        &:extend(.table-bordered all);
     }
     // disabled table
     table[border="0"] {
         border: 0;
-        width: auto;
+        width: inherit;
         background: transparent;
         > tfoot {
             > tr {
