@@ -27,7 +27,3 @@ module.exports = function (grunt) {
 
     grunt.registerTask("default", ["watch"]);
 };
-
-    grunt.registerTask("myLess", ["less:intecmedia"]);
-    grunt.registerTask("myWatch", ["watch:intecmedia"]);
-};
