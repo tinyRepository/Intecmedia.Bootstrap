@@ -1,0 +1,57 @@
+/* Classes for WYSIWYG-editors */
+.wysiwyg {
+    // image with caption
+    figure {
+        &:extend(.thumbnail all);
+        > figcaption {
+            &:extend(.thumbnail .caption all);
+        }
+    }
+    // default tables
+    table:not([class]) {
+        width: 100%;
+        &:extend(.table all);
+        &:extend(.table-bordered all);
+    }
+    // disabled table
+    table[border="0"] {
+        border: 0;
+        width: inherit;
+        background: transparent;
+        > thead,
+        > tbody,
+        > tfoot {
+            > tr {
+                > th,
+                > td {
+                    border: 0;
+                    background: transparent;
+                }
+            }
+        }
+    }
+    // colored bulls
+    ul:not([class]) {
+        > li {
+            position: relative;
+            list-style: none;
+            &:before {
+                font-family: inherit;
+                content: "\2022";
+                color: @brand-primary;
+                width: 1.2em;
+                margin-left: -1.2em;
+                font-size: 1.4em;
+                line-height: 1em;
+                vertical-align: middle;
+                position: absolute;
+                top: 0;
+                left: 0;
+                text-align: center;
+            }
+            > ul > li {
+                content: "\00ba" !important;
+            }
+        }
+    }
+}

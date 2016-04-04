@@ -1,65 +1,11 @@
-/*! Intecmedia.Bootstrap  | (c) 2015 Intecmedia. | license public domain */
-
-/* Base modules url (js directory) */
-var getBaseUrl = function() {
-    "use strict";
-    if (window.getBaseUrlPath) {
-        return window.getBaseUrlPath;
-    }
-    var pattern = /(^|.*[\\\/])application\.js(?:\?.*|;.*)?$/i;
-    var path = "", scripts = document.getElementsByTagName("script");
-    for (var i = 0; i < scripts.length; i++) {
-        var match = scripts[i].src.match(pattern);
-        if (match) {
-            path = match[1];
-            break;
-        }
-    }
-    if (path.indexOf(":/") === -1 && path.slice(0, 2) !== "//") {
-        if (path.indexOf("/") === 0) {
-            path = location.href.match(/^.*?:\/\/[^\/]*/)[0] + path;
-        } else {
-            path = location.href.match(/^[^\?]*\/(?:)/)[0] + path;
-        }
-    }
-    window.getBaseUrlPath = path;
-    return path;
-};
-
-/* Remove this function before using in production */
-(function() {
-    "use strict";
-    /* Run less.js parser for only file protocol */
-    if (window.location.protocol !== "file:") {
-        return;
-    }
-    var define = window.define;
-    window.define = null;
-    var startTime = new Date(), html = jQuery("html").css("opacity", 0);
-    window.less = {env: "development", logLevel: 2, async: false, fileAsync: false, relativeUrls: false};
-    jQuery.ajax(getBaseUrl() + "less.js", {
-        async: false,
-        dataType: "script",
-        success: function() {
-            window.define = define;
-            jQuery("link[rel~='stylesheet'][href$='.less']").each(function() {
-                window.less.sheets.push(this);
-                jQuery(this).remove();
-            });
-            window.less.refresh();
-            html.css("opacity", 1);
-            window.less.poll = 1.5 * (new Date() - startTime);
-        }
-    });
-})();
+/*! Intecmedia.Bootstrap  | (c) 2016 Intecmedia. | license public domain */
 
 /* Define modules */
 require.config({
-    baseUrl: getBaseUrl(),
+    baseUrl: "js",
     paths: {
         "bootstrap": "bootstrap.min",
         "datetimepicker": "bootstrap-datetimepicker.min",
-        "jquery.migrate": "jquery-migrate.min",
         "moment": "moment.min",
         "picturefill": "picturefill.min",
         "selectize": "selectize.min"

@@ -30,6 +30,7 @@ set_error_handler(function ($code, $message, $file, $line) {
 });
 @ini_set("date.timezone", "UTC");
 @ini_set("mbstring.internal_encoding", "ascii");
+mb_internal_encoding("ascii");
 header("Content-Type: text/css; charset=UTF-8");
 header("Cache-Control: must-revalidate");
 
