@@ -1,9 +1,6 @@
 module.exports = function (grunt) {
     "use strict";
 
-    grunt.loadNpmTasks("grunt-contrib-less");
-    grunt.loadNpmTasks("grunt-contrib-watch");
-
     grunt.initConfig({
         pkg: grunt.file.readJSON("package.json"),
         less: {
@@ -20,10 +17,16 @@ module.exports = function (grunt) {
             }
         },
         watch: {
-            files: "css/*.less",
+            files: ["css/*.less", "css/**/*.less"],
             tasks: ["less"]
         }
     });
+
+    grunt.loadNpmTasks("grunt-contrib-less");
+    grunt.loadNpmTasks("grunt-contrib-watch");
+
+    grunt.registerTask("default", ["watch"]);
+};
 
     grunt.registerTask("myLess", ["less:intecmedia"]);
     grunt.registerTask("myWatch", ["watch:intecmedia"]);
