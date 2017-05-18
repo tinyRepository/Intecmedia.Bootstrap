@@ -14,12 +14,11 @@
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
-    "autoprefixer": "^7.1.0",
-    "cssnano": "^3.10.0",
     "grunt": "^1.0.1",
     "grunt-browser-sync": "^2.2.0",
     "grunt-contrib-less": "^1.0.1",
     "grunt-contrib-watch": "^0.6.1",
-    "grunt-postcss": "^0.8.0"
+    "grunt-cssnano": "^2.1.0",
+    "load-grunt-tasks": "^3.5.2"
   }
 }

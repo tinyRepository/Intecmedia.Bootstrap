@@ -1,4 +1,17 @@
 module.exports = function (grunt) {
+    require('load-grunt-tasks')(grunt);
+
+    var browsers = [
+      "Android 2.3",
+      "Android >= 4",
+      "Chrome >= 20",
+      "Firefox >= 24",
+      "Explorer >= 8",
+      "iOS >= 6",
+      "Opera >= 12",
+      "Safari >= 6"
+    ];
+
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         less: {
@@ -10,6 +23,19 @@ module.exports = function (grunt) {
                 },
                 files: {
                     'css/style.min.css': 'css/style.less'
+                }
+            }
+        },
+        cssnano: {
+            options: {
+                sourcemap: false,
+                reduceIdents: false,
+                autoprefixer: {browsers: browsers, add: true},
+                discardComments: {removeAll: true}
+            },
+            intecmedia: {
+                files: {
+                    './css/style.min.css': './css/style.min.css'
                 }
             }
         },
@@ -28,29 +54,15 @@ module.exports = function (grunt) {
                 }
             }
         },
-        postcss: {
-            options: {
-                processors: [
-                    require('autoprefixer')({
-                        browsers: 'last 2 versions'
-                    }),
-                    require('cssnano')()
-                ]
-            },
-            dist: {
-                src: 'css/style.min.css'
-            }
-        },
         watch: {
             files: ['css/*.less', 'css/**/*.less'],
-            tasks: ['less', 'postcss']
+            tasks: ['less', 'cssnano']
         }
     });
 
     grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-browser-sync');
-    grunt.loadNpmTasks('grunt-postcss');
 
     grunt.registerTask('default', ['watch']);
     grunt.registerTask('sync', ['browserSync', 'watch']);
