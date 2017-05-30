@@ -1,13 +1,13 @@
 module.exports = function (grunt) {
     var browsers = [
-      "Android 2.3",
-      "Android >= 4",
-      "Chrome >= 20",
-      "Firefox >= 24",
-      "Explorer >= 8",
-      "iOS >= 6",
-      "Opera >= 12",
-      "Safari >= 6"
+        "Android 2.3",
+        "Android >= 4",
+        "Chrome >= 20",
+        "Firefox >= 24",
+        "Explorer >= 8",
+        "iOS >= 6",
+        "Opera >= 12",
+        "Safari >= 6"
     ];
 
     grunt.initConfig({
@@ -52,6 +52,16 @@ module.exports = function (grunt) {
                 }
             }
         },
+        imagemin: {
+            intecmedia: {
+                files: [{
+                    expand: true,
+                    src: ['**/*.{png,jpg,svg,gif}'],
+                    cwd: 'img/',
+                    dest: 'img/'
+                }]
+            }
+        },
         watch: {
             files: ['css/*.less', 'css/**/*.less'],
             tasks: ['less', 'cssnano']
@@ -59,10 +69,12 @@ module.exports = function (grunt) {
     });
 
     grunt.loadNpmTasks('grunt-contrib-less');
+    grunt.loadNpmTasks('grunt-contrib-imagemin');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-browser-sync');
     grunt.loadNpmTasks('grunt-cssnano');
 
+    grunt.registerTask('images', ['imagemin']);
     grunt.registerTask('default', ['watch']);
     grunt.registerTask('sync', ['browserSync', 'watch']);
 };
