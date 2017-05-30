@@ -28,8 +28,8 @@ module.exports = function (grunt) {
             options: {
                 sourcemap: false,
                 reduceIdents: false,
-                autoprefixer: {browsers: browsers, add: true},
-                discardComments: {removeAll: true}
+                autoprefixer: { browsers: browsers, add: true },
+                discardComments: { removeAll: true }
             },
             intecmedia: {
                 files: {
@@ -40,7 +40,7 @@ module.exports = function (grunt) {
         browserSync: {
             dev: {
                 bsFiles: {
-                    src : [
+                    src: [
                         './css/*.{less,css}', './css/**/*.{less,css}',
                         './js/*.js', './js/**/*.js',
                         './*.{php,html}', './**/*.{php,html}'
@@ -52,6 +52,16 @@ module.exports = function (grunt) {
                 }
             }
         },
+        imagemin: {
+            intecmedia: {
+                files: [{
+                    expand: true,
+                    src: ['**/*.{png,jpg,svg,gif}'],
+                    cwd: 'img/',
+                    dest: 'img/'
+                }]
+            }
+        },
         watch: {
             files: ['css/*.less', 'css/**/*.less'],
             tasks: ['less', 'cssnano']
@@ -59,10 +69,12 @@ module.exports = function (grunt) {
     });
 
     grunt.loadNpmTasks('grunt-contrib-less');
+    grunt.loadNpmTasks('grunt-contrib-imagemin');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-browser-sync');
     grunt.loadNpmTasks('grunt-cssnano');
 
+    grunt.registerTask('images', ['imagemin']);
     grunt.registerTask('default', ['watch']);
     grunt.registerTask('sync', ['browserSync', 'watch']);
 };
