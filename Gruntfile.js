@@ -69,12 +69,12 @@ module.exports = function (grunt) {
     });
 
     grunt.loadNpmTasks('grunt-contrib-less');
-	grunt.loadNpmTasks('grunt-contrib-imagemin');
+    grunt.loadNpmTasks('grunt-contrib-imagemin');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-browser-sync');
     grunt.loadNpmTasks('grunt-cssnano');
 
-	grunt.registerTask('images', ['imagemin']);
+    grunt.registerTask('images', ['imagemin']);
     grunt.registerTask('default', ['watch']);
     grunt.registerTask('sync', ['browserSync', 'watch']);
 };
